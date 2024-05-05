@@ -1,0 +1,38 @@
+{
+    "name": "diepxuan/laravel-catalog",
+    "description": "Catalog package for DXPanel",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tran Ngoc Duc",
+            "email": "ductn@diepxuan.com"
+        }
+    ],
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Diepxuan\\Catalog\\App\\Providers\\CatalogServiceProvider"
+            ],
+            "aliases": {}
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Diepxuan\\Catalog\\": "",
+            "Diepxuan\\Catalog\\Database\\Factories\\": "database/factories/",
+            "Diepxuan\\Catalog\\Database\\Seeders\\": "database/seeders/"
+        },
+        "files": [
+            "helpers.php"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Diepxuan\\Catalog\\Tests\\": "tests/"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev"
+}
