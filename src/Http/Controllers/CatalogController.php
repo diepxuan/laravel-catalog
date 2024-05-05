@@ -9,7 +9,7 @@ declare(strict_types=1);
  *   Tran Ngoc Duc <caothu91@gmail.com>
  */
 
-namespace Modules\Catalog\Http\Controllers;
+namespace Diepxuan\Catalog\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
