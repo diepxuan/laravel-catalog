@@ -43,7 +43,7 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapWebRoutes(): void
     {
-        Route::middleware('web')->group(module_path('Catalog', '/routes/web.php'));
+        Route::middleware('web')->group(module_path('diepxuan/laravel-catalog', '/routes/web.php'));
     }
 
     /**
@@ -53,6 +53,6 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapApiRoutes(): void
     {
-        Route::middleware('api')->prefix('api')->name('api.')->group(module_path('Catalog', '/routes/api.php'));
+        Route::middleware('api')->prefix('api')->name('api.')->group(module_path('diepxuan/laravel-catalog', '/routes/api.php'));
     }
 }

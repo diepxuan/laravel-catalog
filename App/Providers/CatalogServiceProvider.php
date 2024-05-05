@@ -16,7 +16,7 @@ use Illuminate\Support\ServiceProvider;
 
 class CatalogServiceProvider extends ServiceProvider
 {
-    protected string $moduleName = 'Catalog';
+    protected string $moduleName = 'diepxuan/laravel-catalog';
 
     protected string $moduleNameLower = 'catalog';
 
