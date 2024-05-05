@@ -14,6 +14,4 @@ use Diepxuan\Catalog\Http\Controllers\CatalogController;
 |
 */
 
-Route::group([], function () {
-    Route::resource('catalog', CatalogController::class)->names('catalog');
-});
+Route::resource('catalog', CatalogController::class)->names('catalog');
