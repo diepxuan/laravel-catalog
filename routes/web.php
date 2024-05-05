@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\Catalog\Http\Controllers\CatalogController;
+use Diepxuan\Catalog\Http\Controllers\CatalogController;
 
 /*
 |--------------------------------------------------------------------------

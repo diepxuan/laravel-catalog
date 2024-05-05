@@ -9,7 +9,7 @@ declare(strict_types=1);
  *   Tran Ngoc Duc <caothu91@gmail.com>
  */
 
-namespace Modules\Catalog\App\Http\Controllers;
+namespace Modules\Catalog\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
@@ -36,7 +36,9 @@ class CatalogController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse {}
+    public function store(Request $request): RedirectResponse
+    {
+    }
 
     /**
      * Show the specified resource.
@@ -63,12 +65,16 @@ class CatalogController extends Controller
      *
      * @param mixed $id
      */
-    public function update(Request $request, $id): RedirectResponse {}
+    public function update(Request $request, $id): RedirectResponse
+    {
+    }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param mixed $id
      */
-    public function destroy($id): void {}
+    public function destroy($id): void
+    {
+    }
 }

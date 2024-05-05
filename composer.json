@@ -11,14 +11,14 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Diepxuan\\Catalog\\App\\Providers\\CatalogServiceProvider"
+                "Diepxuan\\Catalog\\Providers\\CatalogServiceProvider"
             ],
             "aliases": {}
         }
     },
     "autoload": {
         "psr-4": {
-            "Diepxuan\\Catalog\\": "",
+            "Diepxuan\\Catalog\\": "src/",
             "Diepxuan\\Catalog\\Database\\Factories\\": "database/factories/",
             "Diepxuan\\Catalog\\Database\\Seeders\\": "database/seeders/"
         },

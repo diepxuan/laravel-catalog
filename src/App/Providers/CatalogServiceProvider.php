@@ -9,7 +9,7 @@ declare(strict_types=1);
  *   Tran Ngoc Duc <caothu91@gmail.com>
  */
 
-namespace Diepxuan\Catalog\App\Providers;
+namespace Diepxuan\Catalog\Providers;
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;

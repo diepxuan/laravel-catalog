@@ -9,7 +9,7 @@ declare(strict_types=1);
  *   Tran Ngoc Duc <caothu91@gmail.com>
  */
 
-namespace Diepxuan\Catalog\App\Providers;
+namespace Diepxuan\Catalog\Providers;
 
 use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Route;
@@ -31,28 +31,8 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function map(): void
     {
-        $this->mapApiRoutes();
-
-        $this->mapWebRoutes();
-    }
-
-    /**
-     * Define the "web" routes for the application.
-     *
-     * These routes all receive session state, CSRF protection, etc.
-     */
-    protected function mapWebRoutes(): void
-    {
         Route::middleware('web')->group(module_path('diepxuan/laravel-catalog', '/routes/web.php'));
-    }
-
-    /**
-     * Define the "api" routes for the application.
-     *
-     * These routes are typically stateless.
-     */
-    protected function mapApiRoutes(): void
-    {
         Route::middleware('api')->prefix('api')->name('api.')->group(module_path('diepxuan/laravel-catalog', '/routes/api.php'));
     }
+
 }
