@@ -23,7 +23,6 @@ class RouteServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        dd('hehe');
         parent::boot();
     }
 
@@ -44,7 +43,6 @@ class RouteServiceProvider extends ServiceProvider
      */
     protected function mapWebRoutes(): void
     {
-        dd('hehe');
         Route::middleware('web')->group(module_path('Catalog', '/routes/web.php'));
     }
 

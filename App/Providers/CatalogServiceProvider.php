@@ -25,7 +25,6 @@ class CatalogServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        dd('test');
         $this->registerCommands();
         $this->registerCommandSchedules();
         $this->registerTranslations();
