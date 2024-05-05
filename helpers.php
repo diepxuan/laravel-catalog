@@ -9,16 +9,13 @@ declare(strict_types=1);
  *   Tran Ngoc Duc <caothu91@gmail.com>
  */
 
-use SplFileInfo;
 use Composer\InstalledVersions as ComposerPackage;
 
 if (!function_exists("module_path")) {
     function module_path($package_name, $path = null)
     {
-        $packagePath = new SplFileInfo(ComposerPackage::getInstallPath($package_name));
-        $packagePath = $packagePath->isDir() ? $packagePath : new SplFileInfo(__DIR__ . '/../');
-        // return $packagePath;
-
+        $packagePath = new \SplFileInfo(ComposerPackage::getInstallPath($package_name));
+        $packagePath = $packagePath->isDir() ? $packagePath : new \SplFileInfo(__DIR__ . '/../');
 
         if ($path) {
             return Str::of($packagePath->getRealPath())
