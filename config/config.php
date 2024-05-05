@@ -1,5 +1,5 @@
 <?php
 
 return [
-    'name' => 'Catalog',
+    'name' => 'diepxuan/laravel-catalog',
 ];
