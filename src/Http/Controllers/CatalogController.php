@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Diepxuan\Catalog\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Diepxuan\Catalog\Models\Product;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -22,7 +23,11 @@ class CatalogController extends Controller
      */
     public function index()
     {
-        return view('catalog::index');
+        $products = Product::all();
+
+        return view('catalog::index', [
+            'products' => $products,
+        ]);
     }
 
     /**
@@ -36,9 +41,7 @@ class CatalogController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request): RedirectResponse
-    {
-    }
+    public function store(Request $request): RedirectResponse {}
 
     /**
      * Show the specified resource.
@@ -65,16 +68,12 @@ class CatalogController extends Controller
      *
      * @param mixed $id
      */
-    public function update(Request $request, $id): RedirectResponse
-    {
-    }
+    public function update(Request $request, $id): RedirectResponse {}
 
     /**
      * Remove the specified resource from storage.
      *
      * @param mixed $id
      */
-    public function destroy($id): void
-    {
-    }
+    public function destroy($id): void {}
 }
