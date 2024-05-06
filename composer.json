@@ -17,7 +17,8 @@
     }
   },
   "require": {
-    "diepxuan/laravel-core": "*"
+    "diepxuan/laravel-core": "*",
+    "diepxuan/laravel-magento": "*"
   },
   "autoload": {
     "psr-4": {
