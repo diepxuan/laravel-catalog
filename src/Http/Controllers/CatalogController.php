@@ -3,16 +3,19 @@
 declare(strict_types=1);
 
 /*
- * Copyright © 2019 Dxvn, Inc. All rights reserved.
+ * @copyright  © 2019 Dxvn, Inc.
  *
- * © Tran Ngoc Duc <ductn@diepxuan.com>
- *   Tran Ngoc Duc <caothu91@gmail.com>
+ * @author     Tran Ngoc Duc <ductn@diepxuan.com>
+ * @author     Tran Ngoc Duc <caothu91@gmail.com>
+ *
+ * @lastupdate 2024-05-06 22:15:01
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Diepxuan\Catalog\Models\Product;
+use Diepxuan\Magento\Magento2 as Magento;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
@@ -24,6 +27,9 @@ class CatalogController extends Controller
     public function index()
     {
         $products = Product::all();
+        $magento  = new Magento();
+        // dd(config());
+        // dd($magento->products()->get());
 
         return view('catalog::index', [
             'products' => $products,
