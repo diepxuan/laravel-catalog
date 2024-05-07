@@ -1,7 +1,18 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
+declare(strict_types=1);
+
+/*
+ * @copyright  © 2019 Dxvn, Inc.
+ *
+ * @author     Tran Ngoc Duc <ductn@diepxuan.com>
+ * @author     Tran Ngoc Duc <caothu91@gmail.com>
+ *
+ * @lastupdate 2024-05-07 11:00:08
+ */
+
 use Diepxuan\Catalog\Http\Controllers\CatalogController;
+use Illuminate\Support\Facades\Route;
 
 /*
  *--------------------------------------------------------------------------
@@ -14,6 +25,6 @@ use Diepxuan\Catalog\Http\Controllers\CatalogController;
  *
 */
 
-Route::middleware(['auth:sanctum'])->prefix('v1')->group(function () {
-    Route::apiResource('catalog', CatalogController::class)->names('catalog');
+Route::middleware(['auth:sanctum'])->prefix('v1')->group(static function (): void {
+    // Route::apiResource('catalog', CatalogController::class)->names('catalog');
 });
