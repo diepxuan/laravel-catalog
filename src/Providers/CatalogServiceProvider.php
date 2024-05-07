@@ -3,10 +3,12 @@
 declare(strict_types=1);
 
 /*
- * Copyright © 2019 Dxvn, Inc. All rights reserved.
+ * @copyright  © 2019 Dxvn, Inc.
  *
- * © Tran Ngoc Duc <ductn@diepxuan.com>
- *   Tran Ngoc Duc <caothu91@gmail.com>
+ * @author     Tran Ngoc Duc <ductn@diepxuan.com>
+ * @author     Tran Ngoc Duc <caothu91@gmail.com>
+ *
+ * @lastupdate 2024-05-07 09:18:56
  */
 
 namespace Diepxuan\Catalog\Providers;
@@ -16,22 +18,10 @@ use Illuminate\Support\ServiceProvider;
 
 class CatalogServiceProvider extends ServiceProvider
 {
-    protected string $moduleName = 'diepxuan/laravel-catalog';
-
-    protected string $moduleNameLower = 'catalog';
-
     /**
      * Boot the application events.
      */
-    public function boot(): void
-    {
-        $this->registerCommands();
-        $this->registerCommandSchedules();
-        $this->registerTranslations();
-        $this->registerConfig();
-        $this->registerViews();
-        $this->loadMigrationsFrom(module_path($this->moduleName, 'database/migrations'));
-    }
+    public function boot(): void {}
 
     /**
      * Register the service provider.
@@ -44,6 +34,8 @@ class CatalogServiceProvider extends ServiceProvider
 
     /**
      * Register translations.
+     *
+     * @deprecated
      */
     public function registerTranslations(): void
     {
@@ -60,6 +52,8 @@ class CatalogServiceProvider extends ServiceProvider
 
     /**
      * Register views.
+     *
+     * @deprecated
      */
     public function registerViews(): void
     {
@@ -86,6 +80,8 @@ class CatalogServiceProvider extends ServiceProvider
 
     /**
      * Register commands in the format of Command::class.
+     *
+     * @deprecated
      */
     protected function registerCommands(): void
     {
@@ -94,6 +90,8 @@ class CatalogServiceProvider extends ServiceProvider
 
     /**
      * Register command Schedules.
+     *
+     * @deprecated
      */
     protected function registerCommandSchedules(): void
     {
@@ -105,6 +103,8 @@ class CatalogServiceProvider extends ServiceProvider
 
     /**
      * Register config.
+     *
+     * @deprecated
      */
     protected function registerConfig(): void
     {
@@ -114,6 +114,8 @@ class CatalogServiceProvider extends ServiceProvider
 
     /**
      * @return array<string>
+     *
+     * @deprecated
      */
     private function getPublishableViewPaths(): array
     {
