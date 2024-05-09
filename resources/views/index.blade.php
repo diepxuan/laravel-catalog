@@ -48,15 +48,7 @@
     </style>
     <table class="table table-hover table-condensed table-sm text-monospace small">
         <tbody>
-            {{-- @php
-                setlocale(LC_CTYPE, 'vi_VN');
-            @endphp --}}
-            {{-- @dd($mProducts) --}}
             @foreach ($products as $product)
-                {{-- @foreach (mb_list_encodings() as $chr)
-                    {{ mb_convert_encoding($product->ten_vt, 'UTF-8', $chr) . ' : ' . $chr }} <br>
-                @endforeach --}}
-                {{-- @dd($product, $product->ten_vt, mb_detect_encoding($product->ten_vt), iconv('UTF-8', 'ISO-8859-1//TRANSLIT', $product->ten_vt)) --}}
                 @php
                     $mProduct = null;
                     $mProduct = $mProducts->first(function ($item) use ($product) {
@@ -70,6 +62,7 @@
                     <td>{{ $product->ma_nhvt }}</td>
                     <td>
                         @if (isset($mProduct))
+                            {{-- @dd($mProduct) --}}
                             <a href="{{ "https://www.diepxuan.com/catalog/product/view/id/$mProduct->id" }}">magento</a>
                         @else
                             <form method="post" action="{{ route('catalog.store') }}">

@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-09 10:21:55
+ * @lastupdate 2024-05-09 15:46:16
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
@@ -19,6 +19,7 @@ use Diepxuan\Magento\Magento2 as Magento;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Str;
 
 class CatalogController extends Controller
 {
@@ -66,10 +67,15 @@ class CatalogController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $sku     = $request->get('sku');
+        $name    = $request->get('name');
+        $price   = $request->get('price', 0);
+        $url_key = Str::of(vn_convert_encoding($name))->lower()->replace(' ', '-');
+
         $this->magento->products()->create([
-            'sku'               => $request->get('sku'),
-            'name'              => $request->get('name'),
-            'price'             => $request->get('price', 0),
+            'sku'               => $sku,
+            'name'              => $name,
+            'price'             => $price,
             'attribute_set_id'  => 4,
             'status'            => 1,
             'visibility'        => 4,
@@ -77,15 +83,19 @@ class CatalogController extends Controller
             'custom_attributes' => [
                 [
                     'attribute_code' => 'meta_title',
-                    'value'          => $request->get('name'),
+                    'value'          => $name,
                 ],
                 [
                     'attribute_code' => 'meta_keyword',
-                    'value'          => $request->get('name'),
+                    'value'          => $name,
                 ],
                 [
                     'attribute_code' => 'meta_description',
-                    'value'          => $request->get('name'),
+                    'value'          => $name,
+                ],
+                [
+                    'attribute_code' => 'url_key',
+                    'value'          => $url_key,
                 ],
             ],
         ]);
