@@ -18,7 +18,8 @@
   },
   "require": {
     "diepxuan/laravel-core": "*",
-    "diepxuan/laravel-magento": "*"
+    "diepxuan/laravel-magento": "*",
+    "diepxuan/php-charset": "*"
   },
   "autoload": {
     "psr-4": {
