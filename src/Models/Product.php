@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-11 20:00:22
+ * @lastupdate 2024-05-11 20:08:17
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -120,6 +120,9 @@ class Product extends Model
             return $sProduct;
         });
 
+        ini_set('max_execution_time', 30);
+        set_time_limit(30);
+
         return $products;
     }
 
@@ -138,7 +141,7 @@ class Product extends Model
     /**
      * Get the Simba Product Id.
      */
-    protected function simba_id(): Attribute
+    protected function simbaId(): Attribute
     {
         $self = $this;
 
