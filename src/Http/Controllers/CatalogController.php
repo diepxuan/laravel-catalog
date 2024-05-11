@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-09 15:46:16
+ * @lastupdate 2024-05-11 20:05:38
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
@@ -16,6 +16,7 @@ namespace Diepxuan\Catalog\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Diepxuan\Catalog\Models\Product;
 use Diepxuan\Magento\Magento2 as Magento;
+use Diepxuan\Simba\Models\Product as SProduct;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -45,12 +46,19 @@ class CatalogController extends Controller
      */
     public function index()
     {
-        $products  = Product::all();
-        $mProducts = $this->magento->products()->get();
+        $products  = Product::initIntergration();
+        $sProducts = SProduct::all();
+
+        try {
+            $mProducts = $this->magento->products()->get();
+        } catch (\Throwable $th) {
+            $mProducts = false;
+        }
 
         return view('catalog::index', [
             'products'  => $products,
             'mProducts' => $mProducts,
+            'sProducts' => $sProducts,
         ]);
     }
 

@@ -19,6 +19,7 @@
   "require": {
     "diepxuan/laravel-core": "*",
     "diepxuan/laravel-magento": "*",
+    "diepxuan/laravel-simba": "*",
     "diepxuan/php-charset": "*"
   },
   "autoload": {
