@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-11 20:08:17
+ * @lastupdate 2024-05-12 16:11:16
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -69,13 +69,6 @@ class Product extends Model
     ];
 
     /**
-     * The attributes that Intergrate to Simba.
-     *
-     * @var array
-     */
-    private SProduct $_simba;
-
-    /**
      * Get the Options for the Product.
      */
     public function options(): HasMany
@@ -91,51 +84,36 @@ class Product extends Model
      */
     public static function initIntergration()
     {
-        ini_set('max_execution_time', 300);
-        set_time_limit(300);
-        $products  = self::all();
-        $sProducts = SProduct::all()->map(static function ($sProduct) use (&$products) {
-            $id      = $sProduct->id ?: implode('_', [$sProduct->ma_cty, $sProduct->ma_vt]);
-            $product = $products->firstWhere('simba_id', $id);
+        ini_set('max_execution_time', '3000');
+        $products = self::all()->keyBy('simbaId');
 
-            if (!$product) {
-                $product = self::updateOrCreate(
+        $sProducts = SProduct::all()->keyBy('id')->map(static function ($sProduct, $id) use (&$products) {
+            $product = $products->get($id, static function () use ($sProduct) {
+                $prod = Product::updateOrCreate(
                     ['sku' => $sProduct->ma_vt],
                     [
                         'name'  => $sProduct->ten_vt,
                         'price' => 0,
                     ]
                 );
-            }
+                $prod->options()->updateOrCreate([
+                    'code' => 'simba_id',
+                ], [
+                    'value' => $sProduct->id,
+                ]);
 
-            $option = new ProductOption([
-                'code'  => 'simba_id',
-                'value' => $id,
-            ]);
+                return $prod;
+            });
 
-            $product->options()->save($option);
             $product->simba = $sProduct;
-            $products->push($product);
+            $products->put($id, $product);
 
             return $sProduct;
         });
 
-        ini_set('max_execution_time', 30);
-        set_time_limit(30);
+        ini_set('max_execution_time', '30');
 
         return $products;
-    }
-
-    /**
-     * Interact with the Simba product.
-     */
-    protected function simba(): Attribute
-    {
-        $self = $this;
-
-        return Attribute::make(
-            get: static fn (SProduct $sProduct, array $attributes) => $self->_simba,
-        );
     }
 
     /**
@@ -146,7 +124,7 @@ class Product extends Model
         $self = $this;
 
         return Attribute::make(
-            get: static fn (mixed $value, array $attributes) => $self->options->first(static fn ($option) => 'simba_id' === $option->code) ?: new ProductOption(),
+            get: static fn (mixed $value, array $attributes) => ($self->options->first(static fn ($option) => 'simba_id' === $option->code) ?: new ProductOption())->value,
         );
     }
 }

@@ -59,7 +59,7 @@
     <table class="table table-hover table-condensed table-sm text-monospace small">
         <tbody>
             @foreach ($products as $product)
-                @if ($mProducts)
+                {{-- @if ($mProducts)
                     @php
                         $mProduct = null;
                         $mProduct = $mProducts->first(function ($item, $key) use ($mProducts, $product, &$mProduct) {
@@ -70,14 +70,13 @@
                             return false;
                         });
                     @endphp
-                    {{-- {{ debug($mProduct) }} --}}
-                @endif
+                @endif --}}
                 <tr id="{{ "$product->ma_cty|$product->ma_vt" }}">
                     <td></td>
-                    <td>{{ $product->ma_vt }}</td>
-                    <td>{{ $product->ten_vt }}</td>
-                    <td>{{ $product->ma_nhvt }}</td>
-                    @if (isset($mProduct))
+                    <td>{{ $product->sku }}</td>
+                    <td>{{ $product->name }}</td>
+                    <td>{{ $product->ma_nhvt ?: 'ungroup' }}</td>
+                    {{-- @if (isset($mProduct))
                         <td>
                             <a href="{{ "https://www.diepxuan.com/catalog/product/view/id/$mProduct->id" }}">
                                 {{ $mProduct->id }}
@@ -99,35 +98,34 @@
                                 <button type="submit" class="sync">sync</button>
                             </form>
                         </td>
-                    @endif
+                    @endif --}}
                 </tr>
             @endforeach
-            {{-- {{ debug($mProducts) }} --}}
         </tbody>
     </table>
-    @if ($mProducts)
-        <script>
-            function submitForm($id) {
-                var data = new FormData(document.getElementById($id));
+    {{-- @if ($mProducts) --}}
+    <script>
+        function submitForm($id) {
+            var data = new FormData(document.getElementById($id));
 
-                var xhr = new XMLHttpRequest();
-                xhr.open("POST", "{{ route('catalog.store') }}");
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", "{{ route('catalog.store') }}");
 
-                xhr.onload = () => {
-                    // console.log(xhr.response);
-                };
+            xhr.onload = () => {
+                // console.log(xhr.response);
+            };
 
-                xhr.send(data);
-                return false;
-            }
-            // window.onload = function() {
-            //     $forms = document.getElementsByName('magento_form')
-            //     for (const $form of $forms) {
-            //         setTimeout(function() {
-            //             submitForm($form.id);
-            //         }, 3000);
-            //     }
-            // }
-        </script>
-    @endif
+            xhr.send(data);
+            return false;
+        }
+        // window.onload = function() {
+        //     $forms = document.getElementsByName('magento_form')
+        //     for (const $form of $forms) {
+        //         setTimeout(function() {
+        //             submitForm($form.id);
+        //         }, 3000);
+        //     }
+        // }
+    </script>
+    {{-- @endif --}}
 @endsection
