@@ -12,31 +12,22 @@
             width: 100%;
         }
 
+        tr {
+            font-size: 0.5rem;
+        }
+
+        tr.prod {
+            color: rgb(166, 59, 40);
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
         td,
         th {
-            border: 1px solid #dddddd;
+            border: 0px solid #dddddd;
             text-align: left;
-            padding: 8px;
-        }
-
-        tr:nth-child(even) {
-            background-color: #dddddd;
-        }
-
-        body {
-            counter-reset: Serial;
-            /* Set the Serial counter to 0 */
-        }
-
-        table {
-            border-collapse: separate;
-        }
-
-        tr td:first-child:before {
-            counter-increment: Serial;
-            /* Increment the Serial counter */
-            content: counter(Serial);
-            /* Display the counter */
+            line-height: 0.75rem;
+            padding: 4px;
         }
 
         button.sync {
@@ -71,12 +62,19 @@
                         });
                     @endphp
                 @endif --}}
-                <tr id="{{ "$product->ma_cty|$product->ma_vt" }}">
-                    <td></td>
+                <tr id="{{ "$product->simbaId" }}" @class(['prod', 'font-bold' => true])>
+                    <td>{{ $product->id }}</td>
                     <td>{{ $product->sku }}</td>
                     <td>{{ $product->name }}</td>
-                    <td>{{ $product->ma_nhvt ?: 'ungroup' }}</td>
-                    {{-- @if (isset($mProduct))
+                    <td>{{ $product->category ?: 'ungroup' }}</td>
+                </tr>
+                <tr id="simba{{ $product->simba->id }}">
+                    <td></td>
+                    <td>{{ $product->simba->ma_vt }}</td>
+                    <td>{{ $product->simba->ten_vt }}</td>
+                    <td>{{ $product->simba->ma_nhvt ?: 'ungroup' }}</td>
+                </tr>
+                {{-- @if (isset($mProduct))
                         <td>
                             <a href="{{ "https://www.diepxuan.com/catalog/product/view/id/$mProduct->id" }}">
                                 {{ $mProduct->id }}
@@ -99,7 +97,6 @@
                             </form>
                         </td>
                     @endif --}}
-                </tr>
             @endforeach
         </tbody>
     </table>

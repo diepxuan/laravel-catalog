@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-12 16:11:16
+ * @lastupdate 2024-05-12 18:28:45
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -102,8 +102,22 @@ class Product extends Model
                     'value' => $sProduct->id,
                 ]);
 
+                $prod->options()->updateOrCreate([
+                    'code' => 'category',
+                ], [
+                    'value' => $sProduct->ma_nhvt,
+                ]);
+
                 return $prod;
             });
+
+            if ($product->category !== $sProduct->ma_nhvt) {
+                $product->options()->updateOrCreate([
+                    'code' => 'category',
+                ], [
+                    'value' => $sProduct->ma_nhvt,
+                ]);
+            }
 
             $product->simba = $sProduct;
             $products->put($id, $product);
@@ -125,6 +139,18 @@ class Product extends Model
 
         return Attribute::make(
             get: static fn (mixed $value, array $attributes) => ($self->options->first(static fn ($option) => 'simba_id' === $option->code) ?: new ProductOption())->value,
+        );
+    }
+
+    /**
+     * Get the Product Category.
+     */
+    protected function category(): Attribute
+    {
+        $self = $this;
+
+        return Attribute::make(
+            get: static fn (mixed $value, array $attributes) => ($self->options->first(static fn ($option) => 'category' === $option->code) ?: new ProductOption())->value,
         );
     }
 }
