@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-13 08:23:51
+ * @lastupdate 2024-05-13 18:15:42
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
@@ -28,10 +28,8 @@ class CatalogController extends Controller
      */
     public function index()
     {
-        $products = Product::initIntergration();
-
         return view('catalog::index', [
-            'products' => $products,
+            'products' => Product::all(),
         ]);
     }
 

@@ -8,13 +8,12 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-13 16:54:56
+ * @lastupdate 2024-05-13 18:22:54
  */
 
 namespace Diepxuan\Catalog\Models;
 
 use Diepxuan\Magento\Magento;
-use Diepxuan\Simba\Models\Product as SProduct;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -75,87 +74,6 @@ class Product extends Model
     public function options(): HasMany
     {
         return $this->hasMany(ProductOption::class);
-    }
-
-    /**
-     * Get all of the models from the database.
-     * Map with Simba.
-     *
-     * @return \Illuminate\Database\Eloquent\Collection<int, static>
-     */
-    public static function initIntergration()
-    {
-        ini_set('max_execution_time', '3000');
-
-        $products = self::all()->keyBy('simbaId');
-
-        $sProducts = SProduct::all()->keyBy('id')->map(static function ($sProduct, $id) use (&$products) {
-            $product = $products->get($id, static function () use ($sProduct) {
-                $prod = Product::updateOrCreate(
-                    ['sku' => $sProduct->ma_vt],
-                    [
-                        'name'  => $sProduct->ten_vt,
-                        'price' => 0,
-                    ]
-                );
-                $prod->options()->updateOrCreate([
-                    'code' => 'simba_id',
-                ], [
-                    'value' => $sProduct->id,
-                ]);
-
-                return $prod;
-            });
-
-            if ($product->category !== $sProduct->ma_nhvt) {
-                $product->options()->updateOrCreate([
-                    'code' => 'category',
-                ], [
-                    'value' => $sProduct->ma_nhvt,
-                ]);
-            }
-
-            $product->simba = $sProduct;
-            $products->put($id, $product);
-
-            return $sProduct;
-        });
-
-        $mProducts = Magento::products()->get()->keyBy('sku')->map(static function ($mProduct, $id) use (&$products) {
-            $product = $products->get("001_{$id}", static function () use ($mProduct) {
-                $prod = Product::updateOrCreate(
-                    ['sku' => $mProduct->sku],
-                    [
-                        'name'  => $mProduct->name,
-                        'price' => $mProduct->price,
-                    ]
-                );
-                $prod->options()->updateOrCreate([
-                    'code' => 'magento_id',
-                ], [
-                    'value' => $mProduct->id,
-                ]);
-
-                return $prod;
-            });
-
-            if ($product->magentoId !== $mProduct->id) {
-                $product->options()->updateOrCreate([
-                    'code' => 'magento_id',
-                ], [
-                    'value' => $mProduct->id,
-                ]);
-            }
-
-            $product->magento = $mProduct;
-            $products->put("001_{$id}", $product);
-
-            return $mProduct;
-        });
-
-        ini_set('max_execution_time', '30');
-
-        return $products;
     }
 
     /**
