@@ -57,9 +57,9 @@
                     <td>{{ $product->category ?: 'ungroup' }}</td>
                 </tr>
                 @isset($product->simba)
-                    <tr id="simba{{ $product->simba->id }}">
+                    <tr>
                         <td></td>
-                        <td>{{ $product->simba->ma_vt }}</td>
+                        <td>{{ $product->simbaId }}</td>
                         <td>{{ $product->simba->ten_vt }}</td>
                         <td>{{ $product->simba->ma_nhvt ?: 'ungroup' }}</td>
                     </tr>
@@ -72,15 +72,15 @@
                 @isset($product->magento)
                     <tr>
                         <td></td>
-                        <td>{{ $product->magento->sku }}</td>
-                        <td>{{ $product->magento->name }}</td>
                         <td>
-                            <a href="{{ "https://www.diepxuan.com/catalog/product/view/id/$product->magento->id" }}">
-                                {{ $product->magento->id }}
+                            <a href="https://www.diepxuan.com/catalog/product/view/id/{{ $product->magentoId }}" target="_blank">
+                                {{ $product->magento->sku }}
                             </a>
                         </td>
+                        <td>{{ $product->magento->name }}</td>
                         <td>
-                            <a href="https://www.diepxuan.com/{{ $product->magento->custom_attributes->url_key }}.html">
+                            <a href="https://www.diepxuan.com/{{ $product->magento->custom_attributes->url_key }}.html"
+                                target="_blank">
                                 {{ $product->magento->custom_attributes->url_key }}
                             </a>
                         </td>
@@ -90,7 +90,7 @@
                         <td></td>
                         <td>Magento empty</td>
                         <td>
-                            <form method="post" action="{{ route('catalog.store') }}" name="magento_form">
+                            <form method="post" action="{{ route('catalog.store') }}" target="_blank" name="magento_form">
                                 @method('POST') @csrf
                                 <input type="hidden" value="magento2" name="type" />
                                 <input type="hidden" value="{{ $product->sku }}" name="sku" />

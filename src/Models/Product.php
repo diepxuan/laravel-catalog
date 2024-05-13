@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-13 08:00:26
+ * @lastupdate 2024-05-13 16:54:56
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -139,13 +139,13 @@ class Product extends Model
                 return $prod;
             });
 
-            // if ($product->category !== $mProduct->ma_nhvt) {
-            //     $product->options()->updateOrCreate([
-            //         'code' => 'category',
-            //     ], [
-            //         'value' => $mProduct->ma_nhvt,
-            //     ]);
-            // }
+            if ($product->magentoId !== $mProduct->id) {
+                $product->options()->updateOrCreate([
+                    'code' => 'magento_id',
+                ], [
+                    'value' => $mProduct->id,
+                ]);
+            }
 
             $product->magento = $mProduct;
             $products->put("001_{$id}", $product);
@@ -167,6 +167,18 @@ class Product extends Model
 
         return Attribute::make(
             get: static fn (mixed $value, array $attributes) => ($self->options->first(static fn ($option) => 'simba_id' === $option->code) ?: new ProductOption())->value,
+        );
+    }
+
+    /**
+     * Get the Magento Product Id.
+     */
+    protected function magentoId(): Attribute
+    {
+        $self = $this;
+
+        return Attribute::make(
+            get: static fn (mixed $value, array $attributes) => ($self->options->first(static fn ($option) => 'magento_id' === $option->code) ?: new ProductOption())->value,
         );
     }
 

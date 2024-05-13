@@ -8,11 +8,12 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-07 10:35:09
+ * @lastupdate 2024-05-13 17:49:34
  */
 
 namespace Diepxuan\Catalog\Providers;
 
+use Diepxuan\Catalog\Commands\CatalogSync;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
@@ -29,6 +30,11 @@ class CatalogServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->register(EventServiceProvider::class);
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                CatalogSync::class,
+            ]);
+        }
     }
 
     /**
