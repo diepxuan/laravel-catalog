@@ -8,14 +8,14 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-12 16:11:35
+ * @lastupdate 2024-05-13 08:23:51
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Diepxuan\Catalog\Models\Product;
-use Diepxuan\Magento\Magento2 as Magento;
+use Diepxuan\Magento\Magento;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -24,34 +24,11 @@ use Illuminate\Support\Str;
 class CatalogController extends Controller
 {
     /**
-     * Manager client.
-     *
-     * @var Diepxuan\Magento\Magento2
-     */
-    private $magento;
-
-    /**
-     * Catalog construct.
-     *
-     * @param Diepxuan\Magento\Magento2 $magento
-     */
-    public function __construct(Magento $magento)
-    {
-        $this->magento = new Magento();
-    }
-
-    /**
      * Display a listing of the resource.
      */
     public function index()
     {
         $products = Product::initIntergration();
-
-        // try {
-        //     $mProducts = $this->magento->products()->get();
-        // } catch (\Throwable $th) {
-        //     $mProducts = false;
-        // }
 
         return view('catalog::index', [
             'products' => $products,
@@ -76,7 +53,7 @@ class CatalogController extends Controller
         $price   = $request->get('price', 0);
         $url_key = Str::of(vn_convert_encoding($name))->lower()->replace(' ', '-');
 
-        $this->magento->products()->create([
+        Magento::products()->create([
             'sku'               => $sku,
             'name'              => $name,
             'price'             => $price,

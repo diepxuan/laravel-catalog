@@ -8,11 +8,12 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-12 18:28:45
+ * @lastupdate 2024-05-13 08:00:26
  */
 
 namespace Diepxuan\Catalog\Models;
 
+use Diepxuan\Magento\Magento;
 use Diepxuan\Simba\Models\Product as SProduct;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -85,6 +86,7 @@ class Product extends Model
     public static function initIntergration()
     {
         ini_set('max_execution_time', '3000');
+
         $products = self::all()->keyBy('simbaId');
 
         $sProducts = SProduct::all()->keyBy('id')->map(static function ($sProduct, $id) use (&$products) {
@@ -102,12 +104,6 @@ class Product extends Model
                     'value' => $sProduct->id,
                 ]);
 
-                $prod->options()->updateOrCreate([
-                    'code' => 'category',
-                ], [
-                    'value' => $sProduct->ma_nhvt,
-                ]);
-
                 return $prod;
             });
 
@@ -123,6 +119,38 @@ class Product extends Model
             $products->put($id, $product);
 
             return $sProduct;
+        });
+
+        $mProducts = Magento::products()->get()->keyBy('sku')->map(static function ($mProduct, $id) use (&$products) {
+            $product = $products->get("001_{$id}", static function () use ($mProduct) {
+                $prod = Product::updateOrCreate(
+                    ['sku' => $mProduct->sku],
+                    [
+                        'name'  => $mProduct->name,
+                        'price' => $mProduct->price,
+                    ]
+                );
+                $prod->options()->updateOrCreate([
+                    'code' => 'magento_id',
+                ], [
+                    'value' => $mProduct->id,
+                ]);
+
+                return $prod;
+            });
+
+            // if ($product->category !== $mProduct->ma_nhvt) {
+            //     $product->options()->updateOrCreate([
+            //         'code' => 'category',
+            //     ], [
+            //         'value' => $mProduct->ma_nhvt,
+            //     ]);
+            // }
+
+            $product->magento = $mProduct;
+            $products->put("001_{$id}", $product);
+
+            return $mProduct;
         });
 
         ini_set('max_execution_time', '30');
