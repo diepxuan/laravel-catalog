@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-14 10:31:05
+ * @lastupdate 2024-05-14 16:36:30
  */
 
 namespace Diepxuan\Catalog\Commands;
@@ -22,7 +22,7 @@ class CatalogSync extends Command
      *
      * @var string
      */
-    protected $signature = 'app:catalog-sync';
+    protected $signature = 'app:catalog-sync {mode=all}';
 
     /**
      * The console command description.
@@ -36,6 +36,24 @@ class CatalogSync extends Command
      */
     public function handle(): void
     {
-        $this->call('app:csf:install');
+        $mode = $this->argument('mode', 'all');
+
+        switch ($mode) {
+            case 'pro':
+                $this->call(Products::class);
+
+                break;
+
+            case 'cat':
+                $this->call(Categories::class);
+
+                break;
+
+            default:
+                $this->call(Categories::class);
+                $this->call(Products::class);
+
+                break;
+        }
     }
 }

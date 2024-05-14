@@ -8,10 +8,11 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-06 18:13:00
+ * @lastupdate 2024-05-14 13:40:13
  */
 
 use Diepxuan\Catalog\Http\Controllers\CatalogController;
+use Diepxuan\Catalog\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -26,4 +27,5 @@ use Illuminate\Support\Facades\Route;
 */
 Route::middleware('clearcache')->group(static function (): void {
     Route::resource('catalog', CatalogController::class)->names('catalog');
+    Route::resource('category', CategoryController::class)->names('category');
 });
