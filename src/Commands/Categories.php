@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-14 16:49:28
+ * @lastupdate 2024-05-14 17:15:55
  */
 
 namespace Diepxuan\Catalog\Commands;
@@ -56,7 +56,7 @@ class Categories extends Command
         $format = ' %current%/%max% [%bar%] %percent:3s%% %message%';
 
         $self->output->writeln('[i] Loading all categories');
-        $categories = Category::all()->keyBy('sku');
+        $categories = Category::all();
         $self->output->writeln(sprintf('[i] Loaded <fg=green>%s</> categories.', $categories->count()));
 
         $self->output->writeln('[i] Starting import Simba categories');
@@ -64,20 +64,17 @@ class Categories extends Command
             $progressBar->setFormat($format);
             $progressBar->setMessage(" {$sCategory->sku} <- Simba");
             $progressBar->advance();
-            $id       = $sCategory->id;
-            $category = $categories->get($id, static function () use ($sCategory) {
-                return Category::updateOrCreate(
-                    ['simba_id' => "{$sCategory->id}"],
-                    [
-                        'sku'    => "{$sCategory->sku}",
-                        'name'   => "{$sCategory->name}",
-                        'parent' => "{$sCategory->parent}",
-                        'urlKey' => "{$sCategory->urlKey}",
-                    ]
-                );
-            });
+            $category = Category::updateOrCreate(
+                ['simba_id' => "{$sCategory->id}"],
+                [
+                    'sku'    => "{$sCategory->sku}",
+                    'name'   => "{$sCategory->name}",
+                    'parent' => "{$sCategory->parent}",
+                    'urlKey' => "{$sCategory->urlKey}",
+                ]
+            );
 
-            $categories->put($id, $category);
+            $categories->put($category->id, $category);
 
             $progressBar->setMessage('');
             $progressBar->advance();
