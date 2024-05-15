@@ -8,14 +8,18 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-14 16:26:48
+ * @lastupdate 2024-05-15 10:56:33
  */
 
 namespace Diepxuan\Catalog\Models;
 
+use Diepxuan\Catalog\Observers\CategoryObserver;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
+#[ObservedBy([CategoryObserver::class])]
 class Category extends Model
 {
     use HasFactory;
@@ -64,4 +68,30 @@ class Category extends Model
      */
     protected $hidden = [
     ];
+
+    /**
+     * Get the children Categories.
+     */
+    public function children(): HasMany
+    {
+        return $this->hasMany(self::class, 'parent', 'sku');
+    }
+
+    /**
+     * Get the parent Category.
+     */
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'parent', 'sku');
+    }
+
+    /**
+     * Parent scope.
+     *
+     * @param mixed $query
+     */
+    public function scopeIsParent($query)
+    {
+        return $query->where('parent', '');
+    }
 }

@@ -6,67 +6,31 @@
             font-size: 0.75rem
         }
 
-        table {
-            font-family: arial, sans-serif;
-            border-collapse: collapse;
-            width: 100%;
+        ul {
+            clear: both;
+            display: block;
+            list-style: none;
+            padding: 0;
+            margin: 0;
         }
 
-        td,
-        th {
-            border: 0px solid #dddddd;
-            text-align: left;
-            line-height: 0.75rem;
-            padding: 4px;
+        ul li {
+            display: block;
+            float: left;
+            padding: 0 4px;
+            margin: 0;
+            line-height: 1.2rem;
         }
 
-        button.sync {
-            border: solid 1px rgb(184, 63, 63);
-            border-radius: 3px;
-            color: rgb(184, 63, 63);
-        }
-
-        button.sync:hover {
-            cursor: pointer;
-            background: rgb(184, 63, 63);
-            color: rgb(241, 225, 216)
-        }
-
-        td a {
-            text-decoration-line: none;
-            color: rgb(10, 149, 22);
+        ul.childs>li:first-child {
+            display: block;
+            width: 10px;
+            height: 1.2rem;
         }
     </style>
     <table class="table table-hover table-condensed table-sm text-monospace small">
         <tbody>
-            @foreach ($categories as $category)
-                <tr>
-                    {{-- @dd($category) --}}
-                    <td>{{ $category->id }}</td>
-                    <td>{{ $category->sku }}</td>
-                    <td>{{ $category->name }}</td>
-                    <td>{{ $category->urlKey }}</td>
-                    <td>{{ $category->parent }}</td>
-                    {{-- <td>{{ $product->category ?: 'ungroup' }}</td>
-                    @isset($product->magentoId)
-                        <td>
-                            <a href="https://www.diepxuan.com/catalog/product/view/id/{{ $product->magentoId }}" target="_blank">
-                                {{ $product->sku }}
-                            </a>
-                        </td>
-                    @else
-                        <td>
-                            <form method="post" action="{{ route('catalog.store') }}" target="_blank" name="magento_form">
-                                @method('POST') @csrf
-                                <input type="hidden" value="magento2" name="type" />
-                                <input type="hidden" value="{{ $product->sku }}" name="sku" />
-                                <input type="hidden" value="{{ $product->name }}" name="name" />
-                                <button type="submit" class="sync">Sync Magento</button>
-                            </form>
-                        </td>
-                    @endisset --}}
-                </tr>
-            @endforeach
+            @include('catalog::category.category', ['categories' => $categories])
         </tbody>
     </table>
 @endsection
