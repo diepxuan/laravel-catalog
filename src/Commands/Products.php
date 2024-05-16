@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-14 10:30:40
+ * @lastupdate 2024-05-15 20:01:54
  */
 
 namespace Diepxuan\Catalog\Commands;
@@ -143,56 +143,54 @@ class Products extends Command
         $self->output->writeln('[i] Starting sync Magento products');
         $self->withProgressBar($products->whereNull('magentoId'), static function ($product, $progressBar) use ($products, $format): void {
             $progressBar->setFormat($format);
-            if (!$product->magentoId) {
-                $sku     = $product->sku;
-                $name    = $product->name;
-                $price   = $product->price;
-                $url_key = Str::of(vn_convert_encoding($name))->lower()->replace(' ', '-');
+            $sku     = $product->sku;
+            $name    = $product->name;
+            $price   = $product->price;
+            $url_key = Str::of(vn_convert_encoding($name))->lower()->replace(' ', '-');
 
-                $progressBar->setMessage(" {$sku} -> Magento");
-                $progressBar->advance();
+            $progressBar->setMessage(" {$sku} -> Magento");
+            $progressBar->advance();
 
-                try {
-                    $mProduct = Magento::products()->create([
-                        'sku'               => $sku,
-                        'name'              => $name,
-                        'price'             => $price,
-                        'attribute_set_id'  => 4,
-                        'status'            => 1,
-                        'visibility'        => 4,
-                        'type_id'           => 'simple',
-                        'custom_attributes' => [
-                            [
-                                'attribute_code' => 'meta_title',
-                                'value'          => $name,
-                            ],
-                            [
-                                'attribute_code' => 'meta_keyword',
-                                'value'          => $name,
-                            ],
-                            [
-                                'attribute_code' => 'meta_description',
-                                'value'          => $name,
-                            ],
-                            [
-                                'attribute_code' => 'url_key',
-                                'value'          => $url_key,
-                            ],
+            try {
+                $mProduct = Magento::products()->create([
+                    'sku'               => $sku,
+                    'name'              => $name,
+                    'price'             => $price,
+                    'attribute_set_id'  => 4,
+                    'status'            => 1,
+                    'visibility'        => 4,
+                    'type_id'           => 'simple',
+                    'custom_attributes' => [
+                        [
+                            'attribute_code' => 'meta_title',
+                            'value'          => $name,
                         ],
-                    ]);
+                        [
+                            'attribute_code' => 'meta_keyword',
+                            'value'          => $name,
+                        ],
+                        [
+                            'attribute_code' => 'meta_description',
+                            'value'          => $name,
+                        ],
+                        [
+                            'attribute_code' => 'url_key',
+                            'value'          => $url_key,
+                        ],
+                    ],
+                ]);
 
-                    $product->options()->updateOrCreate([
-                        'code' => 'magento_id',
-                    ], [
-                        'value' => $mProduct->id,
-                    ]);
+                $product->options()->updateOrCreate([
+                    'code' => 'magento_id',
+                ], [
+                    'value' => $mProduct->id,
+                ]);
 
-                    $product->magento = $mProduct;
-                    $products->put("001_{$mProduct->sku}", $product);
-                } catch (\Throwable $th) {
-                    $progressBar->setMessage(" {$sku} >< Magento");
-                    $progressBar->advance();
-                }
+                $product->magento = $mProduct;
+                $products->put("001_{$mProduct->sku}", $product);
+            } catch (\Throwable $th) {
+                $progressBar->setMessage(" {$sku} >< Magento");
+                $progressBar->advance();
             }
 
             $progressBar->setMessage('');

@@ -8,13 +8,14 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-15 19:12:11
+ * @lastupdate 2024-05-16 08:51:12
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Diepxuan\Catalog\Models\Category;
+use Diepxuan\Magento\Magento;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -26,6 +27,8 @@ class CategoryController extends Controller
      */
     public function index()
     {
+        // debug(Magento::categories()->get());
+
         return view('catalog::category.index', [
             'categories' => Category::isParent()->get(),
         ]);

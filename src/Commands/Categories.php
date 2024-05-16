@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-14 17:15:55
+ * @lastupdate 2024-05-16 08:41:31
  */
 
 namespace Diepxuan\Catalog\Commands;
@@ -56,133 +56,140 @@ class Categories extends Command
         $format = ' %current%/%max% [%bar%] %percent:3s%% %message%';
 
         $self->output->writeln('[i] Loading all categories');
-        $categories = Category::all();
-        $self->output->writeln(sprintf('[i] Loaded <fg=green>%s</> categories.', $categories->count()));
+        $categories = Category::all()->keyBy('id');
+        $self->output->writeln("\r\n[i] Finished load all categories");
 
         $self->output->writeln('[i] Starting import Simba categories');
-        $self->withProgressBar(SCategory::all(), static function ($sCategory, $progressBar) use ($categories, $format): void {
+        $sCategories = SCategory::all();
+        $self->withProgressBar($sCategories, static function ($sCategory, $progressBar) use ($categories, $format): void {
             $progressBar->setFormat($format);
             $progressBar->setMessage(" {$sCategory->sku} <- Simba");
             $progressBar->advance();
+            $catOptions = [
+                'sku'    => "{$sCategory->sku}",
+                'name'   => "{$sCategory->name}",
+                'parent' => "{$sCategory->parent}",
+                'urlKey' => "{$sCategory->urlKey}",
+            ];
+            if ('PRODUCT' === $sCategory->sku) {
+                $catOptions['magento_id'] = 2;
+            }
             $category = Category::updateOrCreate(
                 ['simba_id' => "{$sCategory->id}"],
-                [
-                    'sku'    => "{$sCategory->sku}",
-                    'name'   => "{$sCategory->name}",
-                    'parent' => "{$sCategory->parent}",
-                    'urlKey' => "{$sCategory->urlKey}",
-                ]
+                $catOptions
             );
 
             $categories->put($category->id, $category);
 
             $progressBar->setMessage('');
             $progressBar->advance();
-            // return $sCategory;
         });
         $self->output->writeln("\r\n[i] Finished import Simba categories");
 
-        // $self->output->writeln('[i] Starting import Magento products');
-        // $mProducts = Magento::products()->get();
-        // $self->withProgressBar($mProducts, static function ($mProduct, $progressBar) use (&$products, $format): void {
-        //     $progressBar->setFormat($format);
-        //     $progressBar->setMessage(" {$mProduct->sku} <- Magento");
-        //     $progressBar->advance();
-        //     $id      = $mProduct->sku;
-        //     $product = $products->get("001_{$id}", static function () use ($mProduct) {
-        //         $prod = Product::updateOrCreate(
-        //             ['sku' => $mProduct->sku],
-        //             [
-        //                 'name'  => $mProduct->name,
-        //                 'price' => $mProduct->price,
-        //             ]
-        //         );
-        //         $prod->options()->updateOrCreate([
-        //             'code' => 'magento_id',
-        //         ], [
-        //             'value' => $mProduct->id,
-        //         ]);
+        $self->output->writeln('[i] Delete categories is missing from Simba');
+        $self->withProgressBar($categories, static function ($category, $progressBar) use ($sCategories, $categories, $format): void {
+            $progressBar->setFormat($format);
+            $progressBar->setMessage(" {$category->sku} <- Simba");
+            $progressBar->advance();
 
-        //         return $prod;
-        //     });
+            if ($sCategories->where('id', $category->simba_id)->isEmpty()) {
+                $categories->pull($category->id);
+                $category->delete();
+            }
 
-        //     if ($product->magentoId !== $mProduct->id) {
-        //         $product->options()->updateOrCreate([
-        //             'code' => 'magento_id',
-        //         ], [
-        //             'value' => $mProduct->id,
-        //         ]);
-        //     }
+            $progressBar->setMessage('');
+            $progressBar->advance();
+        });
+        $self->output->writeln("\r\n[i] Finished delete missing categories");
 
-        //     $product->magento = $mProduct;
-        //     $products->put("001_{$id}", $product);
+        $self->output->writeln('[i] Deleting Magento categories are missing in Catalog');
+        $mCategories = Magento::categories()->get()->whereNotIn('id', [1, 2])->keyBy('id');
+        $self->withProgressBar($mCategories, static function ($mCategory, $progressBar) use ($categories, $format): void {
+            $progressBar->setFormat($format);
+            $progressBar->setMessage(" {$mCategory->name} <- Magento");
+            $progressBar->advance();
+            if ($categories->where('magento_id', $mCategory->id)->isEmpty()) {
+                try {
+                    $mCategory->delete();
+                } catch (\Throwable $th) {
+                    $progressBar->setMessage(" {$mCategory->name} >< Magento");
+                    $progressBar->advance();
+                }
+            } elseif ($categories->where('name', $mCategory->name)->isEmpty()) {
+                try {
+                    $mCategory->delete();
+                } catch (\Throwable $th) {
+                    $progressBar->setMessage(" {$mCategory->name} >< Magento");
+                    $progressBar->advance();
+                }
+            } else {
+                $category = Category::updateOrCreate(
+                    ['name' => "{$mCategory->name}"],
+                    ['magento_id' => $mCategory->id]
+                );
+                $categories->put($category->id, $category);
+            }
 
-        //     $progressBar->setMessage('');
-        //     $progressBar->advance();
-        //     // return $mProduct;
-        // });
-        // $self->output->writeln("\r\n[i] Finished import Magento products");
+            $progressBar->setMessage('');
+            $progressBar->advance();
+            // return $mCategory;
+        });
+        $self->output->writeln("\r\n[i] Finished delete missing Magento categories");
 
-        // $self->output->writeln('[i] Starting sync Magento products');
-        // $self->withProgressBar($products->whereNull('magentoId'), static function ($product, $progressBar) use ($products, $format): void {
-        //     $progressBar->setFormat($format);
-        //     if (!$product->magentoId) {
-        //         $sku     = $product->sku;
-        //         $name    = $product->name;
-        //         $price   = $product->price;
-        //         $url_key = Str::of(vn_convert_encoding($name))->lower()->replace(' ', '-');
+        $self->output->writeln('[i] Starting sync Magento categories');
+        $self->withProgressBar($categories->where('sku', '!=', 'PRODUCT'), static function ($category, $progressBar) use (&$categories, $format): void {
+            $progressBar->setFormat($format);
+            $sku       = $category->sku;
+            $parent_id = $category->parent ? $category->catParent->magento_id : 2;
+            $name      = $category->name;
+            $urlKey    = Str::of(vn_convert_encoding($name))->lower()->replace(' ', '-');
 
-        //         $progressBar->setMessage(" {$sku} -> Magento");
-        //         $progressBar->advance();
+            $progressBar->setMessage(" {$sku} -> Magento");
+            $progressBar->advance();
 
-        //         try {
-        //             $mProduct = Magento::products()->create([
-        //                 'sku'               => $sku,
-        //                 'name'              => $name,
-        //                 'price'             => $price,
-        //                 'attribute_set_id'  => 4,
-        //                 'status'            => 1,
-        //                 'visibility'        => 4,
-        //                 'type_id'           => 'simple',
-        //                 'custom_attributes' => [
-        //                     [
-        //                         'attribute_code' => 'meta_title',
-        //                         'value'          => $name,
-        //                     ],
-        //                     [
-        //                         'attribute_code' => 'meta_keyword',
-        //                         'value'          => $name,
-        //                     ],
-        //                     [
-        //                         'attribute_code' => 'meta_description',
-        //                         'value'          => $name,
-        //                     ],
-        //                     [
-        //                         'attribute_code' => 'url_key',
-        //                         'value'          => $url_key,
-        //                     ],
-        //                 ],
-        //             ]);
+            try {
+                $mCategory = Magento::categories()->create([
+                    'name'      => $name,
+                    'is_active' => true,
+                    'parent_id' => $parent_id,
+                    // 'include_in_menu'   => true,
+                    'custom_attributes' => [
+                        [
+                            'attribute_code' => 'display_mode',
+                            'value'          => 'PRODUCTS',
+                        ],
+                        [
+                            'attribute_code' => 'is_anchor',
+                            'value'          => 1,
+                        ],
+                        [
+                            'attribute_code' => 'url_key',
+                            'value'          => $urlKey,
+                        ],
+                        [
+                            'attribute_code' => 'url_path',
+                            'value'          => $urlKey,
+                        ],
+                        [
+                            'attribute_code' => 'meta_title',
+                            'value'          => $name,
+                        ],
+                    ],
+                ]);
 
-        //             $product->options()->updateOrCreate([
-        //                 'code' => 'magento_id',
-        //             ], [
-        //                 'value' => $mProduct->id,
-        //             ]);
+                $category->magento_id = $mCategory->id;
+                $category->save();
 
-        //             $product->magento = $mProduct;
-        //             $products->put("001_{$mProduct->sku}", $product);
-        //         } catch (\Throwable $th) {
-        //             $progressBar->setMessage(" {$sku} >< Magento");
-        //             $progressBar->advance();
-        //         }
-        //     }
+                $category->magento = $mCategory;
+                $categories->put("{$mCategory->id}", $category);
+            } catch (\Throwable $th) {
+                $progressBar->setMessage(" {$sku} >< Magento");
+                $progressBar->advance();
+            }
 
-        //     $progressBar->setMessage('');
-        //     $progressBar->advance();
-        // });
-        // $self->output->writeln("\r\n[i] Finished sync Magento products");
-
-        return $categories;
+            $progressBar->setMessage('');
+            $progressBar->advance();
+        });
+        $self->output->writeln("\r\n[i] Finished sync Magento categories");
     }
 }

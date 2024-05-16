@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-15 10:56:33
+ * @lastupdate 2024-05-15 19:45:35
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -72,7 +72,7 @@ class Category extends Model
     /**
      * Get the children Categories.
      */
-    public function children(): HasMany
+    public function catChildrens(): HasMany
     {
         return $this->hasMany(self::class, 'parent', 'sku');
     }
@@ -80,7 +80,7 @@ class Category extends Model
     /**
      * Get the parent Category.
      */
-    public function parent(): BelongsTo
+    public function catParent(): BelongsTo
     {
         return $this->belongsTo(self::class, 'parent', 'sku');
     }
