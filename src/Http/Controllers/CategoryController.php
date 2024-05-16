@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-16 08:51:12
+ * @lastupdate 2024-05-16 10:29:39
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
@@ -72,10 +72,20 @@ class CategoryController extends Controller
 
     /**
      * Update the specified resource in storage.
-     *
-     * @param mixed $id
      */
-    public function update(Request $request, $id): RedirectResponse {}
+    public function update(Request $request, Category $category): RedirectResponse
+    {
+        $category->sku             = $request->get('sku', $category->sku);
+        $category->parent          = $request->get('parent', $category->parent);
+        $category->name            = $request->get('name', $category->name);
+        $category->urlKey          = $request->get('urlKey', $category->urlKey);
+        $category->simba_id        = $request->get('simba_id', $category->simba_id);
+        $category->magento_id      = $request->get('magento_id', $category->magento_id);
+        $category->include_in_menu = $request->boolean('include_in_menu');
+        $category->save();
+
+        return Redirect::route('category.index');
+    }
 
     /**
      * Remove the specified resource from storage.

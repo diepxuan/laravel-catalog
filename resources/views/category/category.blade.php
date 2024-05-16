@@ -2,6 +2,13 @@
     <ul>
         <li style="min-width: 25px;">{{ $category->magento_id }}</li>
         <li style="min-width: 50px;">{{ $category->sku }}</li>
+        <li>
+            <form action="{{ route('category.update', $category->id) }}" method="POST">
+                @method('PUT') @csrf
+                <input name="include_in_menu" type="checkbox" {{ $category->include_in_menu ? 'checked' : '' }}
+                    onchange="this.form.submit()" />
+            </form>
+        </li>
         <li><b>{{ $category->name }}</b></li>
         <li><i>{{ $category->urlKey }}</i></li>
     </ul>

@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-16 08:41:31
+ * @lastupdate 2024-05-16 09:13:11
  */
 
 namespace Diepxuan\Catalog\Commands;
@@ -139,20 +139,21 @@ class Categories extends Command
         $self->output->writeln('[i] Starting sync Magento categories');
         $self->withProgressBar($categories->where('sku', '!=', 'PRODUCT'), static function ($category, $progressBar) use (&$categories, $format): void {
             $progressBar->setFormat($format);
-            $sku       = $category->sku;
-            $parent_id = $category->parent ? $category->catParent->magento_id : 2;
-            $name      = $category->name;
-            $urlKey    = Str::of(vn_convert_encoding($name))->lower()->replace(' ', '-');
+            $sku             = $category->sku;
+            $parent_id       = $category->parent ? $category->catParent->magento_id : 2;
+            $name            = $category->name;
+            $include_in_menu = $category->include_in_menu;
+            $urlKey          = Str::of(vn_convert_encoding($name))->lower()->replace(' ', '-');
 
             $progressBar->setMessage(" {$sku} -> Magento");
             $progressBar->advance();
 
             try {
                 $mCategory = Magento::categories()->create([
-                    'name'      => $name,
-                    'is_active' => true,
-                    'parent_id' => $parent_id,
-                    // 'include_in_menu'   => true,
+                    'name'              => $name,
+                    'is_active'         => true,
+                    'parent_id'         => $parent_id,
+                    'include_in_menu'   => $include_in_menu,
                     'custom_attributes' => [
                         [
                             'attribute_code' => 'display_mode',

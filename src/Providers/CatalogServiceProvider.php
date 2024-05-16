@@ -8,12 +8,14 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-13 17:49:34
+ * @lastupdate 2024-05-16 10:33:02
  */
 
 namespace Diepxuan\Catalog\Providers;
 
 use Diepxuan\Catalog\Commands\CatalogSync;
+use Diepxuan\Catalog\Models\Category;
+use Diepxuan\Catalog\Observers\CategoryObserver;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
@@ -22,7 +24,10 @@ class CatalogServiceProvider extends ServiceProvider
     /**
      * Boot the application events.
      */
-    public function boot(): void {}
+    public function boot(): void
+    {
+        Category::observe(CategoryObserver::class);
+    }
 
     /**
      * Register the service provider.

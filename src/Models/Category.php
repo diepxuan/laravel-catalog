@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-15 19:45:35
+ * @lastupdate 2024-05-16 11:12:45
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -18,6 +18,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 
 #[ObservedBy([CategoryObserver::class])]
 class Category extends Model
@@ -93,5 +94,17 @@ class Category extends Model
     public function scopeIsParent($query)
     {
         return $query->where('parent', '');
+    }
+
+    /**
+     * Get the Category urlKey.
+     */
+    protected function urlKey(): Attribute
+    {
+        $self = $this;
+
+        return Attribute::make(
+            get: static fn (mixed $value, array $attributes) => $value ?: Str::of(vn_convert_encoding($attributes('name')))->lower()->replace(' ', '-'),
+        );
     }
 }
