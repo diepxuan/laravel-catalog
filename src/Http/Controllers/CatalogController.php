@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-13 18:15:42
+ * @lastupdate 2024-05-16 21:35:13
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
@@ -28,6 +28,8 @@ class CatalogController extends Controller
      */
     public function index()
     {
+        // dd(Magento::products()->find('ANHDD09'));
+
         return view('catalog::index', [
             'products' => Product::all(),
         ]);

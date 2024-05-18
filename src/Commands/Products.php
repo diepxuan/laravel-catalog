@@ -8,16 +8,14 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-15 20:01:54
+ * @lastupdate 2024-05-17 21:58:01
  */
 
 namespace Diepxuan\Catalog\Commands;
 
 use Diepxuan\Catalog\Models\Product;
-use Diepxuan\Magento\Magento;
 use Diepxuan\Simba\Models\Product as SProduct;
 use Illuminate\Console\Command;
-use Illuminate\Support\Str;
 
 class Products extends Command
 {
@@ -56,148 +54,51 @@ class Products extends Command
         $format = ' %current%/%max% [%bar%] %percent:3s%% %message%';
 
         $self->output->writeln('[i] Loading all products');
-        $products = Product::all()->keyBy('simbaId');
+        $products = Product::all()->keyBy('sku');
         $self->output->writeln(sprintf('[i] Loaded <fg=green>%s</> products.', $products->count()));
 
         $self->output->writeln('[i] Starting import Simba products');
-        $self->withProgressBar(SProduct::all(), static function ($sProduct, $progressBar) use ($products, $format): void {
-            $progressBar->setFormat($format);
-            $progressBar->setMessage(" {$sProduct->ma_vt} <- Simba");
-            $progressBar->advance();
-            $id      = $sProduct->id;
-            $product = $products->get($id, static function () use ($sProduct) {
-                $prod = Product::updateOrCreate(
-                    ['sku' => "{$sProduct->ma_vt}"],
+        $sProducts = SProduct::all();
+        $self->withProgressBar($sProducts, static function ($sProduct, $progressBar) use ($products): void {
+            $product = $products->get($sProduct->sku);
+            if ($product) {
+                $product->name     = "{$sProduct->name}";
+                $product->price    = "{$sProduct->price}";
+                $product->category = "{$sProduct->category}";
+                $product->status   = $sProduct->ksd;
+                if ($product->isDirty()) {
+                    $product->save();
+                }
+            } else {
+                $product = Product::updateOrCreate(
+                    ['sku' => "{$sProduct->sku}"],
                     [
-                        'name'  => "{$sProduct->ten_vt}",
-                        'price' => 0,
+                        'name'     => "{$sProduct->name}",
+                        'price'    => "{$sProduct->price}",
+                        'category' => "{$sProduct->category}",
+                        'status'   => $sProduct->ksd,
                     ]
                 );
-                $prod->options()->updateOrCreate([
-                    'code' => 'simba_id',
-                ], [
-                    'value' => "{$sProduct->id}",
-                ]);
-
-                return $prod;
-            });
-
-            if ($product->category !== $sProduct->ma_nhvt) {
-                $product->options()->updateOrCreate([
-                    'code' => 'category',
-                ], [
-                    'value' => $sProduct->ma_nhvt,
-                ]);
+                $products->put($product->id, $products);
             }
-
-            $product->simba = $sProduct;
-            $products->put($id, $product);
-
-            $progressBar->setMessage('');
             $progressBar->advance();
-            // return $sProduct;
         });
         $self->output->writeln("\r\n[i] Finished import Simba products");
 
-        $self->output->writeln('[i] Starting import Magento products');
-        $mProducts = Magento::products()->get();
-        $self->withProgressBar($mProducts, static function ($mProduct, $progressBar) use (&$products, $format): void {
+        $self->output->writeln('[i] Deleting missing products from Simba');
+        $sProducts = $sProducts->keyBy('sku');
+        $self->withProgressBar($products, static function ($product, $progressBar) use ($sProducts, $products, $format): void {
             $progressBar->setFormat($format);
-            $progressBar->setMessage(" {$mProduct->sku} <- Magento");
-            $progressBar->advance();
-            $id      = $mProduct->sku;
-            $product = $products->get("001_{$id}", static function () use ($mProduct) {
-                $prod = Product::updateOrCreate(
-                    ['sku' => $mProduct->sku],
-                    [
-                        'name'  => $mProduct->name,
-                        'price' => $mProduct->price,
-                    ]
-                );
-                $prod->options()->updateOrCreate([
-                    'code' => 'magento_id',
-                ], [
-                    'value' => $mProduct->id,
-                ]);
+            $progressBar->setMessage(" {$product->sku}");
 
-                return $prod;
-            });
-
-            if ($product->magentoId !== $mProduct->id) {
-                $product->options()->updateOrCreate([
-                    'code' => 'magento_id',
-                ], [
-                    'value' => $mProduct->id,
-                ]);
+            if (!$sProducts->get($product->sku)) {
+                $progressBar->setMessage(" {$product->sku} deleting");
+                $products->pull($product->id);
+                $product->delete();
             }
 
-            $product->magento = $mProduct;
-            $products->put("001_{$id}", $product);
-
-            $progressBar->setMessage('');
-            $progressBar->advance();
-            // return $mProduct;
-        });
-        $self->output->writeln("\r\n[i] Finished import Magento products");
-
-        $self->output->writeln('[i] Starting sync Magento products');
-        $self->withProgressBar($products->whereNull('magentoId'), static function ($product, $progressBar) use ($products, $format): void {
-            $progressBar->setFormat($format);
-            $sku     = $product->sku;
-            $name    = $product->name;
-            $price   = $product->price;
-            $url_key = Str::of(vn_convert_encoding($name))->lower()->replace(' ', '-');
-
-            $progressBar->setMessage(" {$sku} -> Magento");
-            $progressBar->advance();
-
-            try {
-                $mProduct = Magento::products()->create([
-                    'sku'               => $sku,
-                    'name'              => $name,
-                    'price'             => $price,
-                    'attribute_set_id'  => 4,
-                    'status'            => 1,
-                    'visibility'        => 4,
-                    'type_id'           => 'simple',
-                    'custom_attributes' => [
-                        [
-                            'attribute_code' => 'meta_title',
-                            'value'          => $name,
-                        ],
-                        [
-                            'attribute_code' => 'meta_keyword',
-                            'value'          => $name,
-                        ],
-                        [
-                            'attribute_code' => 'meta_description',
-                            'value'          => $name,
-                        ],
-                        [
-                            'attribute_code' => 'url_key',
-                            'value'          => $url_key,
-                        ],
-                    ],
-                ]);
-
-                $product->options()->updateOrCreate([
-                    'code' => 'magento_id',
-                ], [
-                    'value' => $mProduct->id,
-                ]);
-
-                $product->magento = $mProduct;
-                $products->put("001_{$mProduct->sku}", $product);
-            } catch (\Throwable $th) {
-                $progressBar->setMessage(" {$sku} >< Magento");
-                $progressBar->advance();
-            }
-
-            $progressBar->setMessage('');
             $progressBar->advance();
         });
-        $self->output->writeln("\r\n[i] Finished sync Magento products");
-
-        return $products;
+        $self->output->writeln("\r\n[i] Finished delete missing products");
     }
 }

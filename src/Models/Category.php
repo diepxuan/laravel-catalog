@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-16 11:12:45
+ * @lastupdate 2024-05-17 10:25:17
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -97,6 +97,14 @@ class Category extends Model
     }
 
     /**
+     * Get the Products.
+     */
+    protected function Products(): HasMany
+    {
+        return $this->hasMany(Product::class, 'category', 'sku');
+    }
+
+    /**
      * Get the Category urlKey.
      */
     protected function urlKey(): Attribute
@@ -104,7 +112,7 @@ class Category extends Model
         $self = $this;
 
         return Attribute::make(
-            get: static fn (mixed $value, array $attributes) => $value ?: Str::of(vn_convert_encoding($attributes('name')))->lower()->replace(' ', '-'),
+            get: static fn (mixed $value, array $attributes) => $value ?: Str::of(vn_convert_encoding($attributes('name')))->slug('-'),
         );
     }
 }

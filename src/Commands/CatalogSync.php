@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-14 16:36:30
+ * @lastupdate 2024-05-17 11:36:49
  */
 
 namespace Diepxuan\Catalog\Commands;
@@ -36,6 +36,8 @@ class CatalogSync extends Command
      */
     public function handle(): void
     {
+        set_time_limit(0);
+        ini_set('max_execution_time', 0);
         $mode = $this->argument('mode', 'all');
 
         switch ($mode) {

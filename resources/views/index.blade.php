@@ -12,6 +12,11 @@
             width: 100%;
         }
 
+        tr.disable {
+            color: rgb(57, 44, 44);
+            background-color: rgb(246, 80, 80);
+        }
+
         td,
         th {
             border: 0px solid #dddddd;
@@ -40,29 +45,26 @@
     <table class="table table-hover table-condensed table-sm text-monospace small">
         <tbody>
             @foreach ($products as $product)
-                <tr id="{{ "$product->simbaId" }}" @class(['prod', 'font-bold' => true])>
+                <tr id="{{ "$product->simbaId" }}" @class(['prod', 'disable' => $product->status])>
                     <td>{{ $product->id }}</td>
-                    <td>{{ $product->sku }}</td>
+                    <td>{{ $product->status }}</td>
                     <td>{{ $product->simbaId ?: 'Simba empty' }}</td>
+                    <td>{{ $product->sku }}</td>
                     <td>{{ $product->name }}</td>
-                    <td>{{ $product->category ?: 'ungroup' }}</td>
-                    @isset($product->magentoId)
-                        <td>
-                            <a href="https://www.diepxuan.com/catalog/product/view/id/{{ $product->magentoId }}" target="_blank">
+                    <td>{{ $product->category ?: 'missing' }}</td>
+                    <td>{{ $product->cat ? $product->cat->magento_id : 'NaN' }}</td>
+                    <td>
+                        @isset($product->cat)
+                            <a href="https://www.diepxuan.com/{{ $product->cat->urlKey }}/{{ $product->urlKey }}.html"
+                                target="_blank">
                                 {{ $product->sku }}
                             </a>
-                        </td>
-                    @else
-                        <td>
-                            <form method="post" action="{{ route('catalog.store') }}" target="_blank" name="magento_form">
-                                @method('POST') @csrf
-                                <input type="hidden" value="magento2" name="type" />
-                                <input type="hidden" value="{{ $product->sku }}" name="sku" />
-                                <input type="hidden" value="{{ $product->name }}" name="name" />
-                                <button type="submit" class="sync">Sync Magento</button>
-                            </form>
-                        </td>
-                    @endisset
+                        @else
+                            <a href="https://www.diepxuan.com/{{ $product->urlKey }}.html" target="_blank">
+                                {{ $product->sku }}
+                            </a>
+                        @endisset
+                    </td>
                 </tr>
             @endforeach
         </tbody>

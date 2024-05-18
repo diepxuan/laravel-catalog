@@ -8,14 +8,16 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-16 10:33:02
+ * @lastupdate 2024-05-16 21:31:46
  */
 
 namespace Diepxuan\Catalog\Providers;
 
 use Diepxuan\Catalog\Commands\CatalogSync;
 use Diepxuan\Catalog\Models\Category;
+use Diepxuan\Catalog\Models\Product;
 use Diepxuan\Catalog\Observers\CategoryObserver;
+use Diepxuan\Catalog\Observers\ProductObserver;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
@@ -27,6 +29,7 @@ class CatalogServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Category::observe(CategoryObserver::class);
+        Product::observe(ProductObserver::class);
     }
 
     /**
@@ -95,7 +98,9 @@ class CatalogServiceProvider extends ServiceProvider
      */
     protected function registerCommands(): void
     {
-        // $this->commands([]);
+        $this->commands([
+            CatalogSync::class,
+        ]);
     }
 
     /**

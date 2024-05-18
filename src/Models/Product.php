@@ -8,17 +8,19 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-13 18:22:54
+ * @lastupdate 2024-05-17 07:57:13
  */
 
 namespace Diepxuan\Catalog\Models;
 
-use Diepxuan\Magento\Magento;
+use Diepxuan\Catalog\Observers\ProductObserver;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Str;
 
+#[ObservedBy([ProductObserver::class])]
 class Product extends Model
 {
     use HasFactory;
@@ -69,14 +71,6 @@ class Product extends Model
     ];
 
     /**
-     * Get the Options for the Product.
-     */
-    public function options(): HasMany
-    {
-        return $this->hasMany(ProductOption::class);
-    }
-
-    /**
      * Get the Simba Product Id.
      */
     protected function simbaId(): Attribute
@@ -84,31 +78,25 @@ class Product extends Model
         $self = $this;
 
         return Attribute::make(
-            get: static fn (mixed $value, array $attributes) => ($self->options->first(static fn ($option) => 'simba_id' === $option->code) ?: new ProductOption())->value,
+            get: static fn (mixed $value, array $attributes) => "001_{$attributes['sku']}",
         );
     }
 
     /**
-     * Get the Magento Product Id.
+     * Get the Category urlKey.
      */
-    protected function magentoId(): Attribute
+    protected function urlKey(): Attribute
     {
-        $self = $this;
-
         return Attribute::make(
-            get: static fn (mixed $value, array $attributes) => ($self->options->first(static fn ($option) => 'magento_id' === $option->code) ?: new ProductOption())->value,
+            get: static fn (mixed $value, array $attributes) => Str::of(vn_convert_encoding($attributes['name']))->slug('-'),
         );
     }
 
     /**
-     * Get the Product Category.
+     * Get the Category.
      */
-    protected function category(): Attribute
+    protected function cat(): BelongsTo
     {
-        $self = $this;
-
-        return Attribute::make(
-            get: static fn (mixed $value, array $attributes) => ($self->options->first(static fn ($option) => 'category' === $option->code) ?: new ProductOption())->value,
-        );
+        return $this->belongsTo(Category::class, 'category', 'sku');
     }
 }

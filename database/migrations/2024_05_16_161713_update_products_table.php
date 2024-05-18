@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-17 10:49:00
+ * @lastupdate 2024-05-16 23:28:15
  */
 
 use Illuminate\Database\Migrations\Migration;
@@ -21,13 +21,8 @@ return new class() extends Migration {
      */
     public function up(): void
     {
-        Schema::create('products', static function (Blueprint $table): void {
-            $table->id();
-            $table->string('sku')->unique();
-            $table->string('name');
-            $table->decimal('price', total: 10, places: 0);
-            $table->boolean('status')->default(false);
-            $table->timestamps();
+        Schema::table('products', static function (Blueprint $table): void {
+            $table->longText('category')->default('');
         });
     }
 
@@ -36,6 +31,8 @@ return new class() extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('products');
+        Schema::table('products', static function (Blueprint $table): void {
+            $table->dropColumn('category');
+        });
     }
 };
