@@ -10,7 +10,13 @@
         <li style="min-width: 25px;">{{ $category->magento_id }}</li>
         <li style="min-width: 50px;">{{ $category->sku }}</li>
         <li><b>{{ $category->name }}</b></li>
-        <li><i>{{ $category->urlKey }}</i></li>
+        <li>
+            <i>
+                <a href="https://www.diepxuan.com/{{ $category->urlKey }}.html" target="_blank">
+                    {{ $category->urlKey }}
+                </a>
+            </i>
+        </li>
     </ul>
     @if ($category->catChildrens->count())
         <ul class="childs">

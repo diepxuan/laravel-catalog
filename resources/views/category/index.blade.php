@@ -24,7 +24,7 @@
 
         ul.childs>li:first-child {
             display: block;
-            width: 10px;
+            width: 12px;
             height: 1.2rem;
         }
     </style>
