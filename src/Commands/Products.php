@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-19 08:53:03
+ * @lastupdate 2024-05-19 19:08:02
  */
 
 namespace Diepxuan\Catalog\Commands;
@@ -58,7 +58,7 @@ class Products extends Command
         $self->output->writeln(sprintf('[i] Loaded <fg=green>%s</> products.', $products->count()));
 
         $self->output->writeln('[i] Starting import Simba products');
-        $sProducts = SProduct::all();
+        $sProducts = SProduct::all()->keyBy('sku');
         $self->withProgressBar($sProducts, static function ($sProduct, $progressBar) use ($products): void {
             $product = $products->get($sProduct->sku);
             if ($product) {
@@ -81,12 +81,11 @@ class Products extends Command
                 );
                 $products->put($product->id, $products);
             }
-            $progressBar->advance();
+            $progressBar->setMessage('');
         });
         $self->output->writeln("\r\n[i] Finished import Simba products");
 
         $self->output->writeln('[i] Deleting missing products from Simba');
-        $sProducts = $sProducts->keyBy('sku');
         $self->withProgressBar($products, static function ($product, $progressBar) use ($sProducts, $products, $format): void {
             $progressBar->setFormat($format);
             $progressBar->setMessage(" {$product->sku}");
@@ -97,7 +96,7 @@ class Products extends Command
                 $product->delete();
             }
 
-            $progressBar->advance();
+            $progressBar->setMessage('');
         });
         $self->output->writeln("\r\n[i] Finished delete missing products");
     }
