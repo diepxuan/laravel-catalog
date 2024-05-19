@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-17 21:58:01
+ * @lastupdate 2024-05-19 08:53:03
  */
 
 namespace Diepxuan\Catalog\Commands;
@@ -65,7 +65,7 @@ class Products extends Command
                 $product->name     = "{$sProduct->name}";
                 $product->price    = "{$sProduct->price}";
                 $product->category = "{$sProduct->category}";
-                $product->status   = $sProduct->ksd;
+                $product->status   = $sProduct->status;
                 if ($product->isDirty()) {
                     $product->save();
                 }
@@ -76,7 +76,7 @@ class Products extends Command
                         'name'     => "{$sProduct->name}",
                         'price'    => "{$sProduct->price}",
                         'category' => "{$sProduct->category}",
-                        'status'   => $sProduct->ksd,
+                        'status'   => $sProduct->status,
                     ]
                 );
                 $products->put($product->id, $products);
