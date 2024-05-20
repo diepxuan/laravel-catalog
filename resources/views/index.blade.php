@@ -1,7 +1,7 @@
 @extends('catalog::layouts.master')
 
 @section('content')
-    <style>
+    <style type="text/css">
         body {
             font-size: 0.75rem
         }

@@ -1,12 +1,8 @@
 @extends('catalog::layouts.master')
 
 @section('content')
-    <style>
-        body {
-            font-size: 0.75rem
-        }
-
-        ul {
+    <style type="text/css">
+        .content ul {
             clear: both;
             display: block;
             list-style: none;
@@ -14,7 +10,7 @@
             margin: 0;
         }
 
-        ul li {
+        .content ul li {
             display: block;
             float: left;
             padding: 0 4px;
@@ -22,15 +18,11 @@
             line-height: 1.2rem;
         }
 
-        ul.childs>li:first-child {
+        .content ul.childs>li:first-child {
             display: block;
             width: 12px;
             height: 1.2rem;
         }
     </style>
-    <table class="table table-hover table-condensed table-sm text-monospace small">
-        <tbody>
-            @include('catalog::category.category', ['categories' => $categories])
-        </tbody>
-    </table>
+    @include('catalog::category.category', ['categories' => $categories])
 @endsection
