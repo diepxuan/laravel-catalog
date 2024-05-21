@@ -12,8 +12,9 @@
         {{-- @dd($system->siSetup) --}}
         <tbody>
             <tr>
-                <td>{{ 'Tên công ty:' }}</td>
-                <td>{{ $system->ten_cty }}</td>
+                <td colspan="2">
+                    <center>{{ $system->ten_cty }}</center>
+                </td>
             </tr>
             <tr>
                 <td>{{ 'Khoá số liệu:' }}</td>

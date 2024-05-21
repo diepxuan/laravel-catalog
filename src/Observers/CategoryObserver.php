@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-17 10:27:34
+ * @lastupdate 2024-05-21 10:11:40
  */
 
 namespace Diepxuan\Catalog\Observers;
@@ -24,7 +24,11 @@ class CategoryObserver
     public function created(Category $cat): void
     {
         try {
-            Magento::categories()->create($this->data($cat));
+            $mCat            = Magento::categories()->create($this->data($cat));
+            $cat->magento_id = $mCat->id;
+            if ($cat->isDirty()) {
+                $cat->save();
+            }
         } catch (\Throwable $th) {
         }
     }
@@ -35,9 +39,12 @@ class CategoryObserver
     public function updated(Category $cat): void
     {
         try {
-            Magento::categories()->find($cat->magento_id)->update($this->data($cat));
+            if ($cat->magento_id) {
+                Magento::categories()->find($cat->magento_id)->update($this->data($cat));
+            } else {
+                $this->created($cat);
+            }
         } catch (\Throwable $th) {
-            $this->created($cat);
         }
     }
 

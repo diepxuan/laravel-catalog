@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+@php
+    $logo = 'https://raw.githubusercontent.com/diepxuan/logo/main/icons/MetallicBrown.svg';
+    $favicon = 'https://raw.githubusercontent.com/diepxuan/logo/main/favicons/MetallicBrown.svg';
+    $brand = 'https://raw.githubusercontent.com/diepxuan/logo/main/texts/MetallicBrown.svg';
+@endphp
 
 <head>
     <meta charset="utf-8">
@@ -13,10 +18,8 @@
     <meta name="keywords" content="{{ $keywords ?? '' }}">
     <meta name="author" content="{{ $author ?? '' }}">
 
-    <link rel="icon" type="image/x-icon"
-        href="https://raw.githubusercontent.com/diepxuan/logo/main/output-onlinepngtools.png?token=GHSAT0AAAAAACQOJV5OC7PV6NLSSZ2DCMEOZSKWL7A">
-    <link rel="shortcut icon" type="image/x-icon"
-        href="https://raw.githubusercontent.com/diepxuan/logo/main/output-onlinepngtools.png?token=GHSAT0AAAAAACQOJV5OC7PV6NLSSZ2DCMEOZSKWL7A">
+    <link rel="icon" type="image/x-icon" href="{{ $favicon }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ $favicon }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -89,6 +92,11 @@
 
 <body>
     <ul class="menu">
+        <li>
+            <a class="logo" href={{ route('system.index') }} title="Điệp Xuân" aria-label="store logo">
+                <img src="{{ $brand }}" title="Điệp Xuân" alt="Điệp Xuân" width="100%">
+            </a>
+        </li>
         <li>
             @php
                 $isCatalog = Request::is('catalog', 'catalog/*', 'category', 'category/*');

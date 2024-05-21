@@ -7,7 +7,7 @@
                     onchange="this.form.submit()" />
             </form>
         </li>
-        <li style="min-width: 25px;">{{ $category->magento_id }}</li>
+        <li style="min-width: 25px;">{{ $category->magento_id ?: '000' }}</li>
         <li style="min-width: 50px;">{{ $category->sku }}</li>
         <li><b>{{ $category->name }}</b></li>
         <li>

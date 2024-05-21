@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-20 08:21:10
+ * @lastupdate 2024-05-20 18:01:23
  */
 
 use Diepxuan\Catalog\Http\Controllers\CatalogController;
@@ -30,4 +30,6 @@ Route::middleware('clearcache')->group(static function (): void {
     Route::resource('catalog', CatalogController::class)->names('catalog');
     Route::resource('category', CategoryController::class)->names('category');
     Route::resource('system', SystemController::class)->names('system');
+
+    Route::get('/', [SystemController::class, 'index']);
 });
