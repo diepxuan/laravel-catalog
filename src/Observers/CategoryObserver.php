@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-21 10:11:40
+ * @lastupdate 2024-05-21 10:14:23
  */
 
 namespace Diepxuan\Catalog\Observers;
@@ -45,6 +45,7 @@ class CategoryObserver
                 $this->created($cat);
             }
         } catch (\Throwable $th) {
+            $this->created($cat);
         }
     }
 
