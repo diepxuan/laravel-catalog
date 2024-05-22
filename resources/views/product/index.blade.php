@@ -49,7 +49,6 @@
                 <tr id="{{ "$product->simbaId" }}" @class(['prod', 'disable' => $product->status])>
                     <td>{{ $product->id }}</td>
                     <td>{{ $product->status }}</td>
-                    <td>{{ $product->simbaId ?: 'Simba empty' }}</td>
                     <td>{{ $product->sku }}</td>
                     <td>{{ $product->name }}</td>
                     <td>{{ $product->category ?: 'missing' }}</td>

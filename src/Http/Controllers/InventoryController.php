@@ -8,26 +8,29 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-22 12:46:39
+ * @lastupdate 2024-05-22 12:46:02
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Diepxuan\Catalog\Models\Category;
+use Diepxuan\Magento\Magento;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 
-class CategoryController extends Controller
+class InventoryController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return view('catalog::category.index', [
-            'categories' => Category::isParent()->get(),
+        // debug(Magento::categories()->get());
+
+        return view('catalog::inventory.index', [
+            // 'categories' => Category::isParent()->get(),
         ]);
     }
 
@@ -36,7 +39,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        return view('catalog::category.create');
+        return view('catalog::inventory.create');
     }
 
     /**
@@ -44,7 +47,7 @@ class CategoryController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        return Redirect::route('category.index');
+        return Redirect::route('inventory.index');
     }
 
     /**
@@ -54,7 +57,7 @@ class CategoryController extends Controller
      */
     public function show($id)
     {
-        return view('catalog::category.show');
+        return view('catalog::inventory.show');
     }
 
     /**
@@ -64,7 +67,7 @@ class CategoryController extends Controller
      */
     public function edit($id)
     {
-        return view('catalog::category.edit');
+        return view('catalog::inventory.edit');
     }
 
     /**
@@ -72,16 +75,7 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category): RedirectResponse
     {
-        $category->sku             = $request->get('sku', $category->sku);
-        $category->parent          = $request->get('parent', $category->parent);
-        $category->name            = $request->get('name', $category->name);
-        $category->urlKey          = $request->get('urlKey', $category->urlKey);
-        $category->simba_id        = $request->get('simba_id', $category->simba_id);
-        $category->magento_id      = $request->get('magento_id', $category->magento_id);
-        $category->include_in_menu = $request->boolean('include_in_menu');
-        $category->save();
-
-        return Redirect::route('category.index');
+        return Redirect::route('inventory.index');
     }
 
     /**
