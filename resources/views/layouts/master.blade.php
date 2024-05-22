@@ -12,7 +12,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
-    <title>Catalog Module - {{ config('app.name', 'Diepxuan') }}</title>
+    <title>@yield('title', 'Catalog') - {{ config('app.name', 'Diepxuan') }}</title>
 
     <meta name="description" content="{{ $description ?? '' }}">
     <meta name="keywords" content="{{ $keywords ?? '' }}">
@@ -40,6 +40,7 @@
             list-style: none;
             padding: 0;
             margin: 0;
+            text-transform: uppercase;
         }
 
         .menu ul {
@@ -67,6 +68,8 @@
             display: block;
             cursor: pointer;
             width: 100%;
+            display: block;
+            padding: 4px 0 4px 4px;
         }
 
         .menu input[type=radio] {
@@ -81,6 +84,32 @@
             display: block;
         }
 
+        .menu a {
+            text-decoration: none;
+            display: block;
+            width: 100%;
+            padding: 4px 0 4px 4px;
+        }
+
+        /* unvisited link */
+        .menu a:link {
+            color: rgb(22, 22, 255);
+        }
+
+        /* visited link */
+        .menu a:visited {
+            color: rgb(22, 22, 255);
+        }
+
+        /* mouse over link */
+        .menu a:hover {
+            color: rgb(0, 115, 255);
+        }
+
+        /* selected link */
+        .menu a:active {
+            color: rgb(22, 22, 255);
+        }
 
         div.content {
             display: block;

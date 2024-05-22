@@ -1,4 +1,5 @@
 @extends('catalog::layouts.master')
+@section('title', 'Hàng hoá vật tư')
 
 @section('content')
     <style type="text/css">
