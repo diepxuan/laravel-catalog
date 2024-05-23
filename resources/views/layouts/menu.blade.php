@@ -26,7 +26,7 @@
         display: block;
         float: left;
         clear: left;
-        width: 200px;
+        width: 300px;
         list-style: none;
         padding: 0;
         margin: 0;
@@ -74,6 +74,14 @@
         display: block;
     }
 
+    .menu li.space {
+        display: block;
+        width: 80%;
+        height: 1;
+        border-bottom: solid 1px #b7b7b7;
+        margin: auto;
+    }
+
     .menu a {
         text-decoration: none;
         display: block;
@@ -119,6 +127,9 @@
                         </a>
                     </li>
                 @endforeach
+                @isset($menu->ins)
+                    <li class="space"></li>
+                @endisset
                 @foreach ($menu->items as $title => $url)
                     <li>
                         <a href={{ $url }}>

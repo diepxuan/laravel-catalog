@@ -8,14 +8,16 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-22 12:46:02
+ * @lastupdate 2024-05-23 14:10:49
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Diepxuan\Catalog\Http\Requests\SimbaRequest;
 use Diepxuan\Catalog\Models\Category;
-use Diepxuan\Magento\Magento;
+use Diepxuan\Simba\Models\KhoHang;
+use Diepxuan\Simba\Models\PhieuXuatDieuChuyenKho;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -25,12 +27,19 @@ class InventoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(SimbaRequest $request)
     {
-        // debug(Magento::categories()->get());
+        $validated = $request->validated();
 
         return view('catalog::inventory.index', [
-            // 'categories' => Category::isParent()->get(),
+            'lstPhdck' => PhieuXuatDieuChuyenKho::whereNgayCt($request->get('from'), $request->get('to'))
+                ->whereKhoXuat($request->get('khoxuat'))
+                ->orderBy('ngay_ct', 'asc')
+                ->orderBy('so_ct', 'asc')
+                ->get(),
+            'from'   => $request->get('from'),
+            'to'     => $request->get('to'),
+            'lstKho' => KhoHang::isEnable()->get(),
         ]);
     }
 

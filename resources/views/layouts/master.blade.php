@@ -29,13 +29,13 @@
     {{-- {{ module_vite('build-catalog', 'resources/assets/sass/app.scss') }} --}}
     <style type="text/css">
         body {
-            font-size: 0.75rem
+            font-size: 1rem;
         }
 
         div.content {
             display: block;
             float: right;
-            width: calc(100% - 230px);
+            width: calc(100% - 330px);
         }
     </style>
 </head>
