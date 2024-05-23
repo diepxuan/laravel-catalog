@@ -14,7 +14,6 @@
         [
             'name' => 'Hệ Thống',
             'status' => Request::is('hethong'),
-            'ins' => [],
             'items' => [
                 'Dashboard' => route('system.index'),
             ],
@@ -120,14 +119,14 @@
             <label for="{{ $menuId }}">{{ $menu->name }}</label>
             <input type="radio" id="{{ $menuId }}" name="box" {{ $menu->status ? 'checked' : '' }} />
             <ul>
-                @foreach ($menu->ins as $title => $url)
-                    <li>
-                        <a href={{ $url }}>
-                            {{ $title }}
-                        </a>
-                    </li>
-                @endforeach
                 @isset($menu->ins)
+                    @foreach ($menu->ins as $title => $url)
+                        <li>
+                            <a href={{ $url }}>
+                                {{ $title }}
+                            </a>
+                        </li>
+                    @endforeach
                     <li class="space"></li>
                 @endisset
                 @foreach ($menu->items as $title => $url)
