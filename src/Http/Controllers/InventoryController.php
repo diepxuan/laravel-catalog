@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-23 14:10:49
+ * @lastupdate 2024-05-23 17:48:35
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
@@ -37,9 +37,10 @@ class InventoryController extends Controller
                 ->orderBy('ngay_ct', 'asc')
                 ->orderBy('so_ct', 'asc')
                 ->get(),
-            'from'   => $request->get('from'),
-            'to'     => $request->get('to'),
-            'lstKho' => KhoHang::isEnable()->get(),
+            'from'    => $request->get('from'),
+            'to'      => $request->get('to'),
+            'khoxuat' => $request->get('khoxuat'),
+            'lstKho'  => KhoHang::isEnable()->get(),
         ]);
     }
 

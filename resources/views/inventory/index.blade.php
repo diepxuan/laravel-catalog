@@ -32,6 +32,14 @@
         ul.autocomplete li {
             display: none;
         }
+
+        table td {
+            padding: 0 6px;
+        }
+
+        table td.right {
+            text-align: right;
+        }
     </style>
 
     <form action="{{ route('inventory.index') }}" method="GET">
@@ -59,7 +67,8 @@
                 <tr>
                     <td>{{ 'Kho Xuất' }}</td>
                     <td>
-                        <input type="text" oninput="autocompleteShow(this)" onblur="closeAllLists()" name="khoxuat" />
+                        <input type="text" value="{{ strtoupper($khoxuat) }}" oninput="autocompleteShow(this)"
+                            onblur="closeAllLists()" name="khoxuat" />
                         <ul class="autocomplete">
                             @foreach ($lstKho as $kho)
                                 <li data-khoid="{{ $kho->sku }}" onclick="autocompleteSelect(this)">
@@ -81,12 +90,22 @@
         <tbody>
             @foreach ($lstPhdck as $phdck)
                 <tr>
-                    {{-- @dd($phdck) --}}
-                    {{-- {{ debug($phdck->chungtu) }} --}}
-                    <td>{{ $phdck->id }}</td>
+                    @php
+                        $link = route(
+                            'inventory.show',
+                            array_merge(['tonkho' => $phdck->getKey()], request()->query()),
+                        );
+                    @endphp
+                    <td>
+                        <a href="{{ $link }}">
+                            {{ $phdck->getKey() }}
+                        </a>
+                    </td>
                     <td>{{ $phdck->ngayCt }}</td>
                     <td>{{ $phdck->so_ct }}</td>
                     <td>{{ $phdck->dien_giai }}</td>
+                    <td class="right">{{ $phdck->soLuong }}</td>
+                    <td class="right">{{ $phdck->soTien }}</td>
                 </tr>
             @endforeach
         </tbody>
