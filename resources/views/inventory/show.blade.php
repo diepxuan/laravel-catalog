@@ -7,7 +7,7 @@
     }
 @endphp
 @extends('catalog::layouts.master')
-@section('title', 'Phiếu xuất điều chuyển kho')
+@section('title', $phdck->dien_giai)
 
 @section('content')
     <style type="text/css">
@@ -56,6 +56,13 @@
             border-collapse: collapse;
         }
 
+        table.lstChungTu tr:focus {
+            background-color: rgb(48, 29, 255);
+            color: white;
+            border: none;
+            outline: none;
+        }
+
         table.lstChungTu tr td {
             border-top: 1px solid rgb(224, 224, 224);
         }
@@ -97,7 +104,7 @@
             <td>{{ $phdck->dien_giai }}</td>
         </tr>
     </table>
-    <table class="lstChungTu">
+    <table class="lstChungTu" id="lstChungTu">
         <tr>
             <th>Mã hàng</th>
             <th>Tên hàng</th>
@@ -111,7 +118,7 @@
             {{-- <th>TK có</th> --}}
         </tr>
         @foreach ($phdck->chungtu as $index => $chungtu)
-            <tr>
+            <tr tabindex="0">
                 <td>{{ $chungtu->ma_vt }}</td>
                 <td>{{ $chungtu->ten_vt }}</td>
                 <td class="right">{{ number_format((float) $chungtu->so_luong, 1) }}</td>
@@ -141,11 +148,20 @@
 
         function changeSelect(event) {
             var key = event.keyCode;
-            if (key === 38) { // len
-                console.log(key);
-            } else if (key === 40) { // xuong
-                console.log(key);
+            var lstCt = document.querySelectorAll("[id=lstChungTu] tr");
+            var curCt = document.activeElement;
+            if (Array.prototype.indexOf.call(lstCt, curCt) <= 0) {
+                curCt = lstCt.item(1);
+            } else {
+                if (key === 38) { // len
+                    event.preventDefault();
+                    curCt = lstCt.item(Array.prototype.indexOf.call(lstCt, curCt) - 1)
+                } else if (key === 40) { // xuong
+                    event.preventDefault();
+                    curCt = lstCt.item(Array.prototype.indexOf.call(lstCt, curCt) + 1)
+                }
             }
+            curCt.focus();
         }
     </script>
 @endsection
