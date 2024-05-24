@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-22 18:12:07
+ * @lastupdate 2024-05-24 14:39:10
  */
 
 namespace Diepxuan\Catalog\Http\Requests;
@@ -39,9 +39,17 @@ class SimbaRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
+        $from = Carbon::parse($this->get('from', Carbon::now()->firstOfMonth()));
+        $to   = Carbon::parse($this->get('to', Carbon::now()->lastOfMonth()));
+        if ($from->gt($to)) {
+            [$from, $to] = [$to, $from];
+        }
+        if ($from->eq($to)) {
+            $to = $to->addDay();
+        }
         $this->merge([
-            'from' => Carbon::parse($this->get('from', Carbon::now()->firstOfMonth())),
-            'to'   => Carbon::parse($this->get('to', Carbon::now()->lastOfMonth())),
+            'from' => $from,
+            'to'   => $to,
         ]);
     }
 }

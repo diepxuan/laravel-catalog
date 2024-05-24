@@ -40,6 +40,15 @@
         table td.right {
             text-align: right;
         }
+
+        table td a {
+            text-decoration: none;
+            display: block;
+        }
+
+        table td a:visited {
+            color: rgb(22, 22, 255);
+        }
     </style>
 
     <form action="{{ route('inventory.index') }}" method="GET">
@@ -86,8 +95,9 @@
     </form>
     <table>
         <tbody>
-            @foreach ($lstPhdck as $phdck)
+            @foreach ($lstPhdck as $index => $phdck)
                 <tr>
+                    <td>{{ $index }}</td>
                     @php
                         $link = route(
                             'inventory.show',
@@ -99,7 +109,7 @@
                             {{ $phdck->getKey() }}
                         </a>
                     </td>
-                    <td>{{ $phdck->ngayCt }}</td>
+                    <td>{{ $phdck->ngayCt->format('d/m/Y') }}</td>
                     <td>{{ $phdck->so_ct }}</td>
                     <td>{{ $phdck->dien_giai }}</td>
                     <td class="right">{{ $phdck->soLuong }}</td>

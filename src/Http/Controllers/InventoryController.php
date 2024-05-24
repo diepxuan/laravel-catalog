@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-23 18:37:46
+ * @lastupdate 2024-05-24 15:17:08
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
@@ -63,10 +63,20 @@ class InventoryController extends Controller
     /**
      * Show the specified resource.
      */
-    public function show(PhieuXuatDieuChuyenKho $tonkho)
+    public function show(SimbaRequest $request, PhieuXuatDieuChuyenKho $tonkho)
     {
+        $lstPhdck = PhieuXuatDieuChuyenKho::whereNgayCt($request->get('from'), $request->get('to'))
+            ->whereKhoXuat($request->get('khoxuat'))
+            ->orderBy('ngay_ct', 'asc')
+            ->orderBy('so_ct', 'asc')
+            ->get()
+        ;
+        $currentIndex = $lstPhdck->search(static fn ($item) => $tonkho->getKey() === $item->getKey());
+
         return view('catalog::inventory.show', [
-            'phdck' => $tonkho,
+            'phdck'     => $tonkho,
+            'nextPhdck' => $lstPhdck->get($currentIndex + 1),
+            'prevPhdck' => $lstPhdck->get($currentIndex - 1),
         ]);
     }
 
