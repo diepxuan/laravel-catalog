@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-23 17:48:35
+ * @lastupdate 2024-05-23 18:37:46
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
@@ -62,12 +62,12 @@ class InventoryController extends Controller
 
     /**
      * Show the specified resource.
-     *
-     * @param mixed $id
      */
-    public function show($id)
+    public function show(PhieuXuatDieuChuyenKho $tonkho)
     {
-        return view('catalog::inventory.show');
+        return view('catalog::inventory.show', [
+            'phdck' => $tonkho,
+        ]);
     }
 
     /**

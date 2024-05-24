@@ -45,8 +45,6 @@
     <form action="{{ route('inventory.index') }}" method="GET">
         @method('GET') @csrf
         <table>
-            {{-- @dd($system) --}}
-            {{-- @dd($system->siSetup) --}}
             <tbody>
                 <tr>
                     <td>{{ 'Thời gian' }}</td>
@@ -97,7 +95,7 @@
                         );
                     @endphp
                     <td>
-                        <a href="{{ $link }}">
+                        <a href="{{ $link }}" target="_blank">
                             {{ $phdck->getKey() }}
                         </a>
                     </td>
