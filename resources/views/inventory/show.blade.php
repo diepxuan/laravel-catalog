@@ -7,7 +7,7 @@
     }
 @endphp
 @extends('catalog::layouts.master')
-@section('title', $phdck->dien_giai)
+@section('title', "{$phdck->ngayCt->format('d/m/Y')} {$phdck->dien_giai}")
 
 @section('content')
     <style type="text/css">
