@@ -11,61 +11,6 @@
 
 @section('content')
     <style type="text/css">
-        .right {
-            text-align: right;
-        }
-
-        ul.pagination {
-            display: block;
-            float: left;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            width: 100%;
-        }
-
-        ul.pagination li {
-            display: block;
-            float: left;
-        }
-
-        ul.pagination li+li {
-            float: right;
-        }
-
-        ul.pagination li a {
-            display: block;
-            padding: 1px 6px;
-            border: 1px outset buttonborder;
-            border-radius: 3px;
-            color: buttontext;
-            background-color: buttonface;
-            text-decoration: none;
-        }
-
-        table th,
-        td {
-            padding: 0 0.5rem;
-        }
-
-        table+table {
-            margin-top: 2rem;
-        }
-
-        table.lstChungTu {
-            border-collapse: collapse;
-        }
-
-        table.lstChungTu tr:focus {
-            background-color: rgb(48, 29, 255);
-            color: white;
-            border: none;
-            outline: none;
-        }
-
-        table.lstChungTu tr td {
-            border-top: 1px solid rgb(224, 224, 224);
-        }
     </style>
     <ul class="pagination">
         <li>

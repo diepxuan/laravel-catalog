@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-24 15:17:08
+ * @lastupdate 2024-05-25 12:10:27
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
@@ -36,6 +36,7 @@ class InventoryController extends Controller
                 ->whereKhoXuat($request->get('khoxuat'))
                 ->orderBy('ngay_ct', 'asc')
                 ->orderBy('so_ct', 'asc')
+                ->orderBy('ma_kh', 'asc')
                 ->get(),
             'from'    => $request->get('from'),
             'to'      => $request->get('to'),
@@ -69,6 +70,7 @@ class InventoryController extends Controller
             ->whereKhoXuat($request->get('khoxuat'))
             ->orderBy('ngay_ct', 'asc')
             ->orderBy('so_ct', 'asc')
+            ->orderBy('ma_kh', 'asc')
             ->get()
         ;
         $currentIndex = $lstPhdck->search(static fn ($item) => $tonkho->getKey() === $item->getKey());

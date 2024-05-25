@@ -27,25 +27,28 @@
 
     {{-- Vite CSS --}}
     {{-- {{ module_vite('build-catalog', 'resources/assets/sass/app.scss') }} --}}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <style type="text/css">
-        body {
-            font-size: 1rem;
-        }
-
-        div.content {
-            display: block;
-            float: right;
-            width: calc(100% - 330px);
-        }
     </style>
 </head>
 
 <body>
-    @include('catalog::layouts.menu')
-    <div class="content">
-        @yield('content')
+    <div class="container-fluid">
+        <div class="row justify-content-between">
+            <div class="col-md-3">
+                @include('catalog::layouts.menu')
+            </div>
+
+            <div class="col-md-9">
+                @yield('content')
+            </div>
+        </div>
     </div>
 
     {{-- Vite JS --}}
     {{-- {{ module_vite('build-catalog', 'resources/assets/js/app.js') }} --}}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
+    </script>
 </body>

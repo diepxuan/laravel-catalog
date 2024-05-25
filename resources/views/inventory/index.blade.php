@@ -74,7 +74,7 @@
                 <tr>
                     <td>{{ 'Kho Xuất' }}</td>
                     <td>
-                        <input type="text" value="{{ strtoupper($khoxuat) }}" oninput="autocompleteShow(this)"
+                        <input type="text" value="{{ strtoupper($khoxuat ?: '') }}" oninput="autocompleteShow(this)"
                             onblur="closeAllLists()" name="khoxuat" />
                         <ul class="autocomplete">
                             @foreach ($lstKho as $kho)
