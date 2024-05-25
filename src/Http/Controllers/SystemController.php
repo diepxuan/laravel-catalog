@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-20 16:05:18
+ * @lastupdate 2024-05-25 10:33:36
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
@@ -54,6 +54,8 @@ class SystemController extends Controller
      */
     public function show($id)
     {
+        dd(System::find($id));
+
         return view('catalog::system.show');
     }
 
@@ -69,12 +71,13 @@ class SystemController extends Controller
 
     /**
      * Update the specified resource in storage.
+     *
+     * @param mixed $id
      */
-    public function update(Request $request, System $system): RedirectResponse
+    public function update(Request $request, $id): RedirectResponse
     {
+        $system         = System::find($id);
         $system->khoaSo = $request->get('khoaso');
-        // $system->save();
-        // dd($system);
 
         return Redirect::route('system.index');
     }
