@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-25 12:10:27
+ * @lastupdate 2024-05-26 18:28:24
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
@@ -73,6 +73,17 @@ class InventoryController extends Controller
             ->orderBy('ma_kh', 'asc')
             ->get()
         ;
+
+        if ($request->get('to')->eq($tonkho->ngayCt)) {
+            $query = array_merge($request->query(), [
+                'tonkho' => $tonkho->getKey(),
+                'from'   => $request->get('from')->format('Y-m-d'),
+                'to'     => $request->get('to')->addDay()->format('Y-m-d'),
+            ]);
+
+            return Redirect::route('inventory.show', array_merge(['tonkho' => $tonkho->getKey()], $query));
+        }
+
         $currentIndex = $lstPhdck->search(static fn ($item) => $tonkho->getKey() === $item->getKey());
 
         return view('catalog::inventory.show', [

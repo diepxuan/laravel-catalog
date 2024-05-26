@@ -56,7 +56,7 @@
                     <p class="mb-0 fw-lighter"><small>{{ $chungtu->ma_vt }}</small></p>
                 </td>
                 <td class="text-nowrap fw-semibold">
-                    {{ (double) number_format((float) $chungtu->so_luong, 1) }}
+                    {{ (float) number_format((float) $chungtu->so_luong, 1) }}
                     <span class="fw-light text-lowercase"><small>{{ $chungtu->dvt }}</small></span>
                 </td>
                 <td class="text-nowrap fw-light">
@@ -71,21 +71,25 @@
     </table>
     <nav>
         <ul class="pagination">
-            <li class="page-item">
-                <a id="phNext" class="page-link" href="{{ $prevLink }}">
-                    <span aria-hidden="true">&laquo;</span>
-                    {{ $prevPhdck->dien_giai }}
-                </a>
-            </li>
+            @isset($prevLink)
+                <li class="page-item">
+                    <a id="phNext" class="page-link" href="{{ $prevLink }}">
+                        <span aria-hidden="true">&laquo;</span>
+                        {{ $prevPhdck->dien_giai }}
+                    </a>
+                </li>
+            @endisset
             <li class="page-item disabled">
                 <a class="page-link" href="#">{{ __('phiếu trước hoặc phiếu tiếp theo') }}</a>
             </li>
-            <li class="page-item">
-                <a id="phPrev" class="page-link" href="{{ $nextLink }}">
-                    {{ $nextPhdck->dien_giai }}
-                    <span aria-hidden="true">&raquo;</span>
-                </a>
-            </li>
+            @isset($nextLink)
+                <li class="page-item">
+                    <a id="phPrev" class="page-link" href="{{ $nextLink }}">
+                        {{ $nextPhdck->dien_giai }}
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            @endisset
         </ul>
     </nav>
     <script type="text/javascript">
