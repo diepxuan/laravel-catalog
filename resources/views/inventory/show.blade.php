@@ -7,23 +7,22 @@
     }
 @endphp
 @extends('catalog::layouts.master')
-@section('title', "{$phdck->ngayCt->format('d/m/Y')} {$phdck->dien_giai}")
+@section('title', "{$phdck->ngayCt->format('d/m/y')} {$phdck->dien_giai}")
 
 @section('content')
     <style type="text/css">
+        [id=lstChungTu] tr:focus,
+        [id=lstChungTu] tr:focus-visible {
+            outline: none;
+            background-color: rgba(0, 0, 0, 0.03);
+        }
+
+        [id=lstChungTu] tr:focus td,
+        [id=lstChungTu] tr:focus-visible td {
+            outline: none;
+            background-color: rgba(0, 0, 0, 0.03);
+        }
     </style>
-    <ul class="pagination">
-        <li>
-            @isset($prevLink)
-                <a id="phNext" href="{{ $prevLink }}">phiếu trước: {{ $prevPhdck->dien_giai }}</a>
-            @endisset
-        </li>
-        <li>
-            @isset($nextLink)
-                <a id="phPrev" href="{{ $nextLink }}">phiếu tiếp theo: {{ $nextPhdck->dien_giai }}</a>
-            @endisset
-        </li>
-    </ul>
     <table>
         <tr>
             <td><small>{{ $phdck->getKey() }}</small></td>
@@ -36,40 +35,33 @@
                 <small>[{{ $phdck->ma_kh }}]</small>
             </td>
             <td>Ngày xuất</td>
-            <td><b>{{ $phdck->ngayCt->format('d/m/Y') }}</b></td>
+            <td><b>{{ $phdck->ngayCt->format('d/m/y') }}</b></td>
         </tr>
         <tr>
             <td>Người giao dịch</td>
             <td>{{ $phdck->nguoi_gd }}</td>
             <td>Ngày lập</td>
-            <td>{{ $phdck->ngayLct->format('d/m/Y') }}</td>
+            <td>{{ $phdck->ngayLct->format('d/m/y') }}</td>
         </tr>
         <tr>
             <td>Diễn giải</td>
             <td>{{ $phdck->dien_giai }}</td>
         </tr>
     </table>
-    <table class="lstChungTu" id="lstChungTu">
-        <tr>
-            <th>Mã hàng</th>
-            <th>Tên hàng</th>
-            <th>Số lượng</th>
-            <th>Đvt</th>
-            <th>Kho</th>
-            <th>Kho nhập</th>
-            {{-- <th>Đơn giá</th> --}}
-            {{-- <th>Thành tiền</th> --}}
-            {{-- <th>TK nợ</th> --}}
-            {{-- <th>TK có</th> --}}
-        </tr>
+    <table class="table table-sm align-middle table-hover align-middle" id="lstChungTu">
         @foreach ($phdck->chungtu as $index => $chungtu)
             <tr tabindex="0">
-                <td>{{ $chungtu->ma_vt }}</td>
-                <td>{{ $chungtu->ten_vt }}</td>
-                <td class="right">{{ number_format((float) $chungtu->so_luong, 1) }}</td>
-                <td>{{ $chungtu->dvt }}</td>
-                <td>{{ $chungtu->ma_khox }}</td>
-                <td>{{ $chungtu->ma_khon }}</td>
+                <td>
+                    <p class="mb-0 fw-semibold">{{ $chungtu->ten_vt }}</p>
+                    <p class="mb-0 fw-lighter"><small>{{ $chungtu->ma_vt }}</small></p>
+                </td>
+                <td class="text-nowrap fw-semibold">
+                    {{ (double) number_format((float) $chungtu->so_luong, 1) }}
+                    <span class="fw-light text-lowercase"><small>{{ $chungtu->dvt }}</small></span>
+                </td>
+                <td class="text-nowrap fw-light">
+                    <small>{{ $chungtu->ma_khox }} &#8594; {{ $chungtu->ma_khon }}</small>
+                </td>
                 {{-- <td class="right">{{ number_format((float) $chungtu->gia, 0) }}</td> --}}
                 {{-- <td class="right">{{ number_format((float) $chungtu->tien, 0) }}</td> --}}
                 {{-- <td>{{ $chungtu->tk_vt }}</td> --}}
@@ -77,6 +69,25 @@
             </tr>
         @endforeach
     </table>
+    <nav>
+        <ul class="pagination">
+            <li class="page-item">
+                <a id="phNext" class="page-link" href="{{ $prevLink }}">
+                    <span aria-hidden="true">&laquo;</span>
+                    {{ $prevPhdck->dien_giai }}
+                </a>
+            </li>
+            <li class="page-item disabled">
+                <a class="page-link" href="#">{{ __('phiếu trước hoặc phiếu tiếp theo') }}</a>
+            </li>
+            <li class="page-item">
+                <a id="phPrev" class="page-link" href="{{ $nextLink }}">
+                    {{ $nextPhdck->dien_giai }}
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
     <script type="text/javascript">
         window.addEventListener("keydown", changePage);
 
@@ -93,16 +104,17 @@
 
         function changeSelect(event) {
             var key = event.keyCode;
+            if (key === 38 || key === 40) {
+                event.preventDefault();
+            }
             var lstCt = document.querySelectorAll("[id=lstChungTu] tr");
             var curCt = document.activeElement;
-            if (Array.prototype.indexOf.call(lstCt, curCt) <= 0) {
-                curCt = lstCt.item(1);
+            if (Array.prototype.indexOf.call(lstCt, curCt) < 0) {
+                curCt = lstCt.item(0);
             } else {
                 if (key === 38) { // len
-                    event.preventDefault();
                     curCt = lstCt.item(Array.prototype.indexOf.call(lstCt, curCt) - 1)
                 } else if (key === 40) { // xuong
-                    event.preventDefault();
                     curCt = lstCt.item(Array.prototype.indexOf.call(lstCt, curCt) + 1)
                 }
             }

@@ -32,23 +32,6 @@
         ul.autocomplete li {
             display: none;
         }
-
-        table td {
-            padding: 0 6px;
-        }
-
-        table td.right {
-            text-align: right;
-        }
-
-        table td a {
-            text-decoration: none;
-            display: block;
-        }
-
-        table td a:visited {
-            color: rgb(22, 22, 255);
-        }
     </style>
 
     <form action="{{ route('inventory.index') }}" method="GET">
@@ -93,30 +76,27 @@
             </tbody>
         </table>
     </form>
-    <table>
-        <tbody>
-            @foreach ($lstPhdck as $index => $phdck)
-                <tr>
-                    <td>{{ $index }}</td>
-                    @php
-                        $link = route(
-                            'inventory.show',
-                            array_merge(['tonkho' => $phdck->getKey()], request()->query()),
-                        );
-                    @endphp
-                    <td>
-                        <a href="{{ $link }}" target="_blank">
-                            {{ $phdck->getKey() }}
-                        </a>
-                    </td>
-                    <td>{{ $phdck->ngayCt->format('d/m/Y') }}</td>
-                    <td>{{ $phdck->so_ct }}</td>
-                    <td>{{ $phdck->dien_giai }}</td>
-                    <td class="right">{{ $phdck->soLuong }}</td>
-                    <td class="right">{{ $phdck->soTien }}</td>
-                </tr>
-            @endforeach
-        </tbody>
+    <table class="table table-sm align-middle table-hover">
+        @foreach ($lstPhdck as $index => $phdck)
+            <tr>
+                {{-- <td>{{ $index }}</td> --}}
+                @php
+                    $link = route('inventory.show', array_merge(['tonkho' => $phdck->getKey()], request()->query()));
+                @endphp
+                <td>
+                    <a href="{{ $link }}" class="text-decoration-none" target="_blank">
+                        {{ $phdck->so_ct }}
+                    </a>
+                </td>
+                <td>{{ $phdck->ngayCt->format('d/m/Y') }}</td>
+                <td>
+                    {{ $phdck->dien_giai }}
+                    <p class="mb-0"><small>{{ $phdck->getKey() }}</small></p>
+                </td>
+                {{-- <td class="right">{{ $phdck->soLuong }}</td> --}}
+                {{-- <td class="right">{{ $phdck->soTien }}</td> --}}
+            </tr>
+        @endforeach
     </table>
     <script type="text/javascript">
         function autocompleteShow(inp) {
