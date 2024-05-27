@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-25 10:33:36
+ * @lastupdate 2024-05-27 07:45:17
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
@@ -41,6 +41,8 @@ class SystemController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     *
+     * @param mixed $request
      */
     public function store(Request $request): RedirectResponse
     {
@@ -50,21 +52,19 @@ class SystemController extends Controller
     /**
      * Show the specified resource.
      *
-     * @param mixed $id
+     * @param mixed $hethong
      */
-    public function show($id)
+    public function show(System $hethong)
     {
-        dd(System::find($id));
-
         return view('catalog::system.show');
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param mixed $id
+     * @param mixed $hethong
      */
-    public function edit($id)
+    public function edit(System $hethong)
     {
         return view('catalog::system.edit');
     }
@@ -72,11 +72,12 @@ class SystemController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param mixed $id
+     * @param mixed $request
+     * @param mixed $hethong
      */
-    public function update(Request $request, $id): RedirectResponse
+    public function update(Request $request, System $hethong): RedirectResponse
     {
-        $system         = System::find($id);
+        $system         = $hethong;
         $system->khoaSo = $request->get('khoaso');
 
         return Redirect::route('system.index');
@@ -85,7 +86,7 @@ class SystemController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param mixed $id
+     * @param mixed $hethong
      */
-    public function destroy($id): void {}
+    public function destroy(System $hethong): void {}
 }

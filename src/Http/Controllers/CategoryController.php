@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-22 12:46:39
+ * @lastupdate 2024-05-27 07:40:22
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
@@ -50,9 +50,9 @@ class CategoryController extends Controller
     /**
      * Show the specified resource.
      *
-     * @param mixed $id
+     * @param mixed $nhomsanpham
      */
-    public function show($id)
+    public function show(Category $nhomsanpham)
     {
         return view('catalog::category.show');
     }
@@ -60,18 +60,22 @@ class CategoryController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param mixed $id
+     * @param mixed $nhomsanpham
      */
-    public function edit($id)
+    public function edit(Category $nhomsanpham)
     {
         return view('catalog::category.edit');
     }
 
     /**
      * Update the specified resource in storage.
+     *
+     * @param mixed $request
+     * @param mixed $nhomsanpham
      */
-    public function update(Request $request, Category $category): RedirectResponse
+    public function update(Request $request, Category $nhomsanpham): RedirectResponse
     {
+        $category                  = $nhomsanpham;
         $category->sku             = $request->get('sku', $category->sku);
         $category->parent          = $request->get('parent', $category->parent);
         $category->name            = $request->get('name', $category->name);
@@ -87,7 +91,7 @@ class CategoryController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param mixed $id
+     * @param mixed $nhomsanpham
      */
-    public function destroy($id): void {}
+    public function destroy(Category $nhomsanpham): void {}
 }
