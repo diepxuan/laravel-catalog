@@ -1,29 +1,34 @@
 @foreach ($categories as $category)
-    <ul>
-        <li>
-            <form action="{{ route('category.update', $category->id) }}" method="POST">
-                @method('PUT') @csrf
-                <input name="include_in_menu" type="checkbox" {{ $category->include_in_menu ? 'checked' : '' }}
-                    onchange="this.form.submit()" />
-            </form>
-        </li>
-        <li style="min-width: 25px;">{{ $category->magento_id ?: '000' }}</li>
-        <li style="min-width: 50px;">{{ $category->sku }}</li>
-        <li><b>{{ $category->name }}</b></li>
-        <li>
-            <i>
-                <a href="https://www.diepxuan.com/{{ $category->urlKey }}.html" target="_blank">
-                    {{ $category->urlKey }}
-                </a>
-            </i>
-        </li>
-    </ul>
+    <div class="list-group list-group-flush border-top border-start">
+        <div class="list-group-item list-group-item-action lh-sm" aria-current="true">
+            <div class="d-flex w-100 align-items-center justify-content-between">
+                <form action="{{ route('category.update', $category->id) }}" method="POST">
+                    @method('PUT') @csrf
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" role="switch" name="include_in_menu"
+                            {{ $category->include_in_menu ? 'checked' : '' }} onchange="this.form.submit()" />
+                        <strong class="mb-1">{{ $category->name }}</strong>
+                    </div>
+                </form>
+                @if ($category->urlPath)
+                    <small>
+                        <a href="https://www.diepxuan.com/{{ $category->urlPath }}.html" class="text-decoration-none"
+                            target="_blank">
+                            {{ $category->urlKey }}
+                            <i class="bi bi-link"></i>
+                        </a>
+                    </small>
+                @endif
+            </div>
+            <div class="col-10 mb-1 small">
+                <small>{{ $category->magento_id ?: '000' }}</small>
+                <small>{{ $category->sku }}</small>
+            </div>
+        </div>
+    </div>
     @if ($category->catChildrens->count())
-        <ul class="childs">
-            <li></li>
-            <li>
-                @include('catalog::category.category', ['categories' => $category->catChildrens])
-            </li>
-        </ul>
+        <div class="ps-5 border-start">
+            @include('catalog::category.category', ['categories' => $category->catChildrens])
+        </div>
     @endif
 @endforeach

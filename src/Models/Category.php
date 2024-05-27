@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-26 22:24:57
+ * @lastupdate 2024-05-27 12:13:40
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -25,6 +25,8 @@ use Illuminate\Support\Str;
 class Category extends Model
 {
     use HasFactory;
+
+    public const ROOT = 'PRODUCT';
 
     /**
      * Indicates if the IDs are auto-incrementing.
@@ -97,23 +99,29 @@ class Category extends Model
         return $query->where('parent', '');
     }
 
-    /**
-     * Get the Products.
-     */
     protected function Products(): HasMany
     {
         return $this->hasMany(Product::class, 'category', 'sku');
     }
 
-    /**
-     * Get the Category urlKey.
-     */
     protected function urlKey(): Attribute
     {
-        $self = $this;
-
         return Attribute::make(
-            get: static fn (mixed $value, array $attributes) => $value ?: Str::of(vn_convert_encoding($attributes['name']))->slug('-'),
+            get: fn (mixed $value, array $attributes) => $this->isRoot ? '' : Str::of(vn_convert_encoding($attributes['name']))->slug('-'),
+        );
+    }
+
+    protected function isRoot(): Attribute
+    {
+        return Attribute::make(
+            get: static fn (mixed $value, array $attributes) => static::ROOT === $attributes['sku'],
+        );
+    }
+
+    protected function urlPath(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value, array $attributes) => $this->catParent ? ($this->catParent->isRoot ? "{$this->urlKey}" : "{$this->catParent->urlPath}/{$this->urlKey}") : '',
         );
     }
 }

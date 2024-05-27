@@ -55,7 +55,7 @@
                     <td>{{ $product->cat ? $product->cat->magento_id : 'NaN' }}</td>
                     <td>
                         @isset($product->cat)
-                            <a href="https://www.diepxuan.com/{{ $product->cat->urlKey }}/{{ $product->urlKey }}.html"
+                            <a href="https://www.diepxuan.com/{{ $product->cat->urlPath }}/{{ $product->urlKey }}.html"
                                 target="_blank">
                                 {{ $product->sku }}
                             </a>
