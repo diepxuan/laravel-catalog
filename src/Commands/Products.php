@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-19 19:08:02
+ * @lastupdate 2024-05-27 20:02:47
  */
 
 namespace Diepxuan\Catalog\Commands;
@@ -62,21 +62,23 @@ class Products extends Command
         $self->withProgressBar($sProducts, static function ($sProduct, $progressBar) use ($products): void {
             $product = $products->get($sProduct->sku);
             if ($product) {
-                $product->name     = "{$sProduct->name}";
-                $product->price    = "{$sProduct->price}";
-                $product->category = "{$sProduct->category}";
+                $product->name     = $sProduct->name;
+                $product->price    = $sProduct->price;
+                $product->category = $sProduct->category;
                 $product->status   = $sProduct->status;
+                $product->quantity = $sProduct->quantity ?: 0;
                 if ($product->isDirty()) {
                     $product->save();
                 }
             } else {
                 $product = Product::updateOrCreate(
-                    ['sku' => "{$sProduct->sku}"],
+                    ['sku' => $sProduct->sku],
                     [
-                        'name'     => "{$sProduct->name}",
-                        'price'    => "{$sProduct->price}",
-                        'category' => "{$sProduct->category}",
+                        'name'     => $sProduct->name,
+                        'price'    => $sProduct->price,
+                        'category' => $sProduct->category,
                         'status'   => $sProduct->status,
+                        'quantity' => $sProduct->quantity ?: 0,
                     ]
                 );
                 $products->put($product->id, $products);

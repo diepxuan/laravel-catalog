@@ -53,6 +53,7 @@
                     <td>{{ $product->name }}</td>
                     <td>{{ $product->category ?: 'missing' }}</td>
                     <td>{{ $product->cat ? $product->cat->magento_id : 'NaN' }}</td>
+                    <td>{{ $product->quantity ?: 0 }}</td>
                     <td>
                         @isset($product->cat)
                             <a href="https://www.diepxuan.com/{{ $product->cat->urlPath }}/{{ $product->urlKey }}.html"

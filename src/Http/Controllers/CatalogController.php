@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-22 12:46:19
+ * @lastupdate 2024-05-27 20:13:44
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
@@ -16,6 +16,7 @@ namespace Diepxuan\Catalog\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Diepxuan\Catalog\Models\Product;
 use Diepxuan\Magento\Magento;
+use Diepxuan\Simba\Models\Product as SProduct;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -30,6 +31,7 @@ class CatalogController extends Controller
     {
         return view('catalog::product/index', [
             'products' => Product::all(),
+            // 'products' => SProduct::withQuantity()->get(),
         ]);
     }
 

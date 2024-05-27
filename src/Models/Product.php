@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-17 07:57:13
+ * @lastupdate 2024-05-27 20:10:04
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -69,6 +69,18 @@ class Product extends Model
      */
     protected $hidden = [
     ];
+
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'quantity' => 'decimal:1',
+        ];
+    }
 
     /**
      * Get the Simba Product Id.

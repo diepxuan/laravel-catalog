@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-17 15:29:06
+ * @lastupdate 2024-05-27 19:30:51
  */
 
 namespace Diepxuan\Catalog\Observers;
@@ -79,13 +79,17 @@ class ProductObserver
     public function data(Product $prod)
     {
         $data = [
-            'sku'               => $prod->sku,
-            'name'              => $prod->name,
-            'price'             => $prod->price,
-            'status'            => $prod->status,
-            'attribute_set_id'  => 4,
-            'visibility'        => 4,
-            'type_id'           => 'simple',
+            'sku'              => $prod->sku,
+            'name'             => $prod->name,
+            'price'            => $prod->price,
+            'status'           => $prod->status,
+            'attribute_set_id' => 4,
+            'visibility'       => 4,
+            'type_id'          => 'simple',
+            'stock'            => [
+                'qty'         => $prod->quantity,
+                'is_in_stock' => true,
+            ],
             'custom_attributes' => [
                 [
                     'attribute_code' => 'meta_title',
