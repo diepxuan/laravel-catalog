@@ -4,7 +4,5 @@
 @section('content')
     <style type="text/css">
     </style>
-    <div class="pt-5">
-        @include('catalog::category.category', ['categories' => $categories])
-    </div>
+    @include('catalog::category.category', ['categories' => $categories])
 @endsection

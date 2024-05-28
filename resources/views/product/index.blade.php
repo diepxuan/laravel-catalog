@@ -3,47 +3,44 @@
 
 @section('content')
     <style type="text/css">
-        body {
-            font-size: 0.75rem
-        }
-
-        table {
-            font-family: arial, sans-serif;
-            border-collapse: collapse;
-            width: 100%;
-        }
-
-        tr.disable {
-            color: rgb(57, 44, 44);
-            background-color: rgb(246, 80, 80);
-        }
-
-        td,
-        th {
-            border: 0px solid #dddddd;
-            text-align: left;
-            line-height: 0.75rem;
-            padding: 4px;
-        }
-
-        button.sync {
-            border: solid 1px rgb(184, 63, 63);
-            border-radius: 3px;
-            color: rgb(184, 63, 63);
-        }
-
-        button.sync:hover {
-            cursor: pointer;
-            background: rgb(184, 63, 63);
-            color: rgb(241, 225, 216)
-        }
-
-        td a {
-            text-decoration-line: none;
-            color: rgb(10, 149, 22);
-        }
     </style>
-    <table class="table table-hover table-condensed table-sm text-monospace small">
+
+    <div class="list-group list-group-flush border-top border-start">
+        @foreach ($products as $product)
+            <div class="list-group-item list-group-item-action lh-sm">
+                <div class="d-flex w-100 align-items-center justify-content-between">
+                    <form action="{{ route('catalog.update', $product->id) }}" method="POST">
+                        @method('PUT') @csrf
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" role="switch" name="status"
+                                {{ $product->status ? 'checked' : '' }} onchange="this.form.submit()" />
+                            <strong class="mb-1">{{ $product->name }}</strong>
+                        </div>
+                    </form>
+                    <small>{{ $product->quantity ?: 0 }}</small>
+                </div>
+                <div class="col-10 d-flex mt-1 small align-items-center justify-content-between">
+                    <small>
+                        @php
+                            if ($product->cat) {
+                                $path = "{$product->cat->urlPath}/{$product->urlKey}";
+                            } else {
+                                $path = $product->urlKey;
+                            }
+                        @endphp
+                        <a href="https://www.diepxuan.com/{{ $path }}.html" class="text-decoration-none"
+                            target="_blank">
+                            <i class="bi bi-link"></i>
+                            {{ $product->sku }}
+                        </a>
+                    </small>
+                    <small>{{ implode(',', $product->catIds) }}</small>
+                </div>
+            </div>
+        @endforeach
+    </div>
+
+    {{-- <table class="table table-hover table-condensed table-sm text-monospace small">
         <tbody>
             @foreach ($products as $product)
                 <tr id="{{ "$product->simbaId" }}" @class(['prod', 'disable' => $product->status])>
@@ -69,5 +66,5 @@
                 </tr>
             @endforeach
         </tbody>
-    </table>
+    </table> --}}
 @endsection

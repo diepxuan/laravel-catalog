@@ -41,7 +41,7 @@
                 @include('catalog::layouts.menu')
             </div>
 
-            <div class="col-md-9">
+            <div class="col-md-9 pt-5">
                 @yield('content')
             </div>
         </div>
