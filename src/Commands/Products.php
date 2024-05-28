@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-27 20:02:47
+ * @lastupdate 2024-05-27 20:32:34
  */
 
 namespace Diepxuan\Catalog\Commands;
@@ -58,7 +58,8 @@ class Products extends Command
         $self->output->writeln(sprintf('[i] Loaded <fg=green>%s</> products.', $products->count()));
 
         $self->output->writeln('[i] Starting import Simba products');
-        $sProducts = SProduct::all()->keyBy('sku');
+        // $sProducts = SProduct::all()->keyBy('sku');
+        $sProducts = SProduct::withQuantity()->get()->keyBy('sku');
         $self->withProgressBar($sProducts, static function ($sProduct, $progressBar) use ($products): void {
             $product = $products->get($sProduct->sku);
             if ($product) {
@@ -66,7 +67,7 @@ class Products extends Command
                 $product->price    = $sProduct->price;
                 $product->category = $sProduct->category;
                 $product->status   = $sProduct->status;
-                $product->quantity = $sProduct->quantity ?: 0;
+                $product->quantity = (float) $sProduct->quantity;
                 if ($product->isDirty()) {
                     $product->save();
                 }

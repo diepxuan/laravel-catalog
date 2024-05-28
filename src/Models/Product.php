@@ -78,7 +78,7 @@ class Product extends Model
     protected function casts(): array
     {
         return [
-            'quantity' => 'decimal:1',
+            'quantity' => 'float',
         ];
     }
 
