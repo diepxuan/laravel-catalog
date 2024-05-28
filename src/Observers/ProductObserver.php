@@ -79,16 +79,18 @@ class ProductObserver
     public function data(Product $prod)
     {
         $data = [
-            'sku'              => $prod->sku,
-            'name'             => $prod->name,
-            'price'            => $prod->price,
-            'status'           => $prod->status,
-            'attribute_set_id' => 4,
-            'visibility'       => 4,
-            'type_id'          => 'simple',
-            'stock'            => [
+            'sku'                  => $prod->sku,
+            'name'                 => $prod->name,
+            'price'                => $prod->price,
+            'status'               => (int) $prod->status,
+            'attribute_set_id'     => 4,
+            'visibility'           => 4,
+            'type_id'              => 'simple',
+            'extension_attributes' => [
+                'stock_item' => [
                 'qty'         => $prod->quantity,
                 'is_in_stock' => true,
+                ],
             ],
             'custom_attributes' => [
                 [
