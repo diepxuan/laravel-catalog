@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-27 12:13:40
+ * @lastupdate 2024-05-28 23:45:08
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -122,6 +122,15 @@ class Category extends Model
     {
         return Attribute::make(
             get: fn (mixed $value, array $attributes) => $this->catParent ? ($this->catParent->isRoot ? "{$this->urlKey}" : "{$this->catParent->urlPath}/{$this->urlKey}") : '',
+        );
+    }
+
+    protected function ids(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value, array $attributes) => $this->isRoot ?
+                [$this->magento_id] :
+                array_merge($this->catParent->ids, [$this->magento_id]),
         );
     }
 }

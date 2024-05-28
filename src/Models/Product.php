@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-27 20:10:04
+ * @lastupdate 2024-05-28 23:49:03
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -87,8 +87,6 @@ class Product extends Model
      */
     protected function simbaId(): Attribute
     {
-        $self = $this;
-
         return Attribute::make(
             get: static fn (mixed $value, array $attributes) => "001_{$attributes['sku']}",
         );
@@ -101,6 +99,13 @@ class Product extends Model
     {
         return Attribute::make(
             get: static fn (mixed $value, array $attributes) => Str::of(vn_convert_encoding($attributes['name']))->slug('-'),
+        );
+    }
+
+    protected function catIds(): Attribute
+    {
+        return Attribute::make(
+            get: fn (mixed $value, array $attributes) => $this->cat ? $this->cat->ids : [],
         );
     }
 

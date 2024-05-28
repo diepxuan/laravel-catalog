@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-27 19:30:51
+ * @lastupdate 2024-05-29 00:08:55
  */
 
 namespace Diepxuan\Catalog\Observers;
@@ -37,6 +37,7 @@ class ProductObserver
         try {
             Magento::products()->find($prod->sku)->update($this->data($prod));
         } catch (\Throwable $th) {
+            // throw $th;
             $this->created($prod);
         }
     }
@@ -88,8 +89,8 @@ class ProductObserver
             'type_id'              => 'simple',
             'extension_attributes' => [
                 'stock_item' => [
-                'qty'         => $prod->quantity,
-                'is_in_stock' => true,
+                    'qty'         => $prod->quantity,
+                    'is_in_stock' => true,
                 ],
             ],
             'custom_attributes' => [
@@ -109,12 +110,16 @@ class ProductObserver
                     'attribute_code' => 'url_key',
                     'value'          => $prod->urlKey,
                 ],
+                [
+                    'attribute_code' => 'status',
+                    'value'          => (int) $prod->status,
+                ],
             ],
         ];
         if ($prod->cat) {
             $data['custom_attributes'][] = [
                 'attribute_code' => 'category_ids',
-                'value'          => [$prod->cat->magento_id],
+                'value'          => $prod->catIds,
             ];
         }
 
