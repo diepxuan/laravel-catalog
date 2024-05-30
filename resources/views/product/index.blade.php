@@ -14,7 +14,13 @@
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" role="switch" name="status"
                                 {{ $product->status ? 'checked' : '' }} onchange="this.form.submit()" />
-                            <strong class="mb-1">{{ $product->name }}</strong>
+                            <strong class="mb-1">
+                                {{ $product->name }}
+                                <a href="{{ route('catalog.show', $product->id) }}" class="text-decoration-none"
+                                    target="_blank">
+                                    <i class="bi bi-pencil-square"></i>
+                                </a>
+                            </strong>
                         </div>
                     </form>
                     <small>{{ $product->quantity ?: 0 }}</small>

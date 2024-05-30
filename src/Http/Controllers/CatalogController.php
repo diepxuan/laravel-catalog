@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-28 11:08:07
+ * @lastupdate 2024-05-29 17:00:02
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
@@ -52,11 +52,13 @@ class CatalogController extends Controller
     /**
      * Show the specified resource.
      *
-     * @param mixed $id
+     * @param mixed $sanpham
      */
-    public function show($id)
+    public function show(Product $sanpham)
     {
-        return view('catalog::product/show');
+        return view('catalog::product/show', [
+            'product' => $sanpham,
+        ]);
     }
 
     /**

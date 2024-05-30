@@ -8,16 +8,18 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-28 23:49:03
+ * @lastupdate 2024-05-29 18:31:17
  */
 
 namespace Diepxuan\Catalog\Models;
 
 use Diepxuan\Catalog\Observers\ProductObserver;
+use Diepxuan\Simba\Models\Product as SProduct;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
 #[ObservedBy([ProductObserver::class])]
@@ -115,5 +117,10 @@ class Product extends Model
     protected function cat(): BelongsTo
     {
         return $this->belongsTo(Category::class, 'category', 'sku');
+    }
+
+    protected function simba(): HasOne
+    {
+        return $this->hasOne(SProduct::class, 'ma_vt', 'sku');
     }
 }

@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-27 20:32:34
+ * @lastupdate 2024-05-29 18:33:15
  */
 
 namespace Diepxuan\Catalog\Commands;
@@ -79,7 +79,7 @@ class Products extends Command
                         'price'    => $sProduct->price,
                         'category' => $sProduct->category,
                         'status'   => $sProduct->status,
-                        'quantity' => $sProduct->quantity ?: 0,
+                        'quantity' => (float) ($sProduct->quantity ?: 0),
                     ]
                 );
                 $products->put($product->id, $products);

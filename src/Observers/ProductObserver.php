@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-29 00:08:55
+ * @lastupdate 2024-05-29 18:37:12
  */
 
 namespace Diepxuan\Catalog\Observers;
@@ -34,6 +34,13 @@ class ProductObserver
      */
     public function updated(Product $prod): void
     {
+        $simba          = $prod->simba;
+        $simba->ten_vt  = $prod->name;
+        $simba->gia_nt2 = $prod->price;
+        if ($simba->isDirty()) {
+            $simba->save();
+        }
+
         try {
             Magento::products()->find($prod->sku)->update($this->data($prod));
         } catch (\Throwable $th) {
