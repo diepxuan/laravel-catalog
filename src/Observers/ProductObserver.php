@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-29 18:37:12
+ * @lastupdate 2024-05-30 11:33:13
  */
 
 namespace Diepxuan\Catalog\Observers;
@@ -39,6 +39,11 @@ class ProductObserver
         $simba->gia_nt2 = $prod->price;
         if ($simba->isDirty()) {
             $simba->save();
+        }
+
+        $prod->status = $simba->status && $prod->status;
+        if ($prod->isDirty()) {
+            $prod->save();
         }
 
         try {
