@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-26 18:28:24
+ * @lastupdate 2024-05-30 07:52:43
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
@@ -16,8 +16,8 @@ namespace Diepxuan\Catalog\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Diepxuan\Catalog\Http\Requests\SimbaRequest;
 use Diepxuan\Catalog\Models\Category;
+use Diepxuan\Catalog\Models\InventoryTicket;
 use Diepxuan\Simba\Models\KhoHang;
-use Diepxuan\Simba\Models\PhieuXuatDieuChuyenKho;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -32,7 +32,7 @@ class InventoryController extends Controller
         $validated = $request->validated();
 
         return view('catalog::inventory.index', [
-            'lstPhdck' => PhieuXuatDieuChuyenKho::whereNgayCt($request->get('from'), $request->get('to'))
+            'lstPhdck' => InventoryTicket::whereNgayCt($request->get('from'), $request->get('to'))
                 ->whereKhoXuat($request->get('khoxuat'))
                 ->orderBy('ngay_ct', 'asc')
                 ->orderBy('so_ct', 'asc')
@@ -64,9 +64,9 @@ class InventoryController extends Controller
     /**
      * Show the specified resource.
      */
-    public function show(SimbaRequest $request, PhieuXuatDieuChuyenKho $tonkho)
+    public function show(SimbaRequest $request, InventoryTicket $tonkho)
     {
-        $lstPhdck = PhieuXuatDieuChuyenKho::whereNgayCt($request->get('from'), $request->get('to'))
+        $lstPhdck = InventoryTicket::whereNgayCt($request->get('from'), $request->get('to'))
             ->whereKhoXuat($request->get('khoxuat'))
             ->orderBy('ngay_ct', 'asc')
             ->orderBy('so_ct', 'asc')

@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-29 17:00:02
+ * @lastupdate 2024-05-30 09:46:33
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
@@ -81,9 +81,13 @@ class CatalogController extends Controller
         $sanpham->name     = $request->get('name', $sanpham->name);
         $sanpham->price    = $request->get('price', $sanpham->price);
         $sanpham->category = $request->get('category', $sanpham->category);
-        $sanpham->quantity = $request->get('quantity', $sanpham->quantity ?: 0);
+        $sanpham->quantity = $request->get('quantity', (float) ($sanpham->quantity ?: 0));
         $sanpham->status   = $request->boolean('status');
         $sanpham->save();
+
+        if ($request->exists('productedit')) {
+            return Redirect::route('catalog.show', $sanpham->id);
+        }
 
         return Redirect::route('catalog.index');
     }
