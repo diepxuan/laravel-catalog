@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-30 11:33:13
+ * @lastupdate 2024-05-30 15:39:20
  */
 
 namespace Diepxuan\Catalog\Observers;
@@ -41,8 +41,8 @@ class ProductObserver
             $simba->save();
         }
 
-        $prod->status = $simba->status && $prod->status;
-        if ($prod->isDirty()) {
+        if (false === $simba->status && true === $prod->status) {
+            $prod->status = false;
             $prod->save();
         }
 
