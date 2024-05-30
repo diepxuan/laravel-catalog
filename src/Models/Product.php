@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-29 18:31:17
+ * @lastupdate 2024-05-30 08:56:24
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -16,61 +16,19 @@ namespace Diepxuan\Catalog\Models;
 use Diepxuan\Catalog\Observers\ProductObserver;
 use Diepxuan\Simba\Models\Product as SProduct;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
 #[ObservedBy([ProductObserver::class])]
-class Product extends Model
+class Product extends AbstractModel
 {
-    use HasFactory;
-
-    /**
-     * Indicates if the IDs are auto-incrementing.
-     *
-     * @var bool
-     */
-    public $incrementing = true;
-
-    /**
-     * Indicates if the model should be timestamped.
-     *
-     * @var bool
-     */
-    public $timestamps = true;
-
     /**
      * The primary key associated with the table.
      *
      * @var string
      */
     protected $primaryKey = 'id';
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = [
-    ];
-
-    /**
-     * The attributes that aren't mass assignable.
-     *
-     * @var array
-     */
-    protected $guarded = [
-    ];
-
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [
-    ];
 
     /**
      * Get the attributes that should be cast.

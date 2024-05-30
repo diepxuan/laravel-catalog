@@ -8,39 +8,21 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-28 23:45:08
+ * @lastupdate 2024-05-30 08:57:05
  */
 
 namespace Diepxuan\Catalog\Models;
 
 use Diepxuan\Catalog\Observers\CategoryObserver;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
 
 #[ObservedBy([CategoryObserver::class])]
-class Category extends Model
+class Category extends AbstractModel
 {
-    use HasFactory;
-
     public const ROOT = 'PRODUCT';
-
-    /**
-     * Indicates if the IDs are auto-incrementing.
-     *
-     * @var bool
-     */
-    public $incrementing = true;
-
-    /**
-     * Indicates if the model should be timestamped.
-     *
-     * @var bool
-     */
-    public $timestamps = true;
 
     /**
      * The primary key associated with the table.
@@ -48,30 +30,6 @@ class Category extends Model
      * @var string
      */
     protected $primaryKey = 'id';
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array
-     */
-    protected $fillable = [
-    ];
-
-    /**
-     * The attributes that aren't mass assignable.
-     *
-     * @var array
-     */
-    protected $guarded = [
-    ];
-
-    /**
-     * The attributes that should be hidden for arrays.
-     *
-     * @var array
-     */
-    protected $hidden = [
-    ];
 
     /**
      * Get the children Categories.
