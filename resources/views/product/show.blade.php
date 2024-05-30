@@ -46,6 +46,6 @@
                     value="{{ $product->category }}" />
             </div>
         </div>
-        <button type="submit" class="btn btn-primary">Lưu</button>
+        <button type="submit" class="btn btn-primary" name="productedit">Lưu</button>
     </form>
 @endsection

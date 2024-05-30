@@ -40,7 +40,8 @@
                             {{ $product->sku }}
                         </a>
                     </small>
-                    <small>{{ implode(',', $product->catIds) }}</small>
+                    <small>{{ $product->price }}</small>
+                    <small>{{ implode(' | ', $product->catIds) }}</small>
                 </div>
             </div>
         @endforeach

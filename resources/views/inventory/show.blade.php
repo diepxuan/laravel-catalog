@@ -49,10 +49,15 @@
         </tr>
     </table>
     <table class="table table-sm align-middle table-hover align-middle" id="lstChungTu">
-        @foreach ($phdck->chungtu as $index => $chungtu)
+        @foreach ($phdck->items as $index => $chungtu)
             <tr tabindex="0">
                 <td>
-                    <p class="mb-0 fw-semibold">{{ $chungtu->ten_vt }}</p>
+                    <p class="mb-0 fw-semibold">{{ $chungtu->product->name }}
+                        <a href="{{ route('catalog.show', $chungtu->product->id) }}"
+                            class="text-decoration-none small text-secondary-emphasis" target="_blank">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                    </p>
                     <p class="mb-0 fw-lighter"><small>{{ $chungtu->ma_vt }}</small></p>
                 </td>
                 <td class="text-nowrap fw-semibold">
