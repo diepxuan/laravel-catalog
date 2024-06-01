@@ -25,8 +25,8 @@
                     </form>
                     <small>{{ $product->quantity ?: 0 }}</small>
                 </div>
-                <div class="col-10 d-flex mt-1 small align-items-center justify-content-between">
-                    <small>
+                <div class="mt-1 small row">
+                    <small class="col-md-6">
                         @php
                             if ($product->cat) {
                                 $path = "{$product->cat->urlPath}/{$product->urlKey}";
@@ -40,8 +40,8 @@
                             {{ $product->sku }}
                         </a>
                     </small>
-                    <small>{{ $product->price }}</small>
-                    <small>{{ implode(' | ', $product->catIds) }}</small>
+                    <small class="col-md-2 text-end">{{ $product->price }}</small>
+                    <small class="col-md-4">{{ implode(' | ', $product->catIds) }}</small>
                 </div>
             </div>
         @endforeach

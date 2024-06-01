@@ -11,7 +11,7 @@
             <div class="col-sm-10 offset-sm-2">
                 <div class="form-check form-switch">
                     <input class="form-check-input" type="checkbox" role="switch" name="status" id="status"
-                        {{ $product->status ? 'checked' : '' }} onchange="this.form.submit()" />
+                        {{ $product->status ? 'checked' : '' }} />
                     <label class="form-check-label" for="status">
                         Status
                     </label>
