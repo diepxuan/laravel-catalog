@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-30 15:39:20
+ * @lastupdate 2024-06-01 12:55:34
  */
 
 namespace Diepxuan\Catalog\Observers;
@@ -102,7 +102,7 @@ class ProductObserver
             'extension_attributes' => [
                 'stock_item' => [
                     'qty'         => $prod->quantity,
-                    'is_in_stock' => true,
+                    'is_in_stock' => $prod->quantity > 0,
                 ],
             ],
             'custom_attributes' => [
