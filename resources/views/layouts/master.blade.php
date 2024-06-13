@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 @php
-    $logo = 'https://raw.githubusercontent.com/diepxuan/logo/main/icons/MetallicBrown.svg';
-    $favicon = 'https://raw.githubusercontent.com/diepxuan/logo/main/favicons/MetallicBrown.svg';
-    $brand = 'https://raw.githubusercontent.com/diepxuan/logo/main/texts/MetallicBrown.svg';
+    $logo = 'https://raw.githubusercontent.com/diepxuan/logo/main/icons/brand/MetallicBrown.svg';
+    $favicon = 'https://raw.githubusercontent.com/diepxuan/logo/main/icons/favicons/MetallicBrown.svg';
+    $brand = 'https://raw.githubusercontent.com/diepxuan/logo/main/icons/texts/MetallicBrown.svg';
 @endphp
 
 <head>
