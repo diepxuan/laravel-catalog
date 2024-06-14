@@ -12,9 +12,10 @@
         ],
         [
             'name' => 'Hệ Thống',
-            'status' => Request::is('hethong'),
+            'status' => Request::is('hethong', 'hethong/*'),
             'items' => [
                 'Dashboard' => 'system.index',
+                'Website' => 'systemwebsite.index',
             ],
         ],
     ];

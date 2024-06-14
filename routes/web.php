@@ -8,13 +8,14 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-22 16:20:08
+ * @lastupdate 2024-06-14 16:31:11
  */
 
 use Diepxuan\Catalog\Http\Controllers\CatalogController;
 use Diepxuan\Catalog\Http\Controllers\CategoryController;
 use Diepxuan\Catalog\Http\Controllers\InventoryController;
 use Diepxuan\Catalog\Http\Controllers\SystemController;
+use Diepxuan\Catalog\Http\Controllers\SystemWebsiteController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,7 +33,8 @@ Route::middleware('clearcache')->group(static function (): void {
     Route::resource('khohang/sanpham', CatalogController::class)->names('catalog');
     Route::resource('khohang/nhomsanpham', CategoryController::class)->names('category');
 
-    Route::resource('hethong', SystemController::class)->names('system');
+    Route::resource('hethong/dashboard', SystemController::class)->names('system');
+    Route::resource('hethong/website', SystemWebsiteController::class)->names('systemwebsite');
 
     Route::get('/', [SystemController::class, 'index']);
 });

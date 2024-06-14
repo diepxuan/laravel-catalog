@@ -8,26 +8,27 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-14 16:12:55
+ * @lastupdate 2024-06-14 18:56:18
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use Diepxuan\Magento\Magento;
 use Diepxuan\Simba\Models\System;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
 
-class SystemController extends Controller
+class SystemWebsiteController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return view('catalog::system.index', [
-            'system' => System::first(),
+        return view('catalog::system.website.index', [
+            'websites' => Magento::store_websites()->get(),
         ]);
     }
 
@@ -36,7 +37,7 @@ class SystemController extends Controller
      */
     public function create()
     {
-        return view('catalog::system.create');
+        return view('catalog::system.website.index');
     }
 
     /**
@@ -46,7 +47,7 @@ class SystemController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        return Redirect::route('system.index');
+        return Redirect::route('systemwebsite.index');
     }
 
     /**
@@ -56,7 +57,7 @@ class SystemController extends Controller
      */
     public function show(System $hethong)
     {
-        return view('catalog::system.show');
+        return view('catalog::system.website.index');
     }
 
     /**
@@ -66,21 +67,17 @@ class SystemController extends Controller
      */
     public function edit(System $hethong)
     {
-        return view('catalog::system.edit');
+        return view('catalog::system.website.index');
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param mixed $request
-     * @param mixed $hethong
      */
-    public function update(Request $request, System $hethong): RedirectResponse
+    public function update(Request $request): RedirectResponse
     {
-        $system         = $hethong;
-        $system->khoaSo = $request->get('khoaso');
-
-        return Redirect::route('system.index');
+        return Redirect::route('systemwebsite.index');
     }
 
     /**
@@ -88,5 +85,8 @@ class SystemController extends Controller
      *
      * @param mixed $hethong
      */
-    public function destroy(System $hethong): void {}
+    public function destroy(System $hethong): RedirectResponse
+    {
+        return Redirect::route('systemwebsite.index');
+    }
 }
