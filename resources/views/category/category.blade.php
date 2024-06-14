@@ -24,6 +24,9 @@
                 <small>{{ $category->magento_id ?: '000' }}</small>
                 <small>{{ $category->sku }}</small>
             </div>
+            <div class="col-2 mb-1 small">
+                <small>{{ implode(',', $category->ids) }}</small>
+            </div>
         </div>
     </div>
     @if ($category->catChildrens->count())

@@ -8,15 +8,17 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-30 08:57:05
+ * @lastupdate 2024-06-14 21:34:16
  */
 
 namespace Diepxuan\Catalog\Models;
 
+use Diepxuan\Catalog\Models\Casts\CategoryMagento;
 use Diepxuan\Catalog\Observers\CategoryObserver;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 #[ObservedBy([CategoryObserver::class])]
@@ -30,6 +32,15 @@ class Category extends AbstractModel
      * @var string
      */
     protected $primaryKey = 'id';
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'magento' => CategoryMagento::class,
+    ];
 
     /**
      * Get the children Categories.
@@ -86,9 +97,7 @@ class Category extends AbstractModel
     protected function ids(): Attribute
     {
         return Attribute::make(
-            get: fn (mixed $value, array $attributes) => $this->isRoot ?
-                [$this->magento_id] :
-                array_merge($this->catParent->ids, [$this->magento_id]),
+            get: fn (mixed $value, array $attributes) => array_merge($this->catParent ? $this->catParent->ids : [], Arr::wrap($this->magento->default)),
         );
     }
 }

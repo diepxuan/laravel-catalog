@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-17 22:02:09
+ * @lastupdate 2024-06-14 19:13:57
  */
 
 namespace Diepxuan\Catalog\Commands;
@@ -69,9 +69,6 @@ class Categories extends Command
                 'parent' => "{$sCategory->parent}",
                 'urlKey' => "{$sCategory->urlKey}",
             ];
-            if ('PRODUCT' === $sCategory->sku) {
-                $catOptions['magento_id'] = 2;
-            }
             $category = Category::updateOrCreate(
                 ['simba_id' => "{$sCategory->id}"],
                 $catOptions

@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-21 10:14:23
+ * @lastupdate 2024-06-14 21:36:15
  */
 
 namespace Diepxuan\Catalog\Observers;
@@ -24,8 +24,8 @@ class CategoryObserver
     public function created(Category $cat): void
     {
         try {
-            $mCat            = Magento::categories()->create($this->data($cat));
-            $cat->magento_id = $mCat->id;
+            $mCat                  = Magento::categories()->create($this->data($cat));
+            $cat->magento->default = $mCat->id;
             if ($cat->isDirty()) {
                 $cat->save();
             }
@@ -39,8 +39,8 @@ class CategoryObserver
     public function updated(Category $cat): void
     {
         try {
-            if ($cat->magento_id) {
-                Magento::categories()->find($cat->magento_id)->update($this->data($cat));
+            if ($cat->magento->default) {
+                Magento::categories()->find($cat->magento->default)->update($this->data($cat));
             } else {
                 $this->created($cat);
             }
@@ -55,7 +55,7 @@ class CategoryObserver
     public function deleted(Category $cat): void
     {
         try {
-            Magento::categories()->find($cat->magento_id)->delete();
+            Magento::categories()->find($cat->magento->default)->delete();
         } catch (\Throwable $th) {
         }
     }
@@ -74,7 +74,7 @@ class CategoryObserver
     public function forceDeleted(Category $cat): void
     {
         try {
-            Magento::categories()->find($cat->magento_id)->delete();
+            Magento::categories()->find($cat->magento->default)->delete();
         } catch (\Throwable $th) {
         }
     }
@@ -108,7 +108,7 @@ class CategoryObserver
                 ],
             ],
         ];
-        $data['parent_id'] = $cat->parent ? $cat->catParent->magento_id : 2;
+        $data['parent_id'] = $cat->parent ? $cat->catParent->magento->default : 2;
 
         return $data;
     }
