@@ -68,6 +68,16 @@ class Category extends AbstractModel
         return $query->where('parent', '');
     }
 
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return $this->casts;
+    }
+
     protected function Products(): HasMany
     {
         return $this->hasMany(Product::class, 'category', 'sku');

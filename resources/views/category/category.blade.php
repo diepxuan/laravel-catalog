@@ -21,8 +21,9 @@
                 @endif
             </div>
             <div class="col-10 mb-1 small">
-                <small>{{ $category->magento_id ?: '000' }}</small>
                 <small>{{ $category->sku }}</small>
+                <small>{{ $category->magento->default }}</small>
+                <small>{{ $category->magento->everon }}</small>
             </div>
             <div class="col-2 mb-1 small">
                 <small>{{ implode(',', $category->ids) }}</small>

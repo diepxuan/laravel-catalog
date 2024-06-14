@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-14 21:36:15
+ * @lastupdate 2024-06-14 22:11:41
  */
 
 namespace Diepxuan\Catalog\Observers;
@@ -24,6 +24,9 @@ class CategoryObserver
     public function created(Category $cat): void
     {
         try {
+            if ($cat->isRoot) {
+                return;
+            }
             $mCat                  = Magento::categories()->create($this->data($cat));
             $cat->magento->default = $mCat->id;
             if ($cat->isDirty()) {
@@ -39,6 +42,9 @@ class CategoryObserver
     public function updated(Category $cat): void
     {
         try {
+            if ($cat->isRoot) {
+                return;
+            }
             if ($cat->magento->default) {
                 Magento::categories()->find($cat->magento->default)->update($this->data($cat));
             } else {
@@ -55,6 +61,9 @@ class CategoryObserver
     public function deleted(Category $cat): void
     {
         try {
+            if ($cat->isRoot) {
+                return;
+            }
             Magento::categories()->find($cat->magento->default)->delete();
         } catch (\Throwable $th) {
         }
@@ -74,6 +83,9 @@ class CategoryObserver
     public function forceDeleted(Category $cat): void
     {
         try {
+            if ($cat->isRoot) {
+                return;
+            }
             Magento::categories()->find($cat->magento->default)->delete();
         } catch (\Throwable $th) {
         }
