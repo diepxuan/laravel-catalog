@@ -6,8 +6,9 @@
         @foreach ($websites as $website)
             <tr>
                 <td>{{ $website->id }}</td>
-                <td>{{ $website->code }}</td>
                 <td>{{ $website->name }}</td>
+                <td>{{ $website->code }}</td>
+                {{-- <td>{{ $website->default_group_id }}</td> --}}
             </tr>
         @endforeach
     </table>

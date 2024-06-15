@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-14 22:42:36
+ * @lastupdate 2024-06-15 11:48:22
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -100,6 +100,13 @@ class Category extends AbstractModel
         );
     }
 
+    protected function isEvrRoot(): Attribute
+    {
+        return Attribute::make(
+            get: static fn (mixed $value, array $attributes) => static::EVR === $attributes['sku'],
+        );
+    }
+
     protected function urlPath(): Attribute
     {
         return Attribute::make(
@@ -110,7 +117,7 @@ class Category extends AbstractModel
     protected function ids(): Attribute
     {
         return Attribute::make(
-            get: fn (mixed $value, array $attributes) => array_merge($this->catParent ? $this->catParent->ids : [], Arr::wrap($this->magento->default)),
+            get: fn (mixed $value, array $attributes) => Arr::where(array_unique(array_merge($this->catParent ? $this->catParent->ids : [], Arr::wrap([$this->magento->default]), Arr::wrap([$this->magento->everon]))), static fn ($value, int $key) => $value > 0),
         );
     }
 }

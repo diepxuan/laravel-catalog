@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-30 08:51:16
+ * @lastupdate 2024-06-15 11:48:45
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -86,5 +86,34 @@ abstract class AbstractModel extends Model
     {
         parent::__construct($attributes);
         $this->connection = config('database.default');
+    }
+
+    public static function boot(): void
+    {
+        parent::boot();
+
+        self::creating(static function (Category $model): void {
+            // ... code here
+        });
+
+        self::created(static function (Category $model): void {
+            // ... code here
+        });
+
+        self::updating(static function (Category $model): void {
+            // ... code here
+        });
+
+        self::updated(static function (Category $model): void {
+            // ... code here
+        });
+
+        self::deleting(static function (Category $model): void {
+            // ... code here
+        });
+
+        self::deleted(static function (Category $model): void {
+            // ... code here
+        });
     }
 }

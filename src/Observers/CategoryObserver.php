@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-15 07:37:24
+ * @lastupdate 2024-06-15 11:37:04
  */
 
 namespace Diepxuan\Catalog\Observers;
@@ -18,33 +18,13 @@ use Diepxuan\Magento\Magento;
 
 class CategoryObserver
 {
-    /**
-     * Handle the Category "created" event.
-     */
     public function created(Category $cat): void
     {
         if ($cat->isRoot) {
             return;
         }
-
-        try {
-            $mCat                  = Magento::categories()->create($this->data($cat));
-            $cat->magento->default = $mCat->id;
-            if ($cat->isDirty()) {
-                $cat->save();
-            }
-        } catch (\Throwable $th) {
-        }
-        if ($cat->parent && $cat->parent->magento->everon > 0) {
-            try {
-                $mCat                 = Magento::categories()->create($this->data($cat, Category::TYPEEVR));
-                $cat->magento->everon = $mCat->id;
-                if ($cat->isDirty()) {
-                    $cat->save();
-                }
-            } catch (\Throwable $th) {
-            }
-        }
+        $this->createdDefault($cat);
+        $this->createdEveron($cat);
     }
 
     /**
@@ -56,25 +36,8 @@ class CategoryObserver
             return;
         }
 
-        try {
-            if ($cat->magento->default > 0) {
-                Magento::categories()->find($cat->magento->default)->update($this->data($cat));
-            } else {
-                $this->created($cat);
-            }
-        } catch (\Throwable $th) {
-            $this->created($cat);
-        }
-
-        try {
-            if ($cat->magento->everon > 0) {
-                Magento::categories()->find($cat->magento->everon)->update($this->data($cat, Category::TYPEEVR));
-            } else {
-                $this->created($cat);
-            }
-        } catch (\Throwable $th) {
-            $this->created($cat);
-        }
+        $this->updateDefault($cat);
+        $this->updateEveron($cat);
     }
 
     /**
@@ -141,14 +104,6 @@ class CategoryObserver
                     'value'          => 1,
                 ],
                 [
-                    'attribute_code' => 'url_key',
-                    'value'          => $cat->urlKey,
-                ],
-                [
-                    'attribute_code' => 'url_path',
-                    'value'          => $cat->urlKey,
-                ],
-                [
                     'attribute_code' => 'meta_title',
                     'value'          => $cat->name,
                 ],
@@ -163,11 +118,75 @@ class CategoryObserver
 
             case Category::TYPEDEFAULT:
             default:
-                $data['parent_id'] = $cat->parent ? $cat->catParent->magento->default : 2;
+                $data['parent_id']         = $cat->parent ? $cat->catParent->magento->default : 2;
+                $data['custom_attributes'] = array_merge($data['custom_attributes'], [
+                    [
+                        'attribute_code' => 'url_key',
+                        'value'          => $cat->urlKey,
+                    ],
+                    [
+                        'attribute_code' => 'url_path',
+                        'value'          => $cat->urlKey,
+                    ],
+                ]);
 
                 break;
         }
 
         return $data;
+    }
+
+    private function createdDefault(Category $cat): void
+    {
+        try {
+            $mCat                  = Magento::categories()->create($this->data($cat));
+            $cat->magento->default = $mCat->id;
+            if ($cat->isDirty()) {
+                $cat->save();
+            }
+        } catch (\Throwable $th) {
+        }
+    }
+
+    private function createdEveron(Category $cat): void
+    {
+        if ($cat->catParent && $cat->catParent->magento->everon > 0) {
+            try {
+                $mCat                 = Magento::categories()->create($this->data($cat, Category::TYPEEVR));
+                $cat->magento->everon = $mCat->id;
+                if ($cat->isDirty()) {
+                    $cat->save();
+                }
+            } catch (\Throwable $th) {
+            }
+        }
+    }
+
+    private function updateDefault(Category $cat): void
+    {
+        try {
+            if ($cat->magento->default > 0) {
+                Magento::categories()->find($cat->magento->default)->update($this->data($cat));
+            } else {
+                $this->createdDefault($cat);
+            }
+        } catch (\Throwable $th) {
+            $this->createdDefault($cat);
+        }
+    }
+
+    private function updateEveron(Category $cat): void
+    {
+        try {
+            if ($cat->magento->everon > 0 && 1_953 !== $cat->magento->everon) {
+                // dd($this->data($cat, Category::TYPEEVR));
+                $mCat = Magento::categories()->find($cat->magento->everon)->update($this->data($cat, Category::TYPEEVR));
+                // dd($mCat);
+            } else {
+                $this->createdEveron($cat);
+            }
+        } catch (\Throwable $th) {
+            $this->createdEveron($cat);
+        }
     }
 }
