@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-15 11:48:45
+ * @lastupdate 2024-06-15 11:54:56
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -92,27 +92,27 @@ abstract class AbstractModel extends Model
     {
         parent::boot();
 
-        self::creating(static function (Category $model): void {
+        self::creating(static function ($model): void {
             // ... code here
         });
 
-        self::created(static function (Category $model): void {
+        self::created(static function ($model): void {
             // ... code here
         });
 
-        self::updating(static function (Category $model): void {
+        self::updating(static function ($model): void {
             // ... code here
         });
 
-        self::updated(static function (Category $model): void {
+        self::updated(static function ($model): void {
             // ... code here
         });
 
-        self::deleting(static function (Category $model): void {
+        self::deleting(static function ($model): void {
             // ... code here
         });
 
-        self::deleted(static function (Category $model): void {
+        self::deleted(static function ($model): void {
             // ... code here
         });
     }
