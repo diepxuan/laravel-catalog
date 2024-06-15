@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-14 22:11:41
+ * @lastupdate 2024-06-15 07:37:24
  */
 
 namespace Diepxuan\Catalog\Observers;
@@ -23,16 +23,27 @@ class CategoryObserver
      */
     public function created(Category $cat): void
     {
+        if ($cat->isRoot) {
+            return;
+        }
+
         try {
-            if ($cat->isRoot) {
-                return;
-            }
             $mCat                  = Magento::categories()->create($this->data($cat));
             $cat->magento->default = $mCat->id;
             if ($cat->isDirty()) {
                 $cat->save();
             }
         } catch (\Throwable $th) {
+        }
+        if ($cat->parent && $cat->parent->magento->everon > 0) {
+            try {
+                $mCat                 = Magento::categories()->create($this->data($cat, Category::TYPEEVR));
+                $cat->magento->everon = $mCat->id;
+                if ($cat->isDirty()) {
+                    $cat->save();
+                }
+            } catch (\Throwable $th) {
+            }
         }
     }
 
@@ -41,12 +52,23 @@ class CategoryObserver
      */
     public function updated(Category $cat): void
     {
+        if ($cat->isRoot) {
+            return;
+        }
+
         try {
-            if ($cat->isRoot) {
-                return;
-            }
-            if ($cat->magento->default) {
+            if ($cat->magento->default > 0) {
                 Magento::categories()->find($cat->magento->default)->update($this->data($cat));
+            } else {
+                $this->created($cat);
+            }
+        } catch (\Throwable $th) {
+            $this->created($cat);
+        }
+
+        try {
+            if ($cat->magento->everon > 0) {
+                Magento::categories()->find($cat->magento->everon)->update($this->data($cat, Category::TYPEEVR));
             } else {
                 $this->created($cat);
             }
@@ -60,11 +82,17 @@ class CategoryObserver
      */
     public function deleted(Category $cat): void
     {
+        if ($cat->isRoot) {
+            return;
+        }
+
         try {
-            if ($cat->isRoot) {
-                return;
-            }
             Magento::categories()->find($cat->magento->default)->delete();
+        } catch (\Throwable $th) {
+        }
+
+        try {
+            Magento::categories()->find($cat->magento->everon)->delete();
         } catch (\Throwable $th) {
         }
     }
@@ -82,16 +110,22 @@ class CategoryObserver
      */
     public function forceDeleted(Category $cat): void
     {
+        if ($cat->isRoot) {
+            return;
+        }
+
         try {
-            if ($cat->isRoot) {
-                return;
-            }
             Magento::categories()->find($cat->magento->default)->delete();
+        } catch (\Throwable $th) {
+        }
+
+        try {
+            Magento::categories()->find($cat->magento->everon)->delete();
         } catch (\Throwable $th) {
         }
     }
 
-    public function data(Category $cat)
+    public function data(Category $cat, $website = Category::TYPEDEFAULT)
     {
         $data = [
             'name'              => $cat->name,
@@ -120,7 +154,19 @@ class CategoryObserver
                 ],
             ],
         ];
-        $data['parent_id'] = $cat->parent ? $cat->catParent->magento->default : 2;
+
+        switch ($website) {
+            case Category::TYPEEVR:
+                $data['parent_id'] = $cat->catParent->magento->everon;
+
+                break;
+
+            case Category::TYPEDEFAULT:
+            default:
+                $data['parent_id'] = $cat->parent ? $cat->catParent->magento->default : 2;
+
+                break;
+        }
 
         return $data;
     }

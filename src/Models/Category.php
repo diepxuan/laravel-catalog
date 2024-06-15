@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-14 21:34:16
+ * @lastupdate 2024-06-14 22:42:36
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -24,7 +24,10 @@ use Illuminate\Support\Str;
 #[ObservedBy([CategoryObserver::class])]
 class Category extends AbstractModel
 {
-    public const ROOT = 'PRODUCT';
+    public const ROOT        = 'PRODUCT';
+    public const EVR         = 'EVR';
+    public const TYPEDEFAULT = 'DEFAULT';
+    public const TYPEEVR     = 'EVR';
 
     /**
      * The primary key associated with the table.

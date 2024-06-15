@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-14 19:13:57
+ * @lastupdate 2024-06-15 07:35:31
  */
 
 namespace Diepxuan\Catalog\Commands;
@@ -95,29 +95,33 @@ class Categories extends Command
         $self->output->writeln("\r\n[i] Finished delete missing categories");
 
         $self->output->writeln('[i] Deleting Magento categories are missing in Catalog');
-        $mCategories = Magento::categories()->get()->whereNotIn('id', [1, 2])->keyBy('id');
+        $mCategories = Magento::categories()->get()->whereNotIn('id', [1, 2, 1_953])->keyBy('id');
         $self->withProgressBar($mCategories, static function ($mCategory, $progressBar) use ($categories, $format): void {
             $progressBar->setFormat($format);
             $progressBar->setMessage(" {$mCategory->name} <- Magento");
-            if ($categories->where('magento_id', $mCategory->id)->isEmpty()) {
+            if ($categories->filter(static fn ($category) => $category->magento->default === $mCategory->id || $category->magento->everon === $mCategory->id)->isEmpty()) {
                 try {
                     $mCategory->delete();
                 } catch (\Throwable $th) {
                     $progressBar->setMessage(" {$mCategory->name} >< Magento");
                 }
-            } elseif ($categories->where('name', $mCategory->name)->isEmpty()) {
-                try {
-                    $mCategory->delete();
-                } catch (\Throwable $th) {
-                    $progressBar->setMessage(" {$mCategory->name} >< Magento");
-                }
-            } else {
-                $category = Category::updateOrCreate(
-                    ['name' => "{$mCategory->name}"],
-                    ['magento_id' => $mCategory->id]
-                );
-                $categories->put($category->id, $category);
             }
+
+            if ($categories->where('name', $mCategory->name)->isEmpty()) {
+                try {
+                    $mCategory->delete();
+                } catch (\Throwable $th) {
+                    $progressBar->setMessage(" {$mCategory->name} >< Magento");
+                }
+
+                return;
+            }
+
+            // $category = Category::updateOrCreate(
+            //     ['name' => "{$mCategory->name}"],
+            //     ['magento_id' => $mCategory->id]
+            // );
+            // $categories->put($category->id, $category);
 
             $progressBar->setMessage('');
         });
