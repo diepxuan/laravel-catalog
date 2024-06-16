@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-15 20:59:38
+ * @lastupdate 2024-06-16 08:41:37
  */
 
 namespace Diepxuan\Catalog\Commands;
@@ -58,21 +58,33 @@ final class EnvTest extends Command
         $this->output->writeln("[i] DB_USERNAME     {$DB_USERNAME}");
         $this->output->writeln("[i] DB_PASSWORD     {$DB_PASSWORD}");
 
+        $SIMBA_CONNECTION = config('simba.connection');
+        $SQLSRV_URL       = config('database.connections.sqlsrv.url');
+        $SQLSRV_HOST      = config('database.connections.sqlsrv.host');
+        $SQLSRV_PORT      = config('database.connections.sqlsrv.port');
+        $SQLSRV_DATABASE  = config('database.connections.sqlsrv.database');
+        $SQLSRV_USERNAME  = config('database.connections.sqlsrv.username');
+        $SQLSRV_PASSWORD  = config('database.connections.sqlsrv.password');
         $this->output->writeln('[i] --------------------------------');
-        $this->output->writeln("[i] SQLSRV_URL      {$DB_CONNECTION}");
-        $this->output->writeln("[i] SQLSRV_HOST     {$DB_CONNECTION}");
-        $this->output->writeln("[i] SQLSRV_PORT     {$DB_CONNECTION}");
-        $this->output->writeln("[i] SQLSRV_DATABASE {$DB_CONNECTION}");
-        $this->output->writeln("[i] SQLSRV_USERNAME {$DB_CONNECTION}");
-        $this->output->writeln("[i] SQLSRV_PASSWORD {$DB_CONNECTION}");
+        $this->output->writeln("[i] SIMBA_CONNECTION    {$SIMBA_CONNECTION}");
+        $this->output->writeln("[i] SQLSRV_URL          {$SQLSRV_URL}");
+        $this->output->writeln("[i] SQLSRV_HOST         {$SQLSRV_HOST}");
+        $this->output->writeln("[i] SQLSRV_PORT         {$SQLSRV_PORT}");
+        $this->output->writeln("[i] SQLSRV_DATABASE     {$SQLSRV_DATABASE}");
+        $this->output->writeln("[i] SQLSRV_USERNAME     {$SQLSRV_USERNAME}");
+        $this->output->writeln("[i] SQLSRV_PASSWORD     {$SQLSRV_PASSWORD}");
 
+        $MAGENTO_BASE_URL            = config('magento.base_url');
+        $MAGENTO_CONSUMER_KEY        = config('magento.base_url');
+        $MAGENTO_CONSUMER_SECRET     = config('magento.base_url');
+        $MAGENTO_ACCESS_TOKEN        = config('magento.base_url');
+        $MAGENTO_ACCESS_TOKEN_SECRET = config('magento.base_url');
         $this->output->writeln('[i] -------------------------------------------');
-        $this->output->writeln("[i] MAGENTO_AUTH_METHOD         {$DB_CONNECTION}");
-        $this->output->writeln("[i] MAGENTO_BASE_URL            {$DB_CONNECTION}");
-        $this->output->writeln("[i] MAGENTO_CONSUMER_KEY        {$DB_CONNECTION}");
-        $this->output->writeln("[i] MAGENTO_CONSUMER_SECRET     {$DB_CONNECTION}");
-        $this->output->writeln("[i] MAGENTO_ACCESS_TOKEN        {$DB_CONNECTION}");
-        $this->output->writeln("[i] MAGENTO_ACCESS_TOKEN_SECRET {$DB_CONNECTION}");
+        $this->output->writeln("[i] MAGENTO_BASE_URL            {$MAGENTO_BASE_URL}");
+        $this->output->writeln("[i] MAGENTO_CONSUMER_KEY        {$MAGENTO_CONSUMER_KEY}");
+        $this->output->writeln("[i] MAGENTO_CONSUMER_SECRET     {$MAGENTO_CONSUMER_SECRET}");
+        $this->output->writeln("[i] MAGENTO_ACCESS_TOKEN        {$MAGENTO_ACCESS_TOKEN}");
+        $this->output->writeln("[i] MAGENTO_ACCESS_TOKEN_SECRET {$MAGENTO_ACCESS_TOKEN_SECRET}");
         $this->output->writeln('[i] -------------------------------------------');
         $this->output->writeln("[i] {$this->currentTime()} Testing is finished!!!");
     }
