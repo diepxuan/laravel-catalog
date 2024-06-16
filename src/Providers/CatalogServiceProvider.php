@@ -8,12 +8,13 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-16 21:31:46
+ * @lastupdate 2024-06-16 07:08:02
  */
 
 namespace Diepxuan\Catalog\Providers;
 
 use Diepxuan\Catalog\Commands\CatalogSync;
+use Diepxuan\Catalog\Commands\EnvTest;
 use Diepxuan\Catalog\Models\Category;
 use Diepxuan\Catalog\Models\Product;
 use Diepxuan\Catalog\Observers\CategoryObserver;
@@ -41,6 +42,7 @@ class CatalogServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 CatalogSync::class,
+                EnvTest::class,
             ]);
         }
     }
