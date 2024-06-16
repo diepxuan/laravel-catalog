@@ -8,14 +8,14 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-15 07:35:31
+ * @lastupdate 2024-06-16 14:40:40
  */
 
 namespace Diepxuan\Catalog\Commands;
 
 use Diepxuan\Catalog\Models\Category;
+use Diepxuan\Catalog\Models\Simba\SCategory;
 use Diepxuan\Magento\Magento;
-use Diepxuan\Simba\Models\Category as SCategory;
 use Illuminate\Console\Command;
 
 class Categories extends Command
@@ -51,6 +51,21 @@ class Categories extends Command
      */
     public function productIntergration()
     {
+        $this->output->writeln('[i] Starting import Simba categories');
+        $sCategories = SCategory::all()->map(function (SCategory $sCategory) {
+            $this->output->writeln("[i] Importing {$sCategory->sku}");
+            $sCategory->category()->updateOrCreate([], [
+                'sku'      => "{$sCategory->sku}",
+                'name'     => "{$sCategory->name}",
+                'parent'   => "{$sCategory->parent}",
+                'urlKey'   => "{$sCategory->urlKey}",
+                'simba_id' => "{$sCategory->id}",
+            ]);
+
+            return $sCategory;
+        });
+
+        return;
         $self   = $this;
         $format = ' %current%/%max% [%bar%] %percent:3s%% %message%';
 

@@ -8,12 +8,13 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-15 11:48:22
+ * @lastupdate 2024-06-16 12:10:51
  */
 
 namespace Diepxuan\Catalog\Models;
 
 use Diepxuan\Catalog\Models\Casts\CategoryMagento;
+use Diepxuan\Catalog\Models\Simba\SCategory;
 use Diepxuan\Catalog\Observers\CategoryObserver;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -71,6 +72,11 @@ class Category extends AbstractModel
         return $query->where('parent', '');
     }
 
+    protected function sCategory(): HasOne
+    {
+        return $this->hasOne(SCategory::class, 'ma_nhvt', 'sku');
+    }
+
     /**
      * Get the attributes that should be cast.
      *
@@ -89,7 +95,8 @@ class Category extends AbstractModel
     protected function urlKey(): Attribute
     {
         return Attribute::make(
-            get: fn (mixed $value, array $attributes) => $this->isRoot ? '' : Str::of(vn_convert_encoding($attributes['name']))->slug('-'),
+            get: fn (mixed $value, array $attributes) => $value ?: ($this->isRoot ? '' : Str::of(vn_convert_encoding($attributes['name']))->slug('-')),
+            set: static fn (string $value, array $attributes) => strtolower($value),
         );
     }
 
