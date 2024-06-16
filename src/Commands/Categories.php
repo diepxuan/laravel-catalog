@@ -8,14 +8,13 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-16 15:26:47
+ * @lastupdate 2024-06-16 15:36:22
  */
 
 namespace Diepxuan\Catalog\Commands;
 
 use Diepxuan\Catalog\Models\Category;
 use Diepxuan\Catalog\Models\Simba\SCategory;
-use Diepxuan\Magento\Magento;
 use Illuminate\Console\Command;
 
 class Categories extends Command
@@ -76,49 +75,6 @@ class Categories extends Command
         });
 
         return;
-        $self   = $this;
-        $format = ' %current%/%max% [%bar%] %percent:3s%% %message%';
-
-        $self->output->writeln('[i] Loading all categories');
-        $categories = Category::all()->keyBy('id');
-        $self->output->writeln("[i] Finished load <fg=green>{$categories->count()}</> categories");
-
-        $self->output->writeln('[i] Starting import Simba categories');
-        $sCategories = SCategory::all();
-        $self->withProgressBar($sCategories, static function ($sCategory, $progressBar) use ($categories, $format): void {
-            $progressBar->setFormat($format);
-            $progressBar->setMessage(" {$sCategory->sku} <- Simba");
-            $catOptions = [
-                'sku'    => "{$sCategory->sku}",
-                'name'   => "{$sCategory->name}",
-                'parent' => "{$sCategory->parent}",
-                'urlKey' => "{$sCategory->urlKey}",
-            ];
-            $category = Category::updateOrCreate(
-                ['simba_id' => "{$sCategory->id}"],
-                $catOptions
-            );
-
-            $categories->put($category->id, $category);
-
-            $progressBar->setMessage('');
-        });
-        $self->output->writeln("\r\n[i] Finished import Simba categories");
-
-        $self->output->writeln('[i] Delete categories is missing from Simba');
-        $self->withProgressBar($categories, static function ($category, $progressBar) use ($sCategories, $categories, $format): void {
-            $progressBar->setFormat($format);
-            $progressBar->setMessage(" {$category->sku} <- Simba");
-
-            if ($sCategories->where('id', $category->simba_id)->isEmpty()) {
-                $categories->pull($category->id);
-                $category->delete();
-            }
-
-            $progressBar->setMessage('');
-        });
-        $self->output->writeln("\r\n[i] Finished delete missing categories");
-
         $self->output->writeln('[i] Deleting Magento categories are missing in Catalog');
         $mCategories = Magento::categories()->get()->whereNotIn('id', [1, 2, 1_953])->keyBy('id');
         $self->withProgressBar($mCategories, static function ($mCategory, $progressBar) use ($categories, $format): void {
