@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-16 14:40:40
+ * @lastupdate 2024-06-16 15:26:47
  */
 
 namespace Diepxuan\Catalog\Commands;
@@ -52,8 +52,7 @@ class Categories extends Command
     public function productIntergration()
     {
         $this->output->writeln('[i] Starting import Simba categories');
-        $sCategories = SCategory::all()->map(function (SCategory $sCategory) {
-            $this->output->writeln("[i] Importing {$sCategory->sku}");
+        SCategory::all()->map(function (SCategory $sCategory) {
             $sCategory->category()->updateOrCreate([], [
                 'sku'      => "{$sCategory->sku}",
                 'name'     => "{$sCategory->name}",
@@ -61,8 +60,19 @@ class Categories extends Command
                 'urlKey'   => "{$sCategory->urlKey}",
                 'simba_id' => "{$sCategory->id}",
             ]);
+            $this->output->writeln("[<fg=green>✔</>] Imported <fg=green>{$sCategory->category->sku}</>");
+            $this->output->writeln("    {$sCategory->category->name}");
+            $this->output->writeln("    {$sCategory->category->magento_id}");
 
             return $sCategory;
+        });
+
+        Category::all()->map(static function (Category $category) {
+            if ($category->sCategory) {
+                return $category;
+            }
+            $this->output->writeln("[<fg=red>✘</>] Deleted <fg=green>{$sCategory->category->sku}</>");
+            $category->delete();
         });
 
         return;
