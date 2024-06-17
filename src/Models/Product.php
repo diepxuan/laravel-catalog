@@ -8,13 +8,13 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-30 08:56:24
+ * @lastupdate 2024-06-17 07:59:36
  */
 
 namespace Diepxuan\Catalog\Models;
 
+use Diepxuan\Catalog\Models\Simba\SProduct;
 use Diepxuan\Catalog\Observers\ProductObserver;
-use Diepxuan\Simba\Models\Product as SProduct;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -77,7 +77,7 @@ class Product extends AbstractModel
         return $this->belongsTo(Category::class, 'category', 'sku');
     }
 
-    protected function simba(): HasOne
+    protected function sProduct(): HasOne
     {
         return $this->hasOne(SProduct::class, 'ma_vt', 'sku');
     }

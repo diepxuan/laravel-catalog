@@ -8,13 +8,13 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-06 20:04:26
+ * @lastupdate 2024-06-17 08:00:35
  */
 
 namespace Diepxuan\Catalog\Commands;
 
 use Diepxuan\Catalog\Models\Product;
-use Diepxuan\Simba\Models\Product as SProduct;
+use Diepxuan\Catalog\Models\Simba\SProduct;
 use Illuminate\Console\Command;
 
 class Products extends Command
@@ -50,6 +50,39 @@ class Products extends Command
      */
     public function productIntergration()
     {
+        $this->output->writeln('[i] Starting import Simba products');
+
+        SProduct::withQuantity()->get()->map(function (SProduct $sProduct) {
+            $status = $sProduct->product ? $sProduct->product->status : false;
+            $status = $sProduct->status && $status && $sProduct->price > 0;
+            $sProduct->product()->updateOrCreate([], [
+                'name'     => $sProduct->name,
+                'price'    => $sProduct->price,
+                'category' => $sProduct->category,
+                'status'   => $status,
+                'quantity' => (float) ($sProduct->quantity ?: 0),
+            ]);
+            if ($status) {
+                $this->output->writeln("[<fg=green>✔</>] Imported <fg=green>{$sProduct->product->sku}</>");
+            } else {
+                $this->output->writeln("[<fg=green>✔</>] Imported <fg=red>{$sProduct->product->sku}</>");
+            }
+            // $this->output->writeln("    status [<fg=green>✓</>]");
+            $this->output->writeln("    {$sProduct->product->name}");
+            $this->output->writeln("    {$sProduct->product->quantity}");
+
+            return $sProduct;
+        });
+
+        Product::all()->map(static function (Product $product) {
+            if ($product->sProduct) {
+                return $product;
+            }
+            $product->delete();
+            $this->output->writeln("[<fg=red>✘</>] Deleted <fg=red>{$product->sku}</>");
+        });
+
+        return;
         $self   = $this;
         $format = ' %current%/%max% [%bar%] %percent:3s%% %message%';
 
