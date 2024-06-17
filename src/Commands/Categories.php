@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-17 08:00:31
+ * @lastupdate 2024-06-17 08:27:48
  */
 
 namespace Diepxuan\Catalog\Commands;
@@ -51,7 +51,9 @@ class Categories extends Command
     public function productIntergration()
     {
         $this->output->writeln('[i] Starting import Simba categories');
-        SCategory::all()->map(function (SCategory $sCategory) {
+        $sCategories = SCategory::all();
+        $total       = $sCategories->count();
+        $sCategories->map(function (SCategory $sCategory, int $index) use ($total) {
             $sCategory->category()->updateOrCreate([], [
                 'sku'      => "{$sCategory->sku}",
                 'name'     => "{$sCategory->name}",
@@ -59,7 +61,7 @@ class Categories extends Command
                 'urlKey'   => "{$sCategory->urlKey}",
                 'simba_id' => "{$sCategory->id}",
             ]);
-            $this->output->writeln("[<fg=green>✔</>] Imported <fg=green>{$sCategory->category->sku}</>");
+            $this->output->writeln("[<fg=green>✔</>] Imported <fg=green>{$sCategory->category->sku}</> ({$index}/{$total})");
             $this->output->writeln("    {$sCategory->category->name}");
             $this->output->writeln("    {$sCategory->category->magento_id}");
 

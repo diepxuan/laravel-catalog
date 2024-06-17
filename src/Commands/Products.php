@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-17 08:00:35
+ * @lastupdate 2024-06-17 08:29:04
  */
 
 namespace Diepxuan\Catalog\Commands;
@@ -52,7 +52,9 @@ class Products extends Command
     {
         $this->output->writeln('[i] Starting import Simba products');
 
-        SProduct::withQuantity()->get()->map(function (SProduct $sProduct) {
+        $sProducts = SProduct::withQuantity()->get();
+        $total     = $sProducts->count();
+        $sProducts->map(function (SProduct $sProduct, int $index) use ($total) {
             $status = $sProduct->product ? $sProduct->product->status : false;
             $status = $sProduct->status && $status && $sProduct->price > 0;
             $sProduct->product()->updateOrCreate([], [
@@ -63,9 +65,9 @@ class Products extends Command
                 'quantity' => (float) ($sProduct->quantity ?: 0),
             ]);
             if ($status) {
-                $this->output->writeln("[<fg=green>✔</>] Imported <fg=green>{$sProduct->product->sku}</>");
+                $this->output->writeln("[<fg=green>✔</>] Imported <fg=green>{$sProduct->product->sku}</> ({$index}/{$total})");
             } else {
-                $this->output->writeln("[<fg=green>✔</>] Imported <fg=red>{$sProduct->product->sku}</>");
+                $this->output->writeln("[<fg=green>✔</>] Imported <fg=red>{$sProduct->product->sku}</> ({$index}/{$total})");
             }
             // $this->output->writeln("    status [<fg=green>✓</>]");
             $this->output->writeln("    {$sProduct->product->name}");
