@@ -40,6 +40,13 @@
             </div>
         </div>
         <div class="row mb-3">
+            <label for="quantity" class="col-sm-2 col-form-label col-form-label-sm">Số lượng</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control form-control-sm" id="quantity" name="quantity"
+                    value="{{ $product->quantity }}" disabled />
+            </div>
+        </div>
+        <div class="row mb-3">
             <label for="category" class="col-sm-2 col-form-label col-form-label-sm">Nhóm vật tư</label>
             <div class="col-sm-10">
                 <input type="text" class="form-control form-control-sm" id="category" name="category"
