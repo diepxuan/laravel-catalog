@@ -36,7 +36,7 @@
             <label for="price" class="col-sm-2 col-form-label col-form-label-sm">Giá tiền</label>
             <div class="col-sm-10">
                 <input type="text" class="form-control form-control-sm" id="price" name="price"
-                    value="{{ $product->price }}" />
+                    value="{{ number_format($product->price) }}" />
             </div>
         </div>
         <div class="row mb-3">

@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-17 07:59:36
+ * @lastupdate 2024-06-19 10:41:01
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -31,15 +31,22 @@ class Product extends AbstractModel
     protected $primaryKey = 'id';
 
     /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'quantity' => 'float',
+    ];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
      */
     protected function casts(): array
     {
-        return [
-            'quantity' => 'float',
-        ];
+        return $this->casts;
     }
 
     /**
@@ -52,9 +59,6 @@ class Product extends AbstractModel
         );
     }
 
-    /**
-     * Get the Category urlKey.
-     */
     protected function urlKey(): Attribute
     {
         return Attribute::make(
