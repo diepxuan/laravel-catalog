@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-17 08:29:04
+ * @lastupdate 2024-06-21 11:05:08
  */
 
 namespace Diepxuan\Catalog\Commands;
@@ -58,6 +58,7 @@ class Products extends Command
             $status = $sProduct->product ? $sProduct->product->status : false;
             $status = $sProduct->status && $status && $sProduct->price > 0;
             $sProduct->product()->updateOrCreate([], [
+                'sku'      => $sProduct->sku,
                 'name'     => $sProduct->name,
                 'price'    => $sProduct->price,
                 'category' => $sProduct->category,
