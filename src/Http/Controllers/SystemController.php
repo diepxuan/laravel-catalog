@@ -8,13 +8,13 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-14 16:12:55
+ * @lastupdate 2024-06-21 07:59:02
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Diepxuan\Simba\Models\System;
+use Diepxuan\Catalog\Models\System;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Redirect;
@@ -73,11 +73,11 @@ class SystemController extends Controller
      * Update the specified resource in storage.
      *
      * @param mixed $request
-     * @param mixed $hethong
+     * @param mixed $id
      */
-    public function update(Request $request, System $hethong): RedirectResponse
+    public function update(Request $request, $id): RedirectResponse
     {
-        $system         = $hethong;
+        $system         = System::find($id);
         $system->khoaSo = $request->get('khoaso');
 
         return Redirect::route('system.index');
