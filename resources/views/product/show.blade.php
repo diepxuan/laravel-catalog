@@ -53,6 +53,13 @@
                     value="{{ $product->category }}" />
             </div>
         </div>
+        <div class="row mb-3">
+            <label for="catIds" class="col-sm-2 col-form-label col-form-label-sm">cat ids</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control form-control-sm" id="catIds" name="catIds"
+                    value="{{ implode(',', $product->catIds) }}" disabled />
+            </div>
+        </div>
         <button type="submit" class="btn btn-primary" name="productedit">Lưu</button>
     </form>
 @endsection
