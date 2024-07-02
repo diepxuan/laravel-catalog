@@ -8,13 +8,15 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-07-02 15:45:48
+ * @lastupdate 2024-07-02 17:08:11
  */
 
 namespace Diepxuan\Catalog\Commands;
 
 use Diepxuan\Catalog\Models\Product;
 use Diepxuan\Catalog\Models\Simba\SProduct;
+use Diepxuan\Magento\Magento;
+use Diepxuan\Magento\Models\Product as MProduct;
 use Illuminate\Console\Command;
 
 class Products extends Command
@@ -53,7 +55,7 @@ class Products extends Command
         $this->output->writeln('[i] Starting import Simba products');
         $sProducts = SProduct::all();
         $total     = $sProducts->count();
-        $sProducts->map(function (SProduct $sProduct, int $index) use ($total): void {
+        $sProducts = $sProducts->map(function (SProduct $sProduct, int $index) use ($total) {
             $sProduct = SProduct::withQuantity()->where('ma_vt', $sProduct->sku)->get()->first();
             $status   = $sProduct->product ? $sProduct->product->status : false;
             $status   = $sProduct->status && $status && $sProduct->price > 0;
@@ -73,6 +75,8 @@ class Products extends Command
             // $this->output->writeln('    status [<fg=green>✓</>]');
             $this->output->writeln("    {$sProduct->product->name}");
             $this->output->writeln("    {$sProduct->product->quantity}");
+
+            return $sProduct;
         });
 
         Product::all()->map(function (Product $product) {
@@ -81,6 +85,15 @@ class Products extends Command
             }
             $product->delete();
             $this->output->writeln("[<fg=red>✘</>] Deleted <fg=red>{$product->sku}</>");
+        });
+
+        $mProducts = Magento::products()->get()->map(static function (MProduct $mProduct) use ($sProducts): void {
+            if ($sProducts->filter(static fn ($sProduct) => $sProduct->sku === $mProduct->sku)->isEmpty()) {
+                try {
+                    $mProduct->delete();
+                } catch (\Throwable $th) {
+                }
+            }
         });
     }
 }
