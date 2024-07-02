@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-18 17:53:32
+ * @lastupdate 2024-07-02 16:31:20
  */
 
 namespace Diepxuan\Catalog\Observers;
@@ -34,7 +34,10 @@ class ProductObserver
      */
     public function updated(Product $prod): void
     {
-        $simba          = $prod->sProduct;
+        $simba = $prod->sProduct;
+        if (null === $simba) {
+            $prod->delete();
+        }
         $simba->ten_vt  = $prod->name;
         $simba->gia_nt2 = $prod->price;
         if ($simba->isDirty()) {
