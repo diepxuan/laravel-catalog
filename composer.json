@@ -28,10 +28,7 @@
       "Diepxuan\\Catalog\\": "src/",
       "Diepxuan\\Catalog\\Database\\Factories\\": "database/factories/",
       "Diepxuan\\Catalog\\Database\\Seeders\\": "database/seeders/"
-    },
-    "files": [
-      "helpers.php"
-    ]
+    }
   },
   "autoload-dev": {
     "psr-4": {
