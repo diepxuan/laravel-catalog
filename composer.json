@@ -18,6 +18,7 @@
   },
   "require": {
     "diepxuan/laravel-core": "*",
+    "diepxuan/laravel-ronaldjack": "*",
     "diepxuan/laravel-log": "*",
     "diepxuan/laravel-magento": "*",
     "diepxuan/laravel-simba": "*",
