@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-14 16:31:11
+ * @lastupdate 2024-07-08 07:38:08
  */
 
 use Diepxuan\Catalog\Http\Controllers\CatalogController;
@@ -28,7 +28,7 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::middleware('clearcache')->group(static function (): void {
+Route::domain('portal.diepxuan.io.vn')->middleware('clearcache')->group(static function (): void {
     Route::resource('khohang/tonkho', InventoryController::class)->names('inventory');
     Route::resource('khohang/sanpham', CatalogController::class)->names('catalog');
     Route::resource('khohang/nhomsanpham', CategoryController::class)->names('category');
