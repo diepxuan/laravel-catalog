@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-07-26 15:28:59
+ * @lastupdate 2024-07-26 16:04:44
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
@@ -28,9 +28,17 @@ class SystemWebsiteController extends Controller
      */
     public function index(): View
     {
-        $websites   = Magento::store_websites()->get();
-        $storeViews = Magento::store_views()->get();
-        $websites   = $websites->map(static function ($website) use ($storeViews) {
+        $storeConfigs = Magento::store_configs()->get();
+        $storeViews   = Magento::store_views()->get()->map(static function ($storeView) use ($storeConfigs) {
+            try {
+                $storeView->storeConfig = $storeConfigs->firstOrFail(static fn ($storeConfig) => $storeConfig->code === $storeView->code);
+            } catch (\Throwable $th) {
+                // throw $th;
+            }
+
+            return $storeView;
+        });
+        $websites = Magento::store_websites()->get()->map(static function ($website) use ($storeViews) {
             $website->storeViews = $storeViews->filter(static fn ($storeView) => $storeView->website_id === $website->id);
 
             return $website;
