@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-14 22:49:46
+ * @lastupdate 2024-08-13 11:08:07
  */
 
 namespace Diepxuan\Catalog\Models\Casts;
@@ -25,7 +25,9 @@ class CategoryMagento
     public function get(Category $model, string $key, mixed $value, array $attributes)
     {
         $value      = new \stdClass();
-        $magento_id = array_replace([-1, -1], explode(',', $attributes['magento_id']));
+        $magento_id = $attributes['magento_id'] ?? '';
+        $magento_id = explode(',', $magento_id);
+        $magento_id = array_replace([-1, -1], $magento_id);
 
         $value->default = $magento_id[0];
         $value->everon  = $magento_id[1];
