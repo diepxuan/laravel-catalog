@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-27 07:40:22
+ * @lastupdate 2024-12-07 21:43:37
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
@@ -27,7 +27,7 @@ class CategoryController extends Controller
     public function index()
     {
         return view('catalog::category.index', [
-            'categories' => Category::isParent()->get(),
+            'categories' => Category::isRoot()->get(),
         ]);
     }
 

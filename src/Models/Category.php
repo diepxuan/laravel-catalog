@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-12-07 21:03:03
+ * @lastupdate 2024-12-07 21:44:49
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -19,7 +19,6 @@ use Diepxuan\Simba\Models\Category as SCategory;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 #[ObservedBy([CategoryObserver::class])]
@@ -64,9 +63,8 @@ class Category extends SCategory
      *
      * @param mixed $query
      */
-    public function scopeIsParent($query)
+    public function scopeIsRoot($query)
     {
-        // return $query->where('parent', '');
         return $query->where('nhom_me', '');
     }
 
@@ -85,28 +83,6 @@ class Category extends SCategory
         return $this->hasMany(Product::class, 'category', 'sku');
     }
 
-    protected function urlKey(): Attribute
-    {
-        return Attribute::make(
-            get: fn (mixed $value, array $attributes) => $value ?: ($this->isRoot ? '' : Str::of(vn_convert_encoding($this->name))->slug('-')),
-            set: static fn (string $value, array $attributes) => strtolower($value),
-        );
-    }
-
-    protected function isRoot(): Attribute
-    {
-        return Attribute::make(
-            get: fn (mixed $value, array $attributes) => static::ROOT === $this->sku,
-        );
-    }
-
-    protected function isEvrRoot(): Attribute
-    {
-        return Attribute::make(
-            get: fn (mixed $value, array $attributes) => static::EVR === $this->sku,
-        );
-    }
-
     protected function urlPath(): Attribute
     {
         return Attribute::make(
@@ -114,10 +90,11 @@ class Category extends SCategory
         );
     }
 
-    protected function ids(): Attribute
+    protected function urlKey(): Attribute
     {
         return Attribute::make(
-            get: fn (mixed $value, array $attributes) => Arr::where(array_unique(array_merge($this->catParent ? $this->catParent->ids : [], Arr::wrap([$this->magento->default]), Arr::wrap([$this->magento->everon]))), static fn ($value, int $key) => $value > 0),
+            get: fn (mixed $value, array $attributes) => $value ?: ($this->isRoot ? '' : Str::of(vn_convert_encoding($this->name))->slug('-')),
+            set: static fn (string $value, array $attributes) => strtolower($value),
         );
     }
 }
