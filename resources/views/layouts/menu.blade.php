@@ -1,6 +1,26 @@
 @php
     $menus = [
         [
+            'name' => 'Bán hàng',
+            'status' => Request::is('banhang', 'banhang/*'),
+            'items' => [
+                'Hoá đơn bán hàng' => 'sell.index',
+                'space',
+                // 'Danh sách hàng hoá vật tư' => 'catalog.index',
+                // 'Nhóm hàng hoá vật tư' => 'category.index',
+            ],
+        ],
+        [
+            'name' => 'Mua hàng',
+            'status' => Request::is('muahang', 'muahang/*'),
+            'items' => [
+                // 'Hoá đơn mua hàng' => 'purchase.index',
+                'space',
+                // 'Danh sách hàng hoá vật tư' => 'catalog.index',
+                // 'Nhóm hàng hoá vật tư' => 'category.index',
+            ],
+        ],
+        [
             'name' => 'Hàng tồn kho',
             'status' => Request::is('tonkho', 'tonkho/*', 'khohang', 'khohang/*'),
             'items' => [
@@ -45,7 +65,7 @@
                                     'rounded',
                                     'link-body-emphasis',
                                     'd-inline-flex',
-                                ]) href={{ route($url) }}>
+                                ]) href={{ route($url) ?? '' }}>
                                     {{ $title }}
                                 </a>
                             </li>

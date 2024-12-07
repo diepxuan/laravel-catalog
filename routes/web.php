@@ -8,12 +8,13 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-07-08 07:38:08
+ * @lastupdate 2024-08-07 10:09:47
  */
 
 use Diepxuan\Catalog\Http\Controllers\CatalogController;
 use Diepxuan\Catalog\Http\Controllers\CategoryController;
 use Diepxuan\Catalog\Http\Controllers\InventoryController;
+use Diepxuan\Catalog\Http\Controllers\SellController;
 use Diepxuan\Catalog\Http\Controllers\SystemController;
 use Diepxuan\Catalog\Http\Controllers\SystemWebsiteController;
 use Illuminate\Support\Facades\Route;
@@ -29,6 +30,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::domain('portal.diepxuan.io.vn')->middleware('clearcache')->group(static function (): void {
+    Route::resource('banhang/hoadonbanhang', SellController::class)->names('sell');
+    Route::resource('banhang/bangkebanhang', SellController::class)->names('sell.list');
+
     Route::resource('khohang/tonkho', InventoryController::class)->names('inventory');
     Route::resource('khohang/sanpham', CatalogController::class)->names('catalog');
     Route::resource('khohang/nhomsanpham', CategoryController::class)->names('category');

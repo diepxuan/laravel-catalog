@@ -7,27 +7,26 @@
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" role="switch" name="include_in_menu"
                             {{ $category->include_in_menu ? 'checked' : '' }} onchange="this.form.submit()" />
-                        <strong class="mb-1">{{ $category->name }}</strong>
+                        @if ($category->urlPath)
+                            <a href="https://www.diepxuan.com/{{ $category->urlPath }}.html"
+                                class="text-decoration-none" target="_blank">
+                                <small class="mb-1"> {{ $category->sku }}</small>
+                                <strong class="mb-1">{{ $category->name }}</strong>
+                            </a>
+                        @else
+                            <small class="mb-1"> {{ $category->sku }}</small>
+                            <strong class="mb-1">{{ $category->name }}</strong>
+                        @endif
                     </div>
                 </form>
-                @if ($category->urlPath)
-                    <small>
-                        <a href="https://www.diepxuan.com/{{ $category->urlPath }}.html" class="text-decoration-none"
-                            target="_blank">
-                            {{ $category->urlKey }}
-                            <i class="bi bi-link"></i>
-                        </a>
-                    </small>
-                @endif
             </div>
             <div class="col-10 mb-1 small">
-                <small>{{ $category->sku }}</small>
-                <small>{{ $category->magento->default }}</small>
-                <small>{{ $category->magento->everon }}</small>
+                {{-- <small>default {{ $category->magento->default }}</small> --}}
+                {{-- <small>everon {{ $category->magento->everon }}</small> --}}
             </div>
-            <div class="col-2 mb-1 small">
+            {{-- <div class="col-2 mb-1 small">
                 <small>{{ implode(',', $category->ids) }}</small>
-            </div>
+            </div> --}}
         </div>
     </div>
     @if ($category->catChildrens->count())
