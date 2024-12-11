@@ -25,6 +25,9 @@
     "diepxuan/php-charset": "*"
   },
   "autoload": {
+    "files": [
+      "helpers.php"
+    ],
     "psr-4": {
       "Diepxuan\\Catalog\\": "src/",
       "Diepxuan\\Catalog\\Database\\Factories\\": "database/factories/",

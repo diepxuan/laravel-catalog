@@ -8,10 +8,11 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-07 11:00:08
+ * @lastupdate 2024-12-11 11:52:52
  */
 
 use Diepxuan\Catalog\Http\Controllers\CatalogController;
+use Diepxuan\Catalog\Http\Controllers\CategoryController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -27,4 +28,6 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth:sanctum'])->prefix('v1')->group(static function (): void {
     // Route::apiResource('catalog', CatalogController::class)->names('catalog');
+    // Route::get('/api/products', [ProductController::class, 'getProducts']);
+    Route::apiResource('khohang/nhomsanpham', CategoryController::class)->names('api.category');
 });

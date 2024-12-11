@@ -8,12 +8,13 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-08-13 11:08:07
+ * @lastupdate 2024-12-07 22:47:52
  */
 
 namespace Diepxuan\Catalog\Models\Casts;
 
 use Diepxuan\Catalog\Models\Category;
+use Diepxuan\Magento\Magento;
 
 class CategoryMagento
 {
@@ -22,24 +23,11 @@ class CategoryMagento
      *
      * @param array<string, mixed> $attributes
      */
-    public function get(Category $model, string $key, mixed $value, array $attributes)
+    public function get(Category $model, string $key, mixed $value, array $attributes): ?\Diepxuan\Magento\Models\Category
     {
-        $value      = new \stdClass();
-        $magento_id = $attributes['magento_id'] ?? '';
-        $magento_id = explode(',', $magento_id);
-        $magento_id = array_replace([-1, -1], $magento_id);
+        $magento = Magento::categories()->get([['field' => 'name', 'value' => $model->name]]);
 
-        $value->default = $magento_id[0];
-        $value->everon  = $magento_id[1];
-
-        if (Category::ROOT === $attributes['sku']) {
-            $value->default = 2;
-        }
-        if (Category::EVR === $attributes['sku']) {
-            $value->everon = 1_953;
-        }
-
-        return $value;
+        return $magento->first();
     }
 
     /**
@@ -51,15 +39,7 @@ class CategoryMagento
      */
     public function set(Category $model, string $key, mixed $value, array $attributes)
     {
-        if (Category::ROOT === $attributes['sku']) {
-            $value->default = 2;
-        }
-        if (Category::EVR === $attributes['sku']) {
-            $value->everon = 1_953;
-        }
-
         return [
-            'magento_id' => "{$value->default},{$value->everon}",
         ];
     }
 }

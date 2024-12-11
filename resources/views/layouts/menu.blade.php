@@ -27,7 +27,7 @@
                 'Phiếu xuất điều chuyển kho' => 'inventory.index',
                 'space',
                 'Danh sách hàng hoá vật tư' => 'catalog.index',
-                'Nhóm hàng hoá vật tư' => 'category.index',
+                'Nhóm hàng hoá vật tư' => 'diepxuan.category.index',
             ],
         ],
         [
