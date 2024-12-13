@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-12-12 21:49:47
+ * @lastupdate 2024-12-13 10:33:17
  */
 
 use Diepxuan\Catalog\Http\Controllers\CatalogController;
@@ -41,6 +41,6 @@ Route::domain('portal.diepxuan.io.vn')->middleware(['clearcache', 'auth'])->grou
     Route::resource('hethong/website', SystemWebsiteController::class)->names('systemwebsite');
 
     // Route::get('/', [SystemController::class, 'index']);
-    Route::get('/', static fn () => view('catalog::dashboard'))->name('dashboard');
+    Route::get('/', static fn () => view('catalog::dashboard'));
     Route::get('/dashboard', static fn () => view('catalog::dashboard'))->name('dashboard');
 });
