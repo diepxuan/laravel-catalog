@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-12-13 10:33:17
+ * @lastupdate 2024-12-13 16:34:16
  */
 
 use Diepxuan\Catalog\Http\Controllers\CatalogController;
@@ -33,14 +33,14 @@ Route::domain('portal.diepxuan.io.vn')->middleware(['clearcache', 'auth'])->grou
     Route::resource('banhang/hoadonbanhang', SellController::class)->names('sell');
     Route::resource('banhang/bangkebanhang', SellController::class)->names('sell.list');
 
-    Route::resource('khohang/tonkho', InventoryController::class)->names('inventory');
     Route::resource('khohang/sanpham', CatalogController::class)->names('catalog');
-    Route::resource('khohang/nhomsanpham', CategoryController::class)->names('diepxuan.category');
+    Route::resource('khohang/nhomsanpham', CategoryController::class)->names('catalog.category');
+    Route::resource('khohang/tonkho', InventoryController::class)->names('catalog.inventory');
 
     Route::resource('hethong/dashboard', SystemController::class)->names('system');
-    Route::resource('hethong/website', SystemWebsiteController::class)->names('systemwebsite');
+    Route::resource('hethong/website', SystemWebsiteController::class)->names('system.website');
 
     // Route::get('/', [SystemController::class, 'index']);
-    Route::get('/', static fn () => view('catalog::dashboard'));
+    Route::get('/', static fn () => view('catalog::dashboard'))->name('home');
     Route::get('/dashboard', static fn () => view('catalog::dashboard'))->name('dashboard');
 });
