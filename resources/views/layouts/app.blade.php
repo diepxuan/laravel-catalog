@@ -1,5 +1,10 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+@php
+    $logo = 'https://raw.githubusercontent.com/diepxuan/logo/main/icons/brand/MetallicBrown.svg';
+    $favicon = 'https://raw.githubusercontent.com/diepxuan/logo/main/icons/favicons/MetallicBrown.svg';
+    $brand = 'https://raw.githubusercontent.com/diepxuan/logo/main/icons/texts/MetallicBrown.svg';
+@endphp
 
 <head>
     <meta charset="utf-8">
@@ -9,6 +14,9 @@
     <x-catalog::head-title>
         {{ $pageTitle ?? config('app.name', 'Laravel') }}
     </x-catalog::head-title>
+
+    <link rel="icon" type="image/x-icon" href="{{ $favicon }}">
+    <link rel="shortcut icon" type="image/x-icon" href="{{ $favicon }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
