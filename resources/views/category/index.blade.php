@@ -1,10 +1,11 @@
-<?php
-use Diepxuan\Core\Models\Package;
-?>
-@extends('catalog::layouts.master')
-@section('title', 'Nhóm hàng hoá vật tư')
+<x-catalog::app-layout>
+    <x-catalog::head-title>{{ __('Nhóm Hàng Hoá Vật Tư') }}</x-catalog::head-title>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Nhóm Hàng Hoá Vật Tư') }}
+        </h2>
+        <p>{{ __('Danh sách') }}</p>
+    </x-slot>
 
-@section('content')
-    @include('catalog::category.category', ['categories' => $categories])
-    @vite(['diepxuan/laravel-catalog/resources/css/app.css', 'diepxuan/laravel-catalog/resources/js/app.js'])
-@endsection
+    @livewire('catalog::category.categories')
+</x-catalog::app-layout>

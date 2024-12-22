@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-12-08 11:16:24
+ * @lastupdate 2024-12-22 12:45:58
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
@@ -26,9 +26,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        return view('catalog::category.index', [
-            'categories' => Category::isRoot()->get(),
-        ]);
+        return view('catalog::category.index');
     }
 
     /**
@@ -54,11 +52,6 @@ class CategoryController extends Controller
      */
     public function show(Category $nhomsanpham)
     {
-        if ($request->expectsJson()) {
-            // Trả về JSON cho API
-            return response()->json($nhomsanpham, 200);
-        }
-
         return view('catalog::category.show');
     }
 

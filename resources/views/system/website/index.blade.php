@@ -1,21 +1,27 @@
-@extends('catalog::layouts.master')
-@section('title', 'Websites')
+<x-catalog::app-layout>
+    <x-catalog::head-title>{{ __('Hệ Thống') }}</x-catalog::head-title>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Hệ Thống') }}
+        </h2>
+        <p>{{ __('Magento Websites') }}</p>
+    </x-slot>
 
-@section('content')
-    <table class="table table-sm align-middle table-hover fw-lighter">
-        <tr>
-            <th>web name</th>
-            <th>store name</th>
+
+    <table class="table-auto w-full border border-gray-200 divide-y divide-gray-200">
+        <tr class="border border-gray-200">
+            <th class="text-left">web name</th>
+            <th class="text-left">store name</th>
             <th></th>
         </tr>
         @foreach ($websites as $website)
-            <tr>
+            <tr class="border border-gray-200">
                 <td>{{ $website->name }}</td>
                 <td></td>
                 <td></td>
             </tr>
             @foreach ($website->storeViews as $storeView)
-                <tr>
+                <tr class="border border-gray-200">
                     <td></td>
                     <td>{{ $storeView->name }}</td>
                     @isset($storeView->storeConfig)
@@ -32,6 +38,6 @@
                 </tr>
             @endforeach
         @endforeach
-
     </table>
-@endsection
+
+</x-catalog::app-layout>

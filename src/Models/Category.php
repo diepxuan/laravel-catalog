@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-12-07 21:44:49
+ * @lastupdate 2024-12-22 12:42:18
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -65,7 +65,25 @@ class Category extends SCategory
      */
     public function scopeIsRoot($query)
     {
-        return $query->where('nhom_me', '');
+        return $this->scopeHasParent($query, '');
+    }
+
+    /**
+     * Parent scope.
+     *
+     * @param mixed $query
+     * @param mixed $parent
+     */
+    public function scopeHasParent($query, $parent = '')
+    {
+        if ($parent instanceof self) {
+            return $query->where('nhom_me', $parent->sku);
+        }
+        if (\is_string($parent)) {
+            return $query->where('nhom_me', $parent);
+        }
+
+        return $query;
     }
 
     /**
