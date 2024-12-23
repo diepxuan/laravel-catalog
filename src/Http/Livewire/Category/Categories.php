@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-12-22 12:47:05
+ * @lastupdate 2024-12-23 12:16:53
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Category;
@@ -25,11 +25,25 @@ class Categories extends NavigationMenuComponent
     public $category;
     public $childrens;
     public $template;
+    public $magento;
+    public $enabled;
+
+    public function loadData(): void
+    {
+        $this->id ??= $this->category->sku;
+        $this->magento = $this->category->magento;
+        $this->magento->each(function ($m2child): void {
+            $this->enabled = $this->enabled || $m2child->is_active;
+        });
+        \Debugbar::info($this->magento);
+    }
 
     public function mount(?string $id = null): void
     {
         $this->id ??= Str::of($id)->toString();
         $this->category ??=  Category::find($this->id) ?? Category::isRoot()->get()->first();
+        $this->id = $this->category->sku;
+        $this->magento ??= collect([]);
         $this->childrens ??= $this->category->catChildrens()->get();
         $this->template = $this->childrens->isNotEmpty() ? 'catalog::category.categories' : 'catalog::category.category';
     }
