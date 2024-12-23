@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-05-21 11:54:12
+ * @lastupdate 2024-12-23 15:40:59
  */
 
 namespace Diepxuan\Catalog\Commands;
@@ -44,18 +44,18 @@ class CatalogSync extends Command
 
         switch ($mode) {
             case 'pro':
-                $this->call(Products::class);
+                // $this->call(Products::class);
 
                 break;
 
             case 'cat':
-                $this->call(Categories::class);
+                // $this->call(Categories::class);
 
                 break;
 
             default:
-                $this->call(Categories::class);
-                $this->call(Products::class);
+                // $this->call(Categories::class);
+                // $this->call(Products::class);
 
                 break;
         }
