@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-12-23 12:16:53
+ * @lastupdate 2024-12-23 21:24:22
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Category;
@@ -34,8 +34,14 @@ class Categories extends NavigationMenuComponent
         $this->magento = $this->category->magento;
         $this->magento->each(function ($m2child): void {
             $this->enabled = $this->enabled || $m2child->is_active;
+            \Debugbar::info($m2child);
         });
-        \Debugbar::info($this->magento);
+    }
+
+    public function toggleEnabled(): void
+    {
+        $this->enabled = !$this->enabled;
+        \Debugbar::info($this->id, $this->enabled);
     }
 
     public function mount(?string $id = null): void

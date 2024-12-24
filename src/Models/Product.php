@@ -8,68 +8,35 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-19 10:41:01
+ * @lastupdate 2024-12-24 21:44:29
  */
 
 namespace Diepxuan\Catalog\Models;
 
-use Diepxuan\Catalog\Models\Simba\SProduct;
 use Diepxuan\Catalog\Observers\ProductObserver;
+use Diepxuan\Simba\Models\Product as SProduct;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
 
 #[ObservedBy([ProductObserver::class])]
-class Product extends AbstractModel
+class Product extends SProduct
 {
     /**
-     * The primary key associated with the table.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'id';
-
-    /**
-     * The attributes that should be cast to native types.
+     * The attributes that should be cast.
      *
      * @var array
      */
     protected $casts = [
-        'quantity' => 'float',
+        'quantity' => 'decimal:1',
+        'gia_nt2'  => 'float',
+        'price'    => 'float',
     ];
-
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return $this->casts;
-    }
-
-    /**
-     * Get the Simba Product Id.
-     */
-    protected function simbaId(): Attribute
-    {
-        return Attribute::make(
-            get: static fn (mixed $value, array $attributes) => "001_{$attributes['sku']}",
-        );
-    }
 
     protected function urlKey(): Attribute
     {
         return Attribute::make(
-            get: static fn (mixed $value, array $attributes) => Str::of(vn_convert_encoding($attributes['name']))->slug('-'),
-        );
-    }
-
-    protected function catIds(): Attribute
-    {
-        return Attribute::make(
-            get: fn (mixed $value, array $attributes) => $this->cat ? $this->cat->ids : [],
+            get: static fn (mixed $value, array $attributes) => Str::of(vn_convert_encoding($this->name))->slug('-'),
         );
     }
 
@@ -78,11 +45,6 @@ class Product extends AbstractModel
      */
     protected function cat(): BelongsTo
     {
-        return $this->belongsTo(Category::class, 'category', 'sku');
-    }
-
-    protected function sProduct(): HasOne
-    {
-        return $this->hasOne(SProduct::class, 'ma_vt', 'sku');
+        return $this->belongsTo(Category::class, 'ma_nhvt', 'ma_nhvt');
     }
 }

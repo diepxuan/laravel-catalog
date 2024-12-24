@@ -18,9 +18,10 @@
   },
   "require": {
     "diepxuan/laravel-core": "*",
-    "diepxuan/laravel-ronaldjack": "*",
+    "diepxuan/laravel-currency": "*",
     "diepxuan/laravel-log": "*",
     "diepxuan/laravel-magento": "*",
+    "diepxuan/laravel-ronaldjack": "*",
     "diepxuan/laravel-simba": "*",
     "diepxuan/php-charset": "*"
   },

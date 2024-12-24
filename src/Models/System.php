@@ -8,14 +8,13 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-21 07:57:20
+ * @lastupdate 2024-12-24 14:46:49
  */
 
 namespace Diepxuan\Catalog\Models;
 
 use Carbon\Carbon;
 use Diepxuan\Simba\Models\System as SSystem;
-use Diepxuan\Simba\Models\SystemConfig;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 

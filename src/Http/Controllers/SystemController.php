@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-21 07:59:02
+ * @lastupdate 2024-12-23 22:41:45
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
@@ -26,9 +26,7 @@ class SystemController extends Controller
      */
     public function index()
     {
-        return view('catalog::system.index', [
-            'system' => System::first(),
-        ]);
+        return view('catalog::system.index');
     }
 
     /**

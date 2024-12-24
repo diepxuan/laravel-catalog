@@ -1,6 +1,6 @@
 <div wire:init="loadData" class="relative ml-4 my-2">
     <div class="flex w-100 items-center">
-        <x-input-switch :checked="$enabled" />
+        <x-input-switch :checked="$enabled" wire:change="toggleEnabled" />
         <div class="inline-flex">
             @if ($category->urlPath)
                 <a href="https://www.diepxuan.com{{ $category->urlPath }}.html" class="mx-4 text-decoration-none"
