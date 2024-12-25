@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-12-24 21:44:07
+ * @lastupdate 2024-12-25 11:23:42
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Product;
@@ -20,18 +20,6 @@ use Livewire\Component;
 class Products extends NavigationMenuComponent
 {
     public $product;
-    public $price;
-
-    public function mount(): void
-    {
-        if ($this->product) {
-            \Debugbar::info($this->product);
-
-            // $this->price ??= $this->product->price . ' VND';
-            $formatter = new \NumberFormatter('vi_VN', \NumberFormatter::CURRENCY);
-            $this->price ??=  $formatter->formatCurrency((float) $this->product->price, 'VND');
-        }
-    }
 
     /**
      * Render the component.

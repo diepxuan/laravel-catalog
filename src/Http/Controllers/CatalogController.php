@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-12-24 15:36:53
+ * @lastupdate 2024-12-25 18:05:18
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
