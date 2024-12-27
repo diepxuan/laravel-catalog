@@ -8,17 +8,16 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-12-24 14:51:33
+ * @lastupdate 2024-12-27 12:35:26
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\System;
 
 use Diepxuan\Catalog\Models\System;
 use Illuminate\View\View;
-use Laravel\Jetstream\Http\Livewire\NavigationMenu as NavigationMenuComponent;
 use Livewire\Component;
 
-class Dashboard extends NavigationMenuComponent
+class Dashboard extends Component
 {
     public $system;
     public $ngayKhoaSo;

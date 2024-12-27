@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-12-23 21:24:22
+ * @lastupdate 2024-12-27 12:35:10
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Category;
@@ -16,10 +16,9 @@ namespace Diepxuan\Catalog\Http\Livewire\Category;
 use Diepxuan\Catalog\Models\Category;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
-use Laravel\Jetstream\Http\Livewire\NavigationMenu as NavigationMenuComponent;
 use Livewire\Component;
 
-class Categories extends NavigationMenuComponent
+class Categories extends Component
 {
     public ?string $id = null;
     public $category;

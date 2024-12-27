@@ -7,7 +7,5 @@
         <p>{{ __('Danh sách') }}</p>
     </x-slot>
 
-    @foreach ($products as $product)
-        @livewire('catalog::product.products', ['product' => $product], key($product->id))
-    @endforeach
+    @livewire('catalog::product.products')
 </x-catalog::app-layout>
