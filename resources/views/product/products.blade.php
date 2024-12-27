@@ -20,7 +20,7 @@
 
     @if ($hasMore)
         <div class="mt-4 text-center" id="loading-indicator">
-            <button wire:click="loadProducts" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700">
+            <button wire:click="loadProducts" class="px-4 py-2 bg-blue-300 text-white rounded hover:bg-blue-600">
                 Load More
             </button>
         </div>
