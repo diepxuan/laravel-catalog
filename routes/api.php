@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-12-11 11:52:52
+ * @lastupdate 2025-04-01 17:27:14
  */
 
 use Diepxuan\Catalog\Http\Controllers\CatalogController;
@@ -26,8 +26,7 @@ use Illuminate\Support\Facades\Route;
  *
 */
 
-Route::middleware(['auth:sanctum'])->prefix('v1')->group(static function (): void {
-    // Route::apiResource('catalog', CatalogController::class)->names('catalog');
-    // Route::get('/api/products', [ProductController::class, 'getProducts']);
-    Route::apiResource('khohang/nhomsanpham', CategoryController::class)->names('api.category');
+Route::domain('portal.diepxuan.io.vn')->middleware(['auth:sanctum'])->prefix('v1')->group(static function (): void {
+    Route::apiResource('products', CatalogController::class)->names('api.product');
+    Route::apiResource('categories', CategoryController::class)->names('api.category');
 });

@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-12-22 12:45:58
+ * @lastupdate 2025-04-01 20:15:22
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
@@ -24,8 +24,12 @@ class CategoryController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->wantsJson()) {
+            return response()->json(Category::all());
+        }
+
         return view('catalog::category.index');
     }
 

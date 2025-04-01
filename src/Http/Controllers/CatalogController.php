@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-12-25 21:49:19
+ * @lastupdate 2025-04-01 19:53:07
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
@@ -24,8 +24,12 @@ class CatalogController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->wantsJson()) {
+            return response()->json(Product::all());
+        }
+
         return view('catalog::product/index', [
             // 'products' => Product::all(),
             // 'products' => Product::withQuantity()->get(),

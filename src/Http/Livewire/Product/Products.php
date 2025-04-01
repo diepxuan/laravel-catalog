@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-12-27 12:34:45
+ * @lastupdate 2025-03-30 22:05:06
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Product;
@@ -20,7 +20,7 @@ use Livewire\Component;
 class Products extends Component
 {
     public $products;
-    public $perPage      = 50;
+    public $perPage      = 100;
     public $hasMore      = true;
     protected $listeners = ['loadMoreProducts'];
 
@@ -31,10 +31,13 @@ class Products extends Component
 
     public function mount(): void
     {
-        $this->products = Product::query()
-            ->take($this->perPage)
+        // $this->products = Product::query()
+        $this->products = Product::withQuantity()
+            ->orderBy('InDmVt.ma_vt', 'asc')
+            // ->take($this->perPage)
             ->get()
         ;
+
         $this->hasMore = $this->products->count() >= $this->perPage;
     }
 
@@ -44,9 +47,11 @@ class Products extends Component
             return;
         }
 
-        $newProducts = Product::query()
+        // $newProducts = Product::query()
+        $newProducts = Product::withQuantity()
             ->skip(\count($this->products ?? collect()))
-            ->take($this->perPage)
+            ->orderBy('InDmVt.ma_vt', 'asc')
+            // ->take($this->perPage)
             ->get()
         ;
 

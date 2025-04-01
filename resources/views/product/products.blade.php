@@ -18,7 +18,7 @@
         </tbody>
     </table>
 
-    @if ($hasMore)
+    {{-- @if ($hasMore)
         <div class="mt-4 text-center" id="loading-indicator">
             <button wire:click="loadProducts" class="px-4 py-2 bg-blue-300 text-white rounded hover:bg-blue-600">
                 Load More
@@ -26,5 +26,5 @@
         </div>
     @else
         <p class="mt-4 text-center text-gray-500">No more products to load.</p>
-    @endif
+    @endif --}}
 </div>

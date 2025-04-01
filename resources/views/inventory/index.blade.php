@@ -1,40 +1,14 @@
-@extends('catalog::layouts.master')
-@section('title', 'Phiếu xuất điều chuyển kho')
+<x-catalog::app-layout>
+    <x-catalog::head-title>{{ __('Bán Hàng') }}</x-catalog::head-title>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+            {{ __('Bán Hàng') }}
 
-@section('content')
-    <style type="text/css">
-        ul.autocomplete {
-            background: #ffffff;
-            border: solid 1px #c3c3c3;
-            border-radius: 3px;
-            box-shadow: 0px 5px 5px #29292961;
-            display: block;
-            position: absolute;
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
+        </h2>
+        <p>{{ __('Hoá đơn bán hàng') }}</p>
+    </x-slot>
 
-        ul.autocomplete li {
-            cursor: pointer;
-            padding: 0 4px;
-        }
-
-        ul.autocomplete li i {
-            font-size: 0.75rem;
-        }
-
-        ul.autocomplete li+li {
-            border-top: solid 1px #c3c3c3;
-        }
-
-        ul.autocomplete,
-        ul.autocomplete li {
-            display: none;
-        }
-    </style>
-
-    <form action="{{ route('inventory.index') }}" method="GET">
+    <form method="GET">
         @method('GET') @csrf
         <table>
             <tbody>
@@ -50,7 +24,8 @@
                     <td>
                         <label>
                             <span>Đến</span>
-                            <input type="date" value="{{ $to->format('Y-m-d') }}" placeholder="dd/mm/yyyy" name="to" />
+                            <input type="date" value="{{ $to->format('Y-m-d') }}" placeholder="dd/mm/yyyy"
+                                name="to" />
                         </label>
                     </td>
                 </tr>
@@ -81,7 +56,8 @@
             <tr>
                 {{-- <td>{{ $index }}</td> --}}
                 @php
-                    $link = route('inventory.show', array_merge(['tonkho' => $phdck->getKey()], request()->query()));
+                    // $link = route('inventory.show', array_merge(['tonkho' => $phdck->getKey()], request()->query()));
+                    $link = '';
                 @endphp
                 <td>
                     <a href="{{ $link }}" class="text-decoration-none" target="_blank">
@@ -98,37 +74,5 @@
             </tr>
         @endforeach
     </table>
-    <script type="text/javascript">
-        function autocompleteShow(inp) {
-            autocomplete = getNextElementByClass(inp, 'autocomplete');
-            autocomplete.style.display = "none";
-            for (const element of autocomplete.children) {
-                element.style.display = "none";
-                if (element.dataset.khoid.toLowerCase().includes(inp.value.toLowerCase())) {
-                    element.style.display = "block";
-                    autocomplete.style.display = "block";
-                }
 
-            }
-
-            function getNextElementByClass(element, className) {
-                if (element.nextElementSibling)
-                    if (element.nextElementSibling.classList.contains(className))
-                        return element.nextElementSibling;
-                    else
-                        return getNextElementByClass((element.nextElementSibling, className))
-                else return null
-            }
-        }
-
-        function autocompleteSelect(sel) {
-            console.log(sel, sel.parentElement);
-        }
-
-        function closeAllLists() {
-            for (const element of document.getElementsByClassName("autocomplete")) {
-                element.style.display = "none"
-            }
-        }
-    </script>
-@endsection
+</x-catalog::app-layout>
