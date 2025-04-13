@@ -7,7 +7,6 @@
         <p>{{ __('Magento Websites') }}</p>
     </x-slot>
 
-
     <table class="table-auto w-full border border-gray-200 divide-y divide-gray-200">
         <tr class="border border-gray-200">
             <th class="text-left">web name</th>

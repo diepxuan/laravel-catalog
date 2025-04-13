@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-06-16 08:41:37
+ * @lastupdate 2025-04-13 15:33:05
  */
 
 namespace Diepxuan\Catalog\Commands;
@@ -75,10 +75,10 @@ final class EnvTest extends Command
         $this->output->writeln("[i] SQLSRV_PASSWORD     {$SQLSRV_PASSWORD}");
 
         $MAGENTO_BASE_URL            = config('magento.base_url');
-        $MAGENTO_CONSUMER_KEY        = config('magento.base_url');
-        $MAGENTO_CONSUMER_SECRET     = config('magento.base_url');
-        $MAGENTO_ACCESS_TOKEN        = config('magento.base_url');
-        $MAGENTO_ACCESS_TOKEN_SECRET = config('magento.base_url');
+        $MAGENTO_CONSUMER_KEY        = maskKey(config('magento.consumer_key'));
+        $MAGENTO_CONSUMER_SECRET     = maskKey(config('magento.consumer_secret'));
+        $MAGENTO_ACCESS_TOKEN        = maskKey(config('magento.token'));
+        $MAGENTO_ACCESS_TOKEN_SECRET = maskKey(config('magento.token_secret'));
         $this->output->writeln('[i] -------------------------------------------');
         $this->output->writeln("[i] MAGENTO_BASE_URL            {$MAGENTO_BASE_URL}");
         $this->output->writeln("[i] MAGENTO_CONSUMER_KEY        {$MAGENTO_CONSUMER_KEY}");
