@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-12-27 12:35:10
+ * @lastupdate 2025-05-04 18:49:58
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Category;
@@ -29,12 +29,13 @@ class Categories extends Component
 
     public function loadData(): void
     {
-        $this->id ??= $this->category->sku;
-        $this->magento = $this->category->magento;
-        $this->magento->each(function ($m2child): void {
-            $this->enabled = $this->enabled || $m2child->is_active;
-            \Debugbar::info($m2child);
-        });
+        // $this->id ??= $this->category->sku;
+        // $this->enabled = $this->category->status || false;
+        // $this->magento = $this->category->magento;
+        // $this->magento->each(function ($m2child): void {
+        //     $this->enabled = $this->enabled || $m2child->is_active;
+        //     \Debugbar::info($m2child);
+        // });
     }
 
     public function toggleEnabled(): void
@@ -47,7 +48,8 @@ class Categories extends Component
     {
         $this->id ??= Str::of($id)->toString();
         $this->category ??=  Category::find($this->id) ?? Category::isRoot()->get()->first();
-        $this->id = $this->category->sku;
+        $this->id      = $this->category->sku;
+        $this->enabled = $this->category->status || false;
         $this->magento ??= collect([]);
         $this->childrens ??= $this->category->catChildrens()->get();
         $this->template = $this->childrens->isNotEmpty() ? 'catalog::category.categories' : 'catalog::category.category';

@@ -8,13 +8,14 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-07-04 22:03:54
+ * @lastupdate 2025-04-20 21:40:55
  */
 
 namespace Diepxuan\Catalog\Providers;
 
 use Diepxuan\Catalog\Commands\CatalogSync;
 use Diepxuan\Catalog\Commands\EnvTest;
+use Diepxuan\Catalog\Commands\Scavenger;
 use Diepxuan\Catalog\Models\Category;
 use Diepxuan\Catalog\Models\Product;
 use Diepxuan\Catalog\Observers\CategoryObserver;
@@ -37,12 +38,13 @@ class CatalogServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        if ($this->app->runningInConsole()) {
-            $this->commands([
-                CatalogSync::class,
-                EnvTest::class,
-            ]);
-        }
+        // if ($this->app->runningInConsole()) {
+        //     $this->commands([
+        //         CatalogSync::class,
+        //         EnvTest::class,
+        //         Scavenger::class,
+        //     ]);
+        // }
     }
 
     /**
