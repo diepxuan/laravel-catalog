@@ -36,13 +36,17 @@
         @livewire('catalog::navigation-menu')
 
         <!-- Page Heading -->
-        @if (isset($header))
-            <header class="bg-white shadow">
-                <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        <header class="bg-white shadow">
+            <div class="max-w-7xl mx-auto pt-6 px-4 sm:px-6 lg:px-8">
+                @if (isset($header))
                     {{ $header }}
-                </div>
-            </header>
-        @endif
+                @endif
+            </div>
+            <!-- System information -->
+            <div class="max-w-7xl mx-auto pb-6 px-4 sm:px-6 lg:px-8">
+                <x-catalog::sys-language />
+            </div>
+        </header>
 
         <!-- Page Content -->
         <main>
