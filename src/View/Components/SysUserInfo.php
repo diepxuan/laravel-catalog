@@ -8,27 +8,33 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-05-21 17:37:11
+ * @lastupdate 2025-05-21 17:47:59
  */
 
 namespace Diepxuan\Catalog\View\Components;
 
+use Diepxuan\Catalog\Models\User;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 
-// <x-catalog::sys-language>
-class SysLanguage extends Component
+// <x-catalog::sys-user-info>
+class SysUserInfo extends Component
 {
     /**
      * Get the view / contents that represents the component.
      */
     public function render(): string|View
     {
-        $language = \Diepxuan\Catalog\Models\SysLanguage::current()->first();
-        // dd($language);
+        $user      = Auth::user();
+        $simbaUser = $user->getSimbaUser();
+
+        if (null === $simbaUser) {
+            return '';
+        }
 
         return <<<HTML
-                <span>{$language->Name} | {$language->Description}</span>
+                <span>{$simbaUser->username}</span>
             HTML;
     }
 }

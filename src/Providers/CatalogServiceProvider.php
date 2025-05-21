@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-04-20 21:40:55
+ * @lastupdate 2025-05-21 17:11:05
  */
 
 namespace Diepxuan\Catalog\Providers;
@@ -18,6 +18,7 @@ use Diepxuan\Catalog\Commands\EnvTest;
 use Diepxuan\Catalog\Commands\Scavenger;
 use Diepxuan\Catalog\Models\Category;
 use Diepxuan\Catalog\Models\Product;
+use Diepxuan\Catalog\Models\User;
 use Diepxuan\Catalog\Observers\CategoryObserver;
 use Diepxuan\Catalog\Observers\ProductObserver;
 use Illuminate\Support\ServiceProvider;
@@ -45,6 +46,10 @@ class CatalogServiceProvider extends ServiceProvider
         //         Scavenger::class,
         //     ]);
         // }
+
+        config([
+            'auth.providers.users.model' => User::class,
+        ]);
     }
 
     /**

@@ -44,7 +44,10 @@
             </div>
             <!-- System information -->
             <div class="max-w-7xl mx-auto pb-6 px-4 sm:px-6 lg:px-8">
-                <x-catalog::sys-language />
+                <div class="text-xs text-gray-500">
+                    <x-catalog::sys-language />
+                    <x-catalog::sys-user-info />
+                </div>
             </div>
         </header>
 
@@ -52,7 +55,7 @@
         <main>
 
             <div class="py-12">
-                <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                <div class="max-w-12xl mx-auto sm:px-6 lg:px-8">
                     <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                         <div class="p-6 lg:p-8 bg-white border-b border-gray-200">
                             {{ $slot }}

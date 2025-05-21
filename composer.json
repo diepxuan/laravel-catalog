@@ -23,7 +23,8 @@
     "diepxuan/laravel-magento": "*",
     "diepxuan/laravel-ronaldjack": "*",
     "diepxuan/laravel-simba": "*",
-    "diepxuan/php-charset": "*"
+    "diepxuan/php-charset": "*",
+    "laravel/jetstream": "*"
   },
   "autoload": {
     "files": [
