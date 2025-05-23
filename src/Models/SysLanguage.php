@@ -8,32 +8,11 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-05-20 10:27:33
+ * @lastupdate 2025-05-20 11:43:34
  */
 
 namespace Diepxuan\Catalog\Models;
 
-use Diepxuan\Simba\Models\SysLanguage as SsysLanguage;
+use Diepxuan\Simba\Models\SysLanguage as Model;
 
-class SysLanguage extends SsysLanguage
-{
-    /**
-     * is Enable scope.
-     *
-     * @param mixed $query
-     */
-    public function scopeIsEnable($query)
-    {
-        return $query->where('ksd', 0);
-    }
-
-    /**
-     * Current scope.
-     *
-     * @param mixed $query
-     */
-    public function scopeCurrent($query)
-    {
-        return $query->where('Selected', 1);
-    }
-}
+class SysLanguage extends Model {}

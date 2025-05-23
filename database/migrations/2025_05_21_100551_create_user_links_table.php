@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-05-21 17:08:49
+ * @lastupdate 2025-05-22 08:51:36
  */
 
 use Illuminate\Database\Migrations\Migration;
@@ -28,6 +28,10 @@ return new class() extends Migration {
             $table->string('simba_user_id'); // SysUserInfo.UserID (nếu là string, đổi kiểu nếu cần)
 
             $table->timestamps();
+
+            $table->unique('simba_user_id');
+
+            $table->unique('laravel_user_id');
         });
     }
 

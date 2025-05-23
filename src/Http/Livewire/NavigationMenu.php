@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-12-13 22:03:52
+ * @lastupdate 2025-05-21 19:07:32
  */
 
 namespace Diepxuan\Catalog\Http\Livewire;
@@ -32,7 +32,7 @@ class NavigationMenu extends NavigationMenuComponent
         ],
         [
             'name'   => 'Mua hàng',
-            'status' => 'sell.*',
+            'status' => 'purchase.*',
             'items'  => [
                 // 'Hoá đơn mua hàng' => 'purchase.index',
                 'space',
@@ -54,8 +54,9 @@ class NavigationMenu extends NavigationMenuComponent
             'name'   => 'Hệ Thống',
             'status' => 'system.*',
             'items'  => [
-                'Dashboard' => 'system.index',
-                'Website'   => 'system.website.index',
+                'Dashboard'          => 'system.index',
+                'Quản lý người dùng' => 'system.user.index',
+                'Website'            => 'system.website.index',
             ],
         ],
     ];

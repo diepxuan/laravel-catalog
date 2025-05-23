@@ -6,7 +6,7 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('home') }}">
-                        <x-catalog::images.logo class="block h-9 w-auto" />
+                        <x-images.logo class="block h-9 w-auto" />
                     </a>
                 </div>
 

@@ -8,12 +8,11 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-05-21 17:11:17
+ * @lastupdate 2025-05-23 16:14:26
  */
 
 namespace Diepxuan\Catalog\Models;
 
-use App\Models\User;
 use Diepxuan\Simba\Models\SysUserInfo;
 
 class UserLink extends AbstractModel

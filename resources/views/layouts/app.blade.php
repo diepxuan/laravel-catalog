@@ -45,8 +45,9 @@
             <!-- System information -->
             <div class="max-w-7xl mx-auto pb-6 px-4 sm:px-6 lg:px-8">
                 <div class="text-xs text-gray-500">
-                    <x-catalog::sys-language />
-                    <x-catalog::sys-user-info />
+                    {{-- <x-catalog::sys-language /> --}}
+                    [<x-sys-user-info />]
+                    <x-sys-language />
                 </div>
             </div>
         </header>

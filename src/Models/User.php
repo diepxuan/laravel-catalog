@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-05-21 17:47:23
+ * @lastupdate 2025-05-23 16:24:33
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -32,6 +32,6 @@ class User extends Model
             return null;
         }
 
-        return SUser::get($this->simbaLink->simba_user_id);
+        return SUser::findOrFail($this->simbaLink->simba_user_id);
     }
 }

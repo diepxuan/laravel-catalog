@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-12-13 16:34:16
+ * @lastupdate 2025-05-21 19:06:09
  */
 
 use Diepxuan\Catalog\Http\Controllers\CatalogController;
@@ -16,6 +16,7 @@ use Diepxuan\Catalog\Http\Controllers\CategoryController;
 use Diepxuan\Catalog\Http\Controllers\InventoryController;
 use Diepxuan\Catalog\Http\Controllers\SellController;
 use Diepxuan\Catalog\Http\Controllers\SystemController;
+use Diepxuan\Catalog\Http\Controllers\SystemUserController;
 use Diepxuan\Catalog\Http\Controllers\SystemWebsiteController;
 use Illuminate\Support\Facades\Route;
 
@@ -38,6 +39,7 @@ Route::domain('portal.diepxuan.io.vn')->middleware(['clearcache', 'auth'])->grou
     Route::resource('khohang/tonkho', InventoryController::class)->names('catalog.inventory');
 
     Route::resource('hethong/dashboard', SystemController::class)->names('system');
+    Route::resource('hethong/user', SystemUserController::class)->names('system.user');
     Route::resource('hethong/website', SystemWebsiteController::class)->names('system.website');
 
     // Route::get('/', [SystemController::class, 'index']);
