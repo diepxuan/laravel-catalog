@@ -8,6 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
+ * @lastupdate 2025-05-25 15:55:42
  * @lastupdate 2025-05-25 15:52:44
  */
 
@@ -37,6 +38,8 @@ Route::domain('portal.diepxuan.io.vn')->middleware(['clearcache', 'auth'])->grou
     Route::get('/cash/nganhang/baoco', static fn () => view('catalog::dashboard'))->name('ca.nganhang.baoco');
     Route::get('/cash/nganhang/baono', static fn () => view('catalog::dashboard'))->name('ca.nganhang.baono');
     Route::get('/cash/nganhang/quy', static fn () => view('catalog::dashboard'))->name('ca.nganhang.quy');
+    Route::get('/cash/thu', static fn () => view('catalog::dashboard'))->name('ca.thu');
+    Route::get('/cash/chi', static fn () => view('catalog::dashboard'))->name('ca.chi');
     Route::get('/cash/quy', static fn () => view('catalog::dashboard'))->name('ca.quy');
 
     Route::resource('banhang/hoadonbanhang', SellController::class)->names('sell');
