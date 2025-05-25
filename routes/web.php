@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-05-21 19:06:09
+ * @lastupdate 2025-05-25 15:52:44
  */
 
 use Diepxuan\Catalog\Http\Controllers\CatalogController;
@@ -31,6 +31,14 @@ use Illuminate\Support\Facades\Route;
 |
 */
 Route::domain('portal.diepxuan.io.vn')->middleware(['clearcache', 'auth'])->group(static function (): void {
+    Route::get('/cash/tienmat/thu', static fn () => view('catalog::dashboard'))->name('ca.tienmat.thu');
+    Route::get('/cash/tienmat/chi', static fn () => view('catalog::dashboard'))->name('ca.tienmat.chi');
+    Route::get('/cash/tienmat/quy', static fn () => view('catalog::dashboard'))->name('ca.tienmat.quy');
+    Route::get('/cash/nganhang/baoco', static fn () => view('catalog::dashboard'))->name('ca.nganhang.baoco');
+    Route::get('/cash/nganhang/baono', static fn () => view('catalog::dashboard'))->name('ca.nganhang.baono');
+    Route::get('/cash/nganhang/quy', static fn () => view('catalog::dashboard'))->name('ca.nganhang.quy');
+    Route::get('/cash/quy', static fn () => view('catalog::dashboard'))->name('ca.quy');
+
     Route::resource('banhang/hoadonbanhang', SellController::class)->names('sell');
     Route::resource('banhang/bangkebanhang', SellController::class)->names('sell.list');
 

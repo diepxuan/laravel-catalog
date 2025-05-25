@@ -24,7 +24,13 @@
                                 class="absolute hidden group-hover:block mt-0 space-y-2 bg-white border rounded-lg shadow-lg top-full left-0 w-48">
                                 @foreach ($menu->items as $title => $route)
                                     @if ($route == 'space')
-                                        <div class="border-t border-gray-200 w-full"></div>
+                                        @isset($title)
+                                            <div class="block px-4 py-2 text-xs text-gray-400">
+                                                {{ __($title) }}
+                                            </div>
+                                        @else
+                                            <div class="border-t border-gray-200 w-full"></div>
+                                        @endisset
                                     @else
                                         <x-nav-link :href="route($route)" :active="$this->status($route)"
                                             class="px-2 w-full hover:border-transparent focus:border-transparent border-transparent">
@@ -173,6 +179,27 @@
             <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+
+            @foreach (json_decode(json_encode($menus), false) as $menuId => $menu)
+                <div class="relative group sm:flex">
+                    <x-responsive-nav-link href="#" :active="$this->status($menu->status)" class="">
+                        {{ __($menu->name) }}
+                    </x-responsive-nav-link>
+                    <div
+                        class="absolute hidden group-hover:block mt-0 space-y-2 bg-white border rounded-lg shadow-lg top-full left-0 w-48">
+                        @foreach ($menu->items as $title => $route)
+                            @if ($route == 'space')
+                                <div class="border-t border-gray-200 w-full"></div>
+                            @else
+                                <x-nav-link :href="route($route)" :active="$this->status($route)"
+                                    class="px-2 w-full hover:border-transparent focus:border-transparent border-transparent">
+                                    {{ __($title) }}
+                                </x-nav-link>
+                            @endif
+                        @endforeach
+                    </div>
+                </div>
+            @endforeach
         </div>
 
         <!-- Responsive Settings Options -->

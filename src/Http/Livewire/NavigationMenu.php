@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-05-21 19:07:32
+ * @lastupdate 2025-05-25 15:52:55
  */
 
 namespace Diepxuan\Catalog\Http\Livewire;
@@ -20,6 +20,22 @@ use Livewire\Component;
 class NavigationMenu extends NavigationMenuComponent
 {
     public $menus = [
+        [
+            'name'   => 'Tiền tệ',
+            'status' => 'ca.*',
+            'items'  => [
+                'Tiền mặt'         => 'space',
+                'Phiếu thu'        => 'ca.tienmat.thu',
+                'Phiếu chi'        => 'ca.tienmat.chi',
+                'Chuyển khoản'     => 'space',
+                'Báo nợ'           => 'ca.nganhang.baono',
+                'Báo có'           => 'ca.nganhang.baoco',
+                'Báo cáo'          => 'space',
+                'Sổ quỹ tiền mặt'  => 'ca.tienmat.quy',
+                'Sổ quỹ ngân hàng' => 'ca.nganhang.quy',
+                'Nhật ký thu chi'  => 'ca.quy',
+            ],
+        ],
         [
             'name'   => 'Bán hàng',
             'status' => 'sell.*',
