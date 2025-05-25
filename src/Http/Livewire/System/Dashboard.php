@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-12-27 12:35:26
+ * @lastupdate 2025-05-24 18:14:19
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\System;
@@ -36,7 +36,7 @@ class Dashboard extends Component
     public function updateKhoaSo(): void
     {
         $this->system->khoaSo = $this->ngayKhoaSo;
-        \Debugbar::info($this->system->khoaSo);
+        // \Debugbar::info($this->system->khoaSo);
     }
 
     /**

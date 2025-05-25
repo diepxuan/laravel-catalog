@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-05-21 17:11:05
+ * @lastupdate 2025-05-24 16:46:18
  */
 
 namespace Diepxuan\Catalog\Providers;
@@ -16,11 +16,14 @@ namespace Diepxuan\Catalog\Providers;
 use Diepxuan\Catalog\Commands\CatalogSync;
 use Diepxuan\Catalog\Commands\EnvTest;
 use Diepxuan\Catalog\Commands\Scavenger;
+use Diepxuan\Catalog\Facades\CatalogServiceFacade;
 use Diepxuan\Catalog\Models\Category;
 use Diepxuan\Catalog\Models\Product;
 use Diepxuan\Catalog\Models\User;
 use Diepxuan\Catalog\Observers\CategoryObserver;
 use Diepxuan\Catalog\Observers\ProductObserver;
+use Diepxuan\Catalog\Services\CatalogService;
+use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\ServiceProvider;
 
 class CatalogServiceProvider extends ServiceProvider
@@ -50,6 +53,9 @@ class CatalogServiceProvider extends ServiceProvider
         config([
             'auth.providers.users.model' => User::class,
         ]);
+
+        $this->app->singleton('catalog-service', static fn ($app) => new CatalogService());
+        AliasLoader::getInstance()->alias('CatalogService', CatalogServiceFacade::class);
     }
 
     /**

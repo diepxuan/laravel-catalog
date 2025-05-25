@@ -11,6 +11,17 @@ declare(strict_types=1);
  * @lastupdate 2024-12-09 12:18:25
  */
 
+ use Diepxuan\Catalog\Services\CatalogService;
+if (!function_exists('catalog')) {
+    /**
+     * Get the catalog service instance.
+     */
+    function catalog(): CatalogService
+    {
+        return app('catalog-service');
+    }
+}
+
 if (!function_exists('dvite')) {
     /**
      * Convert Vietnamese encoding to another.

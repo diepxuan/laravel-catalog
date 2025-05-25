@@ -8,17 +8,16 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-12-24 14:46:49
+ * @lastupdate 2025-05-24 12:43:21
  */
 
 namespace Diepxuan\Catalog\Models;
 
 use Carbon\Carbon;
-use Diepxuan\Simba\Models\System as SSystem;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class System extends SSystem
+class System extends SysCompany
 {
     public function systemConfig(): HasOne
     {

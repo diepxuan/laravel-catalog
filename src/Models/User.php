@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-05-23 16:24:33
+ * @lastupdate 2025-05-24 07:58:06
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -25,13 +25,6 @@ class User extends Model
 
     public function getSimbaUser()
     {
-        if (null === $this->simbaLink) {
-            return null;
-        }
-        if (null === $this->simbaLink->simba_user_id) {
-            return null;
-        }
-
-        return SUser::findOrFail($this->simbaLink->simba_user_id);
+        return SUser::find(optional($this->simbaLink)->simba_user_id);
     }
 }
