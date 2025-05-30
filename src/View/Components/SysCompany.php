@@ -8,16 +8,15 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-05-24 18:17:26
+ * @lastupdate 2025-05-27 10:12:28
  */
 
 namespace Diepxuan\Catalog\View\Components;
 
-use Diepxuan\Catalog\Models\User;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 
-// <x-catalog::sys-user-info>
+// <x-catalog::sys-company>
 class SysCompany extends Component
 {
     /**
@@ -29,7 +28,7 @@ class SysCompany extends Component
         \Debugbar::info($company);
 
         return <<<HTML
-                <span>[{$company->ma_cty}]</span>
+                <span>[ {$company->ma_cty} ]</span>
                 <span class="text-sm font-bold">{$company->ten_cty}</span>
             HTML;
     }

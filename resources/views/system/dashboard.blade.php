@@ -1,4 +1,4 @@
-<div wire:init="loadData" class="relative mx-4 my-2">
+<div wire:init="loadData" class="mx-4 my-2">
 
     <h1 class="mt-1 text-2xl font-medium text-gray-900">
         {{ $system->ten_cty }}

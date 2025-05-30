@@ -47,6 +47,7 @@
                 <div class="text-xs text-gray-500">
                     {{-- <x-catalog::sys-language /> --}}
                     <x-sys-user-info />
+                    <x-sys-year />
                     <x-sys-company />
                     <x-sys-language />
                 </div>

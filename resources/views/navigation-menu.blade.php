@@ -11,9 +11,9 @@
                 </div>
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link href="{{ route('dashboard') }}" :active="$this->status('dashboard')">
+                    {{-- <x-nav-link href="{{ route('dashboard') }}" :active="$this->status('dashboard')">
                         {{ __('Dashboard') }}
-                    </x-nav-link>
+                    </x-nav-link> --}}
 
                     @foreach (json_decode(json_encode($menus), false) as $menuId => $menu)
                         <div class="relative group sm:flex">
