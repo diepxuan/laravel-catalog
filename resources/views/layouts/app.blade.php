@@ -11,9 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <x-catalog::head-title>
-        {{ $pageTitle ?? config('app.name', 'Laravel') }}
-    </x-catalog::head-title>
+    <title>@stack('title', config('app.name', 'Laravel'))</title>
 
     <link rel="icon" type="image/x-icon" href="{{ $favicon }}">
     <link rel="shortcut icon" type="image/x-icon" href="{{ $favicon }}">

@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-05-27 19:24:59
+ * @lastupdate 2025-05-30 11:56:21
  */
 
 use Diepxuan\Catalog\Http\Controllers\CatalogController;
@@ -18,6 +18,7 @@ use Diepxuan\Catalog\Http\Controllers\SellController;
 use Diepxuan\Catalog\Http\Controllers\SystemController;
 use Diepxuan\Catalog\Http\Controllers\SystemUserController;
 use Diepxuan\Catalog\Http\Controllers\SystemWebsiteController;
+use Diepxuan\Catalog\Http\Livewire\Cash\Tienmat\Phieuthu;
 use Diepxuan\Catalog\Http\Livewire\Gl\Taikhoan;
 use Illuminate\Support\Facades\Route;
 
@@ -34,7 +35,7 @@ use Illuminate\Support\Facades\Route;
 Route::domain('portal.diepxuan.io.vn')->middleware(['clearcache', 'auth'])->group(static function (): void {
     Route::get('/gl/taikhoan', Taikhoan::class)->name('gl.taikhoan');
 
-    Route::get('/cash/tienmat/thu', static fn () => view('catalog::cash.tienmat.phieuthu'))->name('ca.tienmat.thu');
+    Route::get('/cash/tienmat/thu', Phieuthu::class)->name('ca.tienmat.thu');
     Route::get('/cash/tienmat/chi', static fn () => view('catalog::cash.tienmat.phieuchi'))->name('ca.tienmat.chi');
     Route::get('/cash/tienmat/quy', static fn () => view('catalog::dashboard'))->name('ca.tienmat.quy');
     Route::get('/cash/nganhang/baoco', static fn () => view('catalog::dashboard'))->name('ca.nganhang.baoco');

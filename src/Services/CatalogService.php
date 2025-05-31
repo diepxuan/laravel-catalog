@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-05-27 10:11:08
+ * @lastupdate 2025-05-30 12:42:09
  */
 
 namespace Diepxuan\Catalog\Services;
@@ -114,5 +114,15 @@ class CatalogService
             'from' => (session('timeStart', now()->setYear($year)->startOfYear()) ?? now()->setYear($year)->startOfYear())->toDateString(),
             'to'   => (session('timeEnd', now()->setYear($year)->endOfYear()) ?? now()->setYear($year)->endOfYear())->toDateString(),
         ];
+    }
+
+    public function timerFrom()
+    {
+        return $this->timer()['from'];
+    }
+
+    public function timerTo()
+    {
+        return $this->timer()['to'];
     }
 }

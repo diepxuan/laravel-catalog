@@ -8,13 +8,12 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-05-24 07:58:06
+ * @lastupdate 2025-05-31 09:32:58
  */
 
 namespace Diepxuan\Catalog\Models;
 
 use App\Models\User as Model;
-use Diepxuan\Simba\Models\SysUserInfo as SUser;
 
 class User extends Model
 {
@@ -25,6 +24,6 @@ class User extends Model
 
     public function getSimbaUser()
     {
-        return SUser::find(optional($this->simbaLink)->simba_user_id);
+        return SysUserInfo::find(optional($this->simbaLink)->simba_user_id);
     }
 }

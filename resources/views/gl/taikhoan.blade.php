@@ -25,7 +25,7 @@
                 <th class="border border-gray-300 text-left">Người tạo</th>
                 <th class="border border-gray-300 text-left">Ngày sửa</th>
                 <th class="border border-gray-300 text-left">Người sửa</th>
-                <th class="border border-gray-300 text-left">Bậc TK</th>
+                <th class="border border-gray-300 text-center">Bậc TK</th>
             </tr>
         </thead>
         <tbody>
@@ -36,7 +36,7 @@
                         $glDmTk->bold ? 'text-blue-600 dark:text-sky-400' : '',
                     ]) >
                     <td class="border border-gray-300">{{ $glDmTk->tk }}</td>
-                    <td class="border border-gray-300"><pre>{!! str_repeat(' ', max(0, ($glDmTk->bac_tk - 1) * 3)) . $glDmTk->ten_tk !!}</pre></td>
+                    <td class="border border-gray-300 pl-1"><pre>{!! str_repeat(' ', max(0, ($glDmTk->bac_tk - 1) * 3)) . $glDmTk->ten_tk !!}</pre></td>
                     <td class="border border-gray-300">{{ $glDmTk->ma_nt }}</td>
                     <td class="border border-gray-300">{{ $glDmTk->tk_me }}</td>
                     <td class="border border-gray-300 text-center"><x-checkbox :checked="$glDmTk->tk_cn" /></td>
@@ -50,7 +50,7 @@
                     <td class="border border-gray-300">{{ $glDmTk->cuser }}</td>
                     <td class="border border-gray-300">{{ $glDmTk->ldate }}</td>
                     <td class="border border-gray-300">{{ $glDmTk->luser }}</td>
-                    <td class="border border-gray-300">{{ $glDmTk->bac_tk }}</td>
+                    <td class="border border-gray-300 text-center">{{ $glDmTk->bac_tk }}</td>
                 </tr>
             @endforeach
         </tbody>
