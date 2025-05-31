@@ -1,10 +1,10 @@
 <div class="phieuthu-container w-full">
-    <x-head-title>{{ __('Tiền tệ') }}</x-head-title>
+    <x-head-title>{{ 'Tiền tệ' }}</x-head-title>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Tiền mặt') }}
+            {{ 'Tiền mặt' }}
         </h2>
-        <p>{{ __('Phiếu thu') }}</p>
+        <p>{{ 'Phiếu thu' }}</p>
     </x-slot>
 
     <div class="grid grid-cols-3 gap-4 items-center pt-1">
