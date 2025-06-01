@@ -46,8 +46,9 @@
             <tr>
                 <th class="border border-gray-300 text-left px-1">Ngày chứng từ</th>
                 <th class="border border-gray-300 text-left px-1">Số chứng từ</th>
-                <th class="border border-gray-300 text-left px-1">Ngày lập</th>
+                {{-- <th class="border border-gray-300 text-left px-1">Ngày lập</th> --}}
                 <th class="border border-gray-300 text-left px-1">Diễn giải</th>
+                <th class="border border-gray-300 text-left px-1">Khách hàng</th>
                 <th class="border border-gray-300 text-left px-1">TK ghi nợ</th>
                 <th class="border border-gray-300 text-left px-1">TK ghi có</th>
                 <th class="border border-gray-300 text-left px-1">Số phát sinh</th>
@@ -56,11 +57,13 @@
         </thead>
         <tbody>
             @foreach ($glCts??[] as $glCt)
+            {{-- @dd($glCt->arDmKh) --}}
             <tr class="hover:bg-sky-100">
                 <td class="border border-gray-300 px-1">{{ $glCt->ngay_ct }}</td>
                 <td class="border border-gray-300 px-1">{{ $glCt->so_ct }}</td>
-                <td class="border border-gray-300 px-1">{{ $glCt->ngay_lct }}</td>
+                {{-- <td class="border border-gray-300 px-1">{{ $glCt->ngay_lct }}</td> --}}
                 <td class="border border-gray-300 px-1"><pre>{{ $glCt->dien_giai }}</pre></td>
+                <td class="border border-gray-300 px-1">{{ $glCt->arDmKh?->ten_kh }}</td>
                 <td class="border border-gray-300 px-1">{{ $glCt->tk }}</td>
                 <td class="border border-gray-300 px-1">{{ $glCt->tk_du }}</td>
                 <td class="border border-gray-300 px-1 text-right">@currency($glCt->ps_no)</td>

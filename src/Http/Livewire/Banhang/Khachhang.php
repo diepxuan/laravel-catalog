@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-06-01 18:16:23
+ * @lastupdate 2025-06-01 18:38:16
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Banhang;
@@ -27,8 +27,7 @@ class Khachhang extends Component
 
     public function mount(): void
     {
-        $this->arDmKhs = ArDmKh::query()
-            ->where('isKh', true)
+        $this->arDmKhs = ArDmKh::where('isKh', true)
             ->orderBy('ma_kh')
             ->get()
         ;

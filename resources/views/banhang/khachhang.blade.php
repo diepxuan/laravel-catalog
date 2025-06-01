@@ -10,6 +10,7 @@
     <table class="w-full mt-3 text-xs border border-gray-300">
         <thead>
             <tr>
+                <th></th>
                 <th class="border border-gray-300 text-left px-1">Mã khách hàng</th>
                 <th class="border border-gray-300 text-left px-1">Tên khách hàng</th>
                 {{-- <th class="border border-gray-300 text-left px-1">Mã số thuế</th> --}}
@@ -22,6 +23,7 @@
         <tbody>
             @foreach ($arDmKhs??[] as $arDmKh)
             <tr class="hover:bg-sky-100">
+                <td class="border border-gray-300 px-1">{{ $loop->iteration }}</td>
                 <td class="border border-gray-300 px-1">{{ $arDmKh->ma_kh }}</td>
                 <td class="border border-gray-300 px-1"><pre>{{ $arDmKh->ten_kh }}</pre></td>
                 {{-- <td class="border border-gray-300 px-1">{{ $arDmKh->ma_so_thue }}</td> --}}
