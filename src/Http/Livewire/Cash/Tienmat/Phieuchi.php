@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-06-01 13:17:11
+ * @lastupdate 2025-06-01 13:17:19
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Cash\Tienmat;
@@ -17,10 +17,10 @@ use Diepxuan\Catalog\Models\GlCt;
 use Illuminate\View\View;
 use Livewire\Component;
 
-class Phieuthu extends Component
+class Phieuchi extends Component
 {
-    public $pTk_List   = '111';
-    public $pTkdu_List = '';
+    public $pTk_List   = '';
+    public $pTkdu_List = '111';
     public $pMa_Nt     = 'VND';
     public $pMa_Bp;
     protected $glCts;
@@ -56,8 +56,8 @@ class Phieuthu extends Component
      */
     public function render()
     {
-        // diepxuan/laravel-catalog/resources/views/cash/tienmat/phieuthu.blade.php
-        return view('catalog::cash.tienmat.phieuthu', [
+        // diepxuan/laravel-catalog/resources/views/cash/tienmat/phieuchi.blade.php
+        return view('catalog::cash.tienmat.phieuchi', [
             'glCts' => $this->glCts,
         ])->layout('catalog::layouts.app');
     }

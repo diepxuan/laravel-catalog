@@ -26,7 +26,7 @@ class GlCt extends Model
      *
      * @return Collection
      */
-    public function scopeGetNKThu(Builder $query, array $params): Builder
+    public function scopeGetNKThuChi(Builder $query, array $params): Builder
     {
         $params = [
             'pMa_Cty'    => $params['ma_cty'] ?? '',

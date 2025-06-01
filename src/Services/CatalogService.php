@@ -8,13 +8,13 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-05-30 12:42:09
+ * @lastupdate 2025-05-31 18:43:43
  */
 
 namespace Diepxuan\Catalog\Services;
 
-use Carbon\Carbon;
 use Diepxuan\Catalog\Models\SysLanguage;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class CatalogService
@@ -64,55 +64,60 @@ class CatalogService
         return $year;
     }
 
-    public function timer($time = null)
+    public function timer(null|array|string $time = null)
     {
         $year = $this->year();
-        if (\is_array($time)) {
-            $timeId = $time['id'] ?? session('timeId', 'y') ?? 'y';
-            $from   = $time['from'] ? Carbon::parse($time['from']) : session('timeStart', now()->setYear($year)->startOfYear()) ?? now()->setYear($year)->startOfYear();
-            $to     = $time['to'] ? Carbon::parse($time['to']) : session('timeEnd', now()->setYear($year)->endOfYear()) ?? now()->setYear($year)->endOfYear();
-        } else {
-            $timeId = $time ?? session('timeId', 'y') ?? 'y';
-            $from ??= session('timeStart', now()->setYear($year)->startOfYear()) ?? now()->setYear($year)->startOfYear();
-            $to   ??= session('timeEnd', now()->setYear($year)->endOfYear()) ?? now()->setYear($year)->endOfYear();
-        }
-        // Carbon::parse('2025-03-31');
 
-        if (\in_array($timeId, array_map(static fn ($n) => 't' . str_pad("{$n}", 2, '0', STR_PAD_LEFT), range(1, 12)), true)) {
+        // Xử lý input ban đầu
+        $timeId = \is_array($time) ? ($time['id'] ?? session('timeId', 'y')) : ($time ?? session('timeId', 'y'));
+        $from   = \is_array($time) && !empty($time['from']) ? Carbon::parse($time['from']) : session('timeStart');
+        $to     = \is_array($time) && !empty($time['to']) ? Carbon::parse($time['to']) : session('timeEnd');
+
+        // Default fallback nếu null
+        $from ??= now()->setYear($year)->startOfYear();
+        $to   ??= now()->setYear($year)->endOfYear();
+
+        // Xử lý timeId logic
+        $monthList   = collect(range(1, 12))->map(static fn ($m) => 't' . str_pad("{$m}", 2, '0', STR_PAD_LEFT))->toArray();
+        $quarterList = collect(range(1, 4))->map(static fn ($q) => "q{$q}")->toArray();
+        if (\in_array($timeId, $monthList, true)) {
             // $timeId nằm trong 't01' đến 't12'
             $month = (int) substr($timeId, 1);
             $from  = now()->setYear($year)->setMonth($month)->startOfMonth();
             $to    = (clone $from)->endOfMonth();
-        } elseif (\in_array($timeId, array_map(static fn ($n) => 'q' . $n, range(1, 4)), true)) {
+            \Debugbar::info($timeId, $month, $from);
+        } elseif (\in_array($timeId, $quarterList, true)) {
             // $timeId nằm trong 'q1' đến 'q4'
             $quarter = (int) substr($timeId, 1);
             $from    = now()->setYear($year)->setMonth(($quarter - 1) * 3 + 1)->startOfQuarter();
             $to      = (clone $from)->addMonths(2)->endOfQuarter();
         } elseif ('h1' === $timeId) {
             $from = now()->setYear($year)->setMonth(1)->startOfMonth(); // Tháng 1
-            $to   = (clone $from)->setMonth(6)->endOfMonth();   // Tháng 6
+            $to   = now()->setYear($year)->setMonth(6)->endOfMonth();   // Tháng 6
         } elseif ('h2' === $timeId) {
             $from = now()->setYear($year)->setMonth(7)->startOfMonth(); // Tháng 7
-            $to   = (clone $from)->setMonth(12)->endOfMonth();  // Tháng 12
+            $to   = now()->setYear($year)->setMonth(12)->endOfMonth();  // Tháng 12
         } elseif ('c' === $timeId) {
             // $timeId là 'c', không cần thay đổi $from và $to
-            if (null === $from) {
-                $from = session('timeStart', now()->startOfMonth()) ?? now()->startOfMonth();
-            }
-            if (null === $to) {
-                $to = session('timeEnd', now()->endOfMonth()) ?? now()->endOfMonth();
-            }
+            $from ??= now()->startOfMonth();
+            $to   ??= now()->endOfMonth();
         } else {
             $timeId = 'y';
             $from   = now()->setYear($year)->startOfYear();
             $to     = (clone $from)->endOfYear();
         }
-        session(['timeId' => $timeId, 'timeStart' => $from, 'timeEnd' => $to]);
+        session([
+            'timeId'    => $timeId,
+            'timeStart' => $from,
+            'timeEnd'   => $to,
+        ]);
+
+        // \Debugbar::info($timeId, $from->toDateString(), $to->toDateString());
 
         return [
-            'id'   => session('timeId', 'y') ?? 'y',
-            'from' => (session('timeStart', now()->setYear($year)->startOfYear()) ?? now()->setYear($year)->startOfYear())->toDateString(),
-            'to'   => (session('timeEnd', now()->setYear($year)->endOfYear()) ?? now()->setYear($year)->endOfYear())->toDateString(),
+            'id'   => $timeId,
+            'from' => $from->toDateString(),
+            'to'   => $to->toDateString(),
         ];
     }
 

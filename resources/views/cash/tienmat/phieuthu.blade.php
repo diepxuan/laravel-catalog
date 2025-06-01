@@ -1,5 +1,5 @@
 <div class="phieuthu-container w-full">
-    <x-head-title>{{ 'Tiền tệ' }}</x-head-title>
+    <x-head-title>{{ 'Phiếu thu - Tiền tệ' }}</x-head-title>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
             {{ 'Tiền mặt' }}
@@ -41,7 +41,7 @@
     </div>
 
     @isset($glCts)
-    <table class="w-full text-xs border border-gray-300" wire:model.defer="glCts">
+    <table class="w-full mt-3 text-xs border border-gray-300">
         <thead>
             <tr>
                 <th class="border border-gray-300 text-left px-1">Ngày chứng từ</th>
@@ -56,7 +56,7 @@
         </thead>
         <tbody>
             @foreach ($glCts??[] as $glCt)
-            <tr>
+            <tr class="hover:bg-sky-100">
                 <td class="border border-gray-300 px-1">{{ $glCt->ngay_ct }}</td>
                 <td class="border border-gray-300 px-1">{{ $glCt->so_ct }}</td>
                 <td class="border border-gray-300 px-1">{{ $glCt->ngay_lct }}</td>
