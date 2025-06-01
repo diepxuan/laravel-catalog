@@ -19,6 +19,7 @@ use Diepxuan\Catalog\Http\Controllers\SystemController;
 use Diepxuan\Catalog\Http\Controllers\SystemUserController;
 use Diepxuan\Catalog\Http\Controllers\SystemWebsiteController;
 use Diepxuan\Catalog\Http\Livewire\Banhang\Khachhang;
+use Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baoco;
 use Diepxuan\Catalog\Http\Livewire\Cash\Tienmat\Phieuchi;
 use Diepxuan\Catalog\Http\Livewire\Cash\Tienmat\Phieuthu;
 use Diepxuan\Catalog\Http\Livewire\Gl\Taikhoan;
@@ -40,7 +41,7 @@ Route::domain('portal.diepxuan.io.vn')->middleware(['clearcache', 'auth'])->grou
     Route::get('/cash/tienmat/thu', Phieuthu::class)->name('ca.tienmat.thu');
     Route::get('/cash/tienmat/chi', Phieuchi::class)->name('ca.tienmat.chi');
     Route::get('/cash/tienmat/quy', static fn () => view('catalog::dashboard'))->name('ca.tienmat.quy');
-    Route::get('/cash/nganhang/baoco', static fn () => view('catalog::dashboard'))->name('ca.nganhang.baoco');
+    Route::get('/cash/nganhang/baoco', Baoco::class)->name('ca.nganhang.baoco');
     Route::get('/cash/nganhang/baono', static fn () => view('catalog::dashboard'))->name('ca.nganhang.baono');
     Route::get('/cash/nganhang/quy', static fn () => view('catalog::dashboard'))->name('ca.nganhang.quy');
     Route::get('/cash/thu', static fn () => view('catalog::dashboard'))->name('ca.thu');

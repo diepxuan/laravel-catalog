@@ -33,7 +33,7 @@
                 {{-- @dd($glDmTk) --}}
                 <tr wire:loading.class.delay="opacity-50"
                     @class([
-                        $glDmTk->bold ? 'text-blue-600 dark:text-sky-400' : '',
+                        $glDmTk->bold ? 'text-blue-700 dark:text-sky-400' : '',
                     ]) >
                     <td class="border border-gray-300">{{ $glDmTk->tk }}</td>
                     <td class="border border-gray-300 pl-1"><pre>{!! str_repeat(' ', max(0, ($glDmTk->bac_tk - 1) * 3)) . $glDmTk->ten_tk !!}</pre></td>

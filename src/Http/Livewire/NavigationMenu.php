@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-06-01 17:08:57
+ * @lastupdate 2025-06-02 00:29:10
  */
 
 namespace Diepxuan\Catalog\Http\Livewire;
@@ -36,8 +36,8 @@ class NavigationMenu extends NavigationMenuComponent
                 'Phiếu thu'        => 'ca.tienmat.thu',
                 'Phiếu chi'        => 'ca.tienmat.chi',
                 'Chuyển khoản'     => 'space',
-                'Báo nợ'           => 'ca.nganhang.baono',
                 'Báo có'           => 'ca.nganhang.baoco',
+                'Báo nợ'           => 'ca.nganhang.baono',
                 'Báo cáo'          => 'space',
                 'Sổ quỹ tiền mặt'  => 'ca.tienmat.quy',
                 'Sổ quỹ ngân hàng' => 'ca.nganhang.quy',
