@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-05-27 10:12:28
+ * @lastupdate 2025-06-04 10:25:11
  */
 
 namespace Diepxuan\Catalog\View\Components;
@@ -25,7 +25,7 @@ class SysCompany extends Component
     public function render(): string|View
     {
         $company = \CatalogService::company();
-        \Debugbar::info($company);
+        // \Debugbar::info($company);
 
         return <<<HTML
                 <span>[ {$company->ma_cty} ]</span>

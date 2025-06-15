@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-06-01 20:09:35
+ * @lastupdate 2025-06-05 15:57:43
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -21,6 +21,70 @@ use Illuminate\Support\Collection;
 
 class GlCt extends Model
 {
+    /**
+     * Gọi function afDuDauTk để lấy dữ liệu đầu kỳ.
+     *
+     * @return array
+     */
+    public function scopeAfDuDauTk(Builder $query, array $params): Builder
+    {
+        $params = [
+            'pMaCty' => $params['pMaCty'] ?? '111',
+            'pTk'    => $params['pTk'] ?? '111',
+            'pNgay'  => $params['pNgay'] ?? '2020-01-01',
+            'pMaNt'  => $params['pMaNt'] ?? 'VND',
+            'pNam'   => $params['pNam'] ?? \CatalogFunctions::afNamTC([
+                'pMaCty' => $params['pMaCty'] ?? '111',
+                'pNgay'  => $params['pNgay'] ?? '2020-01-01',
+            ]),
+            'pNgayDnTc' => $params['pNgayDnTc'] ?? \CatalogFunctions::afNgay_DNTC([
+                'pMaCty' => $params['pMaCty'] ?? '111',
+                'pNam'   => $params['pNam'] ?? '2020',
+            ]),
+        ];
+
+        return $query
+            ->select('ma_cty', 'tk', 'ma_nt')
+            ->selectRaw('SUM(ps_no - ps_co) as du_no')
+            ->selectRaw('0 as du_co')
+            ->selectRaw('SUM(ps_no_nt - ps_co_nt) as du_no_nt')
+            ->selectRaw('0 as du_co_nt')
+            ->filterByMaCty($params['pMaCty'])
+            ->filterByTkList($params['pTk'] ?? '')
+            ->filterByMaNt($params['pMaNt'] ?? '')
+            ->whereBetween('Ngay_ct', [$params['pNgayDnTc'], $params['pNgay']])
+            ->where('Ngay_ct', '<', $params['pNgay'])
+            ->groupBy('ma_cty', 'tk', 'ma_nt')
+        ;
+    }
+
+    /**
+     * Gọi stored procedure asCARptTMNH01 để lấy dữ liệu báo cáo tiền mặt ngân hàng.
+     *
+     * @return array
+     */
+    public function scopeGetCARptTMNH(Builder $query, array $params): Builder
+    {
+        $params = [
+            'pMa_Cty'   => $params['ma_Cty'] ?? '111',
+            'pTk'       => $params['tk'] ?? '111',
+            'pNgay_Ct1' => $params['ngay_Ct1'],
+            'pNgay_Ct2' => $params['ngay_Ct2'],
+            'pMa_Nt'    => $params['ma_Nt'] ?? 'VND',
+        ];
+
+        return $query
+            ->filterByMaCty($params['pMa_Cty'])
+            ->filterByNgayCt($params['pNgay_Ct1'], $params['pNgay_Ct2'])
+            ->filterByTkList($params['pTk'] ?? '')
+            ->filterByMaNt($params['pMa_Nt'] ?? '')
+            ->with('arDmKh')
+            ->orderBy('ngay_ct')
+            ->orderBy('so_ct')
+            ->orderBy('stt_rec')
+        ;
+    }
+
     /**
      * Gọi stored procedure asGLRptNKC03 để lấy dữ liệu sổ nhật ký thu/chi.
      *

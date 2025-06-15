@@ -26,7 +26,8 @@ use Illuminate\Support\Facades\Route;
  *
 */
 
-Route::domain('portal.diepxuan.io.vn')->middleware(['auth:sanctum'])->prefix('v1')->group(static function (): void {
+// Route::domain('portal.diepxuan.io.vn')->middleware(['auth:sanctum'])->prefix('v1')->group(static function (): void {
+Route::middleware(['auth:sanctum'])->prefix('v1')->group(static function (): void {
     Route::apiResource('products', CatalogController::class)->names('api.product');
     Route::apiResource('categories', CategoryController::class)->names('api.category');
 });

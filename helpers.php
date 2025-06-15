@@ -8,10 +8,12 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2024-12-09 12:18:25
+ * @lastupdate 2025-06-03 22:30:54
  */
 
- use Diepxuan\Catalog\Services\CatalogService;
+use Diepxuan\Catalog\Services\CatalogFunctions;
+use Diepxuan\Catalog\Services\CatalogService;
+
 if (!function_exists('catalog')) {
     /**
      * Get the catalog service instance.
@@ -19,6 +21,15 @@ if (!function_exists('catalog')) {
     function catalog(): CatalogService
     {
         return app('catalog-service');
+    }
+}
+if (!function_exists('catalog_functions')) {
+    /**
+     * Get the catalog functions instance.
+     */
+    function catalog_functions(): CatalogFunctions
+    {
+        return app('catalog-functions');
     }
 }
 

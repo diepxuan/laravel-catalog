@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-05-31 18:43:43
+ * @lastupdate 2025-06-04 11:02:02
  */
 
 namespace Diepxuan\Catalog\Services;
@@ -85,7 +85,7 @@ class CatalogService
             $month = (int) substr($timeId, 1);
             $from  = now()->setYear($year)->setMonth($month)->startOfMonth();
             $to    = (clone $from)->endOfMonth();
-            \Debugbar::info($timeId, $month, $from);
+            // \Debugbar::info($timeId, $month, $from);
         } elseif (\in_array($timeId, $quarterList, true)) {
             // $timeId nằm trong 'q1' đến 'q4'
             $quarter = (int) substr($timeId, 1);
@@ -129,5 +129,10 @@ class CatalogService
     public function timerTo()
     {
         return $this->timer()['to'];
+    }
+
+    public function ma_Nt()
+    {
+        return $this->company()->siSetup->ma_nt0 ?? 'VND';
     }
 }

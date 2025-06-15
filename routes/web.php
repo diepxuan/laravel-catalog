@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-06-02 00:43:32
+ * @lastupdate 2025-06-03 11:37:10
  */
 
 use Diepxuan\Catalog\Http\Controllers\CatalogController;
@@ -19,6 +19,7 @@ use Diepxuan\Catalog\Http\Controllers\SystemController;
 use Diepxuan\Catalog\Http\Controllers\SystemUserController;
 use Diepxuan\Catalog\Http\Controllers\SystemWebsiteController;
 use Diepxuan\Catalog\Http\Livewire\Banhang\Khachhang;
+use Diepxuan\Catalog\Http\Livewire\Cash\Baocao\Tienmat;
 use Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baoco;
 use Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baono;
 use Diepxuan\Catalog\Http\Livewire\Cash\Tienmat\Phieuchi;
@@ -36,12 +37,13 @@ use Illuminate\Support\Facades\Route;
 | contains the "web" middleware group. Now create something great!
 |
 */
-Route::domain('portal.diepxuan.io.vn')->middleware(['clearcache', 'auth'])->group(static function (): void {
+// Route::domain(env('APP_URL','portal.diepxuan.io.vn'))->middleware(['clearcache', 'auth'])->group(static function (): void {
+Route::middleware(['clearcache', 'auth'])->group(static function (): void {
     Route::get('/gl/taikhoan', Taikhoan::class)->name('gl.taikhoan');
 
     Route::get('/cash/tienmat/thu', Phieuthu::class)->name('ca.tienmat.thu');
     Route::get('/cash/tienmat/chi', Phieuchi::class)->name('ca.tienmat.chi');
-    Route::get('/cash/tienmat/quy', static fn () => view('catalog::dashboard'))->name('ca.tienmat.quy');
+    Route::get('/cash/tienmat/quy', Tienmat::class)->name('ca.tienmat.quy');
     Route::get('/cash/nganhang/baoco', Baoco::class)->name('ca.nganhang.baoco');
     Route::get('/cash/nganhang/baono', Baono::class)->name('ca.nganhang.baono');
     Route::get('/cash/nganhang/quy', static fn () => view('catalog::dashboard'))->name('ca.nganhang.quy');
