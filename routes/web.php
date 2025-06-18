@@ -20,6 +20,7 @@ use Diepxuan\Catalog\Http\Controllers\SystemUserController;
 use Diepxuan\Catalog\Http\Controllers\SystemWebsiteController;
 use Diepxuan\Catalog\Http\Livewire\Banhang\Khachhang;
 use Diepxuan\Catalog\Http\Livewire\Cash\Baocao\Tienmat;
+use Diepxuan\Catalog\Http\Livewire\Cash\Baocao\Nganhang;
 use Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baoco;
 use Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baono;
 use Diepxuan\Catalog\Http\Livewire\Cash\Tienmat\Phieuchi;
@@ -46,7 +47,7 @@ Route::middleware(['clearcache', 'auth'])->group(static function (): void {
     Route::get('/cash/tienmat/quy', Tienmat::class)->name('ca.tienmat.quy');
     Route::get('/cash/nganhang/baoco', Baoco::class)->name('ca.nganhang.baoco');
     Route::get('/cash/nganhang/baono', Baono::class)->name('ca.nganhang.baono');
-    Route::get('/cash/nganhang/quy', static fn () => view('catalog::dashboard'))->name('ca.nganhang.quy');
+    Route::get('/cash/nganhang/quy', Nganhang::class)->name('ca.nganhang.quy');
     Route::get('/cash/thu', static fn () => view('catalog::dashboard'))->name('ca.thu');
     Route::get('/cash/chi', static fn () => view('catalog::dashboard'))->name('ca.chi');
     Route::get('/cash/quy', static fn () => view('catalog::dashboard'))->name('ca.quy');

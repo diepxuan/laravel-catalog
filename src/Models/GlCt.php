@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-06-05 15:57:43
+ * @lastupdate 2025-06-19 00:11:09
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -120,10 +120,69 @@ class GlCt extends Model
         return $this->belongsTo(ArDmKh::class, 'ma_kh', 'ma_kh');
     }
 
+    /**
+     * Gọi stored procedure asCARptTMNH01 để lấy dữ liệu báo cáo tiền mặt ngân hàng.
+     *
+     * @return array
+     */
+    public static function getCARptTMNH01(array $params): Collection
+    {
+        return self::hydrate(parent::getCARptTMNH01($params)->toArray());
+    }
+
     protected function ngayCt(): Attribute
     {
         return Attribute::get(
-            static fn ($value, array $attributes) => $value ? Carbon::parse($value)->format('d/m/Y') : null
+            static fn ($value, array $attributes) => ($value = $attributes['ngay_ct'] ?? $attributes['Ngay_ct'] ?? null)
+                ? (
+                    ($date = Carbon::parse($value))->isSameDay(Carbon::create(1_900, 1, 1))
+                    ? ' / / '
+                    : $date->format('d/m/Y')
+                ) : ' / / '
+        );
+    }
+
+    protected function soCt(): Attribute
+    {
+        return Attribute::get(
+            static fn ($value, array $attributes) => $value ?? $attributes['so_ct'] ?? $attributes['So_ct']
+        );
+    }
+
+    protected function dienGiai(): Attribute
+    {
+        return Attribute::get(
+            static function ($value, array $attributes) {
+                $value ??= $attributes['dien_giai'] ?? $attributes['Dien_giai'];
+
+                switch ($value) {
+                    case '#CARptTMNH_DDK':
+                        return 'Dư đầu kỳ';
+
+                    case '#CARptTMNH_DCK':
+                        return 'Dư cuối kỳ';
+
+                    case '#CARptTMNH_TPS':
+                        return 'Tổng phát sinh trong kỳ';
+
+                    default:
+                        return $value;
+                }
+            }
+        );
+    }
+
+    protected function psNo(): Attribute
+    {
+        return Attribute::get(
+            static fn ($value, array $attributes) => $value ?? $attributes['ps_no'] ?? $attributes['Ps_no']
+        );
+    }
+
+    protected function psCo(): Attribute
+    {
+        return Attribute::get(
+            static fn ($value, array $attributes) => $value ?? $attributes['ps_co'] ?? $attributes['Ps_co']
         );
     }
 

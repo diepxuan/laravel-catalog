@@ -26,7 +26,7 @@ class SqlServerConnector extends BaseSqlServerConnector
     {
         $options = $this->getOptions($config);
 
-        \Debugbar::info($this->getDsn($config), $config, $options);
+        // \Debugbar::info($this->getDsn($config), $config, $options);
 
         $connection = $this->createConnection($this->getDsn($config), $config, $options);
 
@@ -43,7 +43,7 @@ class SqlServerConnector extends BaseSqlServerConnector
 
         // Ghi đè hoặc đảm bảo giá trị chúng ta muốn là giá trị cuối cùng
         $options[\PDO::ATTR_EMULATE_PREPARES] = true;
-        \Debugbar::info($config);
+        // \Debugbar::info($config);
 
         return $options;
     }
