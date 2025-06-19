@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-06-03 11:37:10
+ * @lastupdate 2025-06-19 11:35:41
  */
 
 use Diepxuan\Catalog\Http\Controllers\CatalogController;
@@ -19,8 +19,9 @@ use Diepxuan\Catalog\Http\Controllers\SystemController;
 use Diepxuan\Catalog\Http\Controllers\SystemUserController;
 use Diepxuan\Catalog\Http\Controllers\SystemWebsiteController;
 use Diepxuan\Catalog\Http\Livewire\Banhang\Khachhang;
-use Diepxuan\Catalog\Http\Livewire\Cash\Baocao\Tienmat;
 use Diepxuan\Catalog\Http\Livewire\Cash\Baocao\Nganhang;
+use Diepxuan\Catalog\Http\Livewire\Cash\Baocao\Thu;
+use Diepxuan\Catalog\Http\Livewire\Cash\Baocao\Tienmat;
 use Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baoco;
 use Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baono;
 use Diepxuan\Catalog\Http\Livewire\Cash\Tienmat\Phieuchi;
@@ -48,7 +49,7 @@ Route::middleware(['clearcache', 'auth'])->group(static function (): void {
     Route::get('/cash/nganhang/baoco', Baoco::class)->name('ca.nganhang.baoco');
     Route::get('/cash/nganhang/baono', Baono::class)->name('ca.nganhang.baono');
     Route::get('/cash/nganhang/quy', Nganhang::class)->name('ca.nganhang.quy');
-    Route::get('/cash/thu', static fn () => view('catalog::dashboard'))->name('ca.thu');
+    Route::get('/cash/thu', Thu::class)->name('ca.thu');
     Route::get('/cash/chi', static fn () => view('catalog::dashboard'))->name('ca.chi');
     Route::get('/cash/quy', static fn () => view('catalog::dashboard'))->name('ca.quy');
 

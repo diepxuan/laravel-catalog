@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-06-19 00:11:09
+ * @lastupdate 2025-06-19 22:36:13
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -130,6 +130,14 @@ class GlCt extends Model
         return self::hydrate(parent::getCARptTMNH01($params)->toArray());
     }
 
+    /**
+     * Gọi stored procedure asGLRptNKC03 để lấy dữ liệu sổ nhật ký thu/chi.
+     */
+    public static function getGLRptNKC03(array $params): Collection
+    {
+        return self::hydrate(parent::getGLRptNKC03($params)->toArray());
+    }
+
     protected function ngayCt(): Attribute
     {
         return Attribute::get(
@@ -164,6 +172,9 @@ class GlCt extends Model
 
                     case '#CARptTMNH_TPS':
                         return 'Tổng phát sinh trong kỳ';
+
+                    case '#GLRpt_TPS':
+                        return 'Tổng phát sinh';
 
                     default:
                         return $value;
