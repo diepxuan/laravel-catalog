@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-07-08 12:29:36
+ * @lastupdate 2025-07-12 21:10:50
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\In;
@@ -20,14 +20,27 @@ use Livewire\Component;
 
 class Dmvt extends Component
 {
+    public $pMa_vt;
+    public $pStruct;
     protected $inDmVts;
 
     public function mount(): void
     {
-        /** @var Collection $collection */
-        $collection = InDmVt::all();
+        // /** @var Collection $collection */
+        // $collection = InDmVt::all();
 
-        // Nếu thật sự cần ép kiểu (cast), bạn có thể viết như sau:
+        // // Nếu thật sự cần ép kiểu (cast), bạn có thể viết như sau:
+        // $this->inDmVts = $collection instanceof Collection
+        //     ? $collection
+        //     : Collection::make($collection->all());
+
+        $collection = InDmVt::getAsINGetDMVT([
+            'pMa_Cty'   => \CatalogService::company()->id,
+            'pMa_vt'    => $this->pMa_vt ?? null,
+            'pStruct'   => $this->pStruct ?? null,
+            'pLanguage' => \CatalogService::language()->name,
+        ]);
+
         $this->inDmVts = $collection instanceof Collection
             ? $collection
             : Collection::make($collection->all());
@@ -69,7 +82,7 @@ class Dmvt extends Component
                 'tk_gv'        => 'TK GV',
                 'tk_tl'        => 'TK TL',
                 'tk_ck'        => 'TK CK',
-                'tinh_ton_kho' => 'Tính tồn kho',
+                'ton_kho'      => 'Tính tồn kho',
                 'loai'         => 'Loại',
                 'ten_loai'     => 'Tên loại',
                 'gia_ton'      => 'Giá tồn',
@@ -94,7 +107,7 @@ class Dmvt extends Component
                 'cuser'        => 'Người tạo',
                 'ldate'        => 'Ngày sửa',
                 'luser'        => 'Người sửa',
-            ]),
+            ], true),
             // 'inDmVts' => $this->inDmVts,
         ])->layout('catalog::layouts.app');
     }

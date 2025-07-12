@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-07-07 13:22:42
+ * @lastupdate 2025-07-12 15:41:27
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -17,6 +17,7 @@ use Diepxuan\Catalog\Observers\InDmVtObserver;
 use Diepxuan\Simba\Models\InDmVt as Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -65,6 +66,16 @@ class InDmVt extends Model
             ->select($selectColumns)
             ->groupBy($groupByColumns)
         ;
+    }
+
+    /**
+     * Gọi stored procedure asINGetDMVT để lấy dữ Danh sách vật tư - hàng hóa.
+     *
+     * @return array
+     */
+    public static function getAsINGetDMVT(array $params): Collection
+    {
+        return self::hydrate(parent::getAsINGetDMVT($params)->toArray());
     }
 
     protected function cdate(): Attribute
