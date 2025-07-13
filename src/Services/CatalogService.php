@@ -8,44 +8,65 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-06-04 11:02:02
+ * @lastupdate 2025-07-13 22:33:36
  */
 
 namespace Diepxuan\Catalog\Services;
 
+use Diepxuan\Catalog\Models\SysCompany;
 use Diepxuan\Catalog\Models\SysLanguage;
+use Diepxuan\Catalog\Models\SysUserInfo;
+use Diepxuan\Catalog\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class CatalogService
 {
+    protected SysLanguage $sysLanguage;
+    protected User $user;
+    protected SysUserInfo $simbaUser;
+    protected ?SysCompany $company = null;
+    protected string $maNt;
+    protected string $id;
+
+    public function __construct()
+    {
+        $this->id = uniqid('report_');
+        \Log::info('ReportService instance đã được khởi tạo với ID: ' . $this->id);
+        // \Debugbar::info('ReportService instance đã được khởi tạo với ID: ' . $this->id);
+    }
+
     public function user()
     {
-        return Auth::user();
+        return $this->user ?? $this->user = Auth::user();
     }
 
     public function simbaUser()
     {
-        return $this->user()->getSimbaUser();
+        return $this->simbaUser ?? $this->simbaUser = $this->user()->getSimbaUser();
     }
 
     public function language()
     {
-        return SysLanguage::current()->first();
+        return $this->sysLanguage ?? $this->sysLanguage = SysLanguage::current()->first();
     }
 
     public function company()
     {
-        $ma_cty = session('selected_company');
-        if ($ma_cty) {
-            $company = $this->companies()->firstWhere('ma_cty', $ma_cty);
-        } else {
-            $company = $this->companies()->first();
+        if ($this->company) {
+            return $this->company;
         }
 
-        session(['selected_company' => $company->ma_cty]);
+        $ma_cty = session('selected_company');
+        if ($ma_cty) {
+            $this->company = $this->companies()->firstWhere('ma_cty', $ma_cty);
+        } else {
+            $this->company = $this->companies()->first();
+        }
 
-        return $company;
+        session(['selected_company' => $this->company->ma_cty]);
+
+        return $this->company;
     }
 
     public function companies()
@@ -133,6 +154,6 @@ class CatalogService
 
     public function ma_Nt()
     {
-        return $this->company()->siSetup->ma_nt0 ?? 'VND';
+        return $this->maNt ?? $this->maNt = ($this->company()->siSetup->ma_nt0 ?? 'VND');
     }
 }

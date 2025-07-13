@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-07-12 15:41:27
+ * @lastupdate 2025-07-12 23:31:52
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -103,6 +103,41 @@ class InDmVt extends Model
     {
         return Attribute::get(
             static fn ($value, array $attributes) => $value ?? $attributes['luser'] ?? $attributes['lUser']
+        );
+    }
+
+    protected function ksd(): Attribute
+    {
+        return Attribute::get(
+            static fn ($value, array $attributes) => ($value ?? $attributes['ksd'] ?? $attributes['KSD'] ?? false) ? '✔' : ''
+        );
+    }
+
+    protected function slMin(): Attribute
+    {
+        return Attribute::get(
+            static fn ($value, array $attributes) => (float) ($value ?? $attributes['sl_min'] ?? 0)
+        );
+    }
+
+    protected function slMax(): Attribute
+    {
+        return Attribute::get(
+            static fn ($value, array $attributes) => (float) ($value ?? $attributes['sl_max'] ?? 0)
+        );
+    }
+
+    protected function hsDvtban(): Attribute
+    {
+        return Attribute::get(
+            static fn ($value, array $attributes) => (float) ($value ?? $attributes['hs_dvtban'] ?? 0)
+        );
+    }
+
+    protected function hsDvtmua(): Attribute
+    {
+        return Attribute::get(
+            static fn ($value, array $attributes) => (float) ($value ?? $attributes['hs_dvtmua'] ?? 0)
         );
     }
 }
