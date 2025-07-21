@@ -8,12 +8,13 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-07-12 23:31:52
+ * @lastupdate 2025-07-16 13:55:39
  */
 
 namespace Diepxuan\Catalog\Models;
 
 use Diepxuan\Catalog\Observers\InDmVtObserver;
+use Diepxuan\Currency\Formatter;
 use Diepxuan\Simba\Models\InDmVt as Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Carbon;
@@ -78,6 +79,16 @@ class InDmVt extends Model
         return self::hydrate(parent::getAsINGetDMVT($params)->toArray());
     }
 
+    /**
+     * Gọi stored procedure asINRptCD02 để lấy dữ Báo cáo tồn kho.
+     *
+     * @return array
+     */
+    public static function getAsINRptCD02(array $params): Collection
+    {
+        return self::hydrate(parent::getAsINRptCD02($params)->toArray());
+    }
+
     protected function cdate(): Attribute
     {
         return Attribute::get(
@@ -113,6 +124,13 @@ class InDmVt extends Model
         );
     }
 
+    protected function vatTu(): Attribute
+    {
+        return Attribute::get(
+            static fn ($value, array $attributes) => ($value ?? $attributes['vat_tu'] ?? false) ? '✔' : ''
+        );
+    }
+
     protected function slMin(): Attribute
     {
         return Attribute::get(
@@ -138,6 +156,27 @@ class InDmVt extends Model
     {
         return Attribute::get(
             static fn ($value, array $attributes) => (float) ($value ?? $attributes['hs_dvtmua'] ?? 0)
+        );
+    }
+
+    protected function maVt(): Attribute
+    {
+        return Attribute::get(
+            static fn ($value, array $attributes) => ($value ?? $attributes['ma_vt'] ?? $attributes['Ma_vt'] ?? '')
+        );
+    }
+
+    protected function soLuong(): Attribute
+    {
+        return Attribute::get(
+            static fn ($value, array $attributes) => (float) ($value ?? $attributes['so_luong'] ?? '')
+        );
+    }
+
+    protected function tienFm(): Attribute
+    {
+        return Attribute::get(
+            static fn ($value, array $attributes) => Formatter::format($attributes['tien'] ?? '')
         );
     }
 }

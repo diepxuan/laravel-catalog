@@ -8,11 +8,10 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-07-06 22:26:02
+ * @lastupdate 2025-07-14 08:58:18
  */
 
 use Diepxuan\Catalog\Http\Controllers\CategoryController;
-use Diepxuan\Catalog\Http\Controllers\InventoryController;
 use Diepxuan\Catalog\Http\Controllers\SellController;
 use Diepxuan\Catalog\Http\Controllers\SystemController;
 use Diepxuan\Catalog\Http\Controllers\SystemUserController;
@@ -28,6 +27,7 @@ use Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baono;
 use Diepxuan\Catalog\Http\Livewire\Cash\Tienmat\Phieuchi;
 use Diepxuan\Catalog\Http\Livewire\Cash\Tienmat\Phieuthu;
 use Diepxuan\Catalog\Http\Livewire\Gl\Taikhoan;
+use Diepxuan\Catalog\Http\Livewire\In\Baocao\Tonkho;
 use Diepxuan\Catalog\Http\Livewire\In\Dmvt;
 use Illuminate\Support\Facades\Route;
 
@@ -61,7 +61,7 @@ Route::middleware(['clearcache', 'auth'])->group(static function (): void {
 
     Route::get('khohang/sanpham', Dmvt::class)->name('in.dmvt');
     Route::resource('khohang/nhomsanpham', CategoryController::class)->names('catalog.category');
-    Route::resource('khohang/tonkho', InventoryController::class)->names('catalog.inventory');
+    Route::get('khohang/tonkho', Tonkho::class)->name('in.tonkho');
 
     Route::resource('hethong/dashboard', SystemController::class)->names('system');
     Route::resource('hethong/user', SystemUserController::class)->names('system.user');
