@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-07-16 13:55:39
+ * @lastupdate 2025-08-01 15:36:37
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -87,6 +87,23 @@ class InDmVt extends Model
     public static function getAsINRptCD02(array $params): Collection
     {
         return self::hydrate(parent::getAsINRptCD02($params)->toArray());
+    }
+
+    protected function tenVt(): Attribute
+    {
+        return Attribute::get(
+            static function ($value, array $attributes) {
+                $value ??= $attributes['ten_vt'] ?? $attributes['ten_Vt'];
+
+                switch ($value) {
+                    case '#SMRpt_TC':
+                        return 'Tổng cộng';
+
+                    default:
+                        return $value;
+                }
+            }
+        );
     }
 
     protected function cdate(): Attribute
