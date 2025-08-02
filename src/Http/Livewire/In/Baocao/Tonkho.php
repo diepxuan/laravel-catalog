@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-07-16 13:56:12
+ * @lastupdate 2025-08-02 21:14:44
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\In\Baocao;
@@ -36,8 +36,8 @@ class Tonkho extends Component
 
     public function mount(): void
     {
-        $this->pMa_Nt = \CatalogService::ma_Nt();
-        $this->pNgay  = now()->toDateString();
+        $this->pNgoai_te = \CatalogService::ma_Nt();
+        $this->pNgay     = now()->toDateString();
     }
 
     public function updated($property): void
