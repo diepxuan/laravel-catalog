@@ -10,12 +10,16 @@
     <x-nav-tabs default-tab="filter">
         <x-slot:nav>
             <li class="mr-2">
-                <a href="#" x-on:click.prevent="activeTab = 'filter'" :class="{ 'border-blue-500 text-blue-600': activeTab === 'filter', 'border-transparent hover:text-gray-600 hover:border-gray-300': activeTab !== 'profile' }" class="inline-block rounded-t-lg border-b-2 p-4">
+                <a href="#" x-on:click.prevent="activeTab = 'filter'"
+                    :class="{ 'border-blue-500 text-blue-600': activeTab === 'filter', 'border-transparent hover:text-gray-600 hover:border-gray-300': activeTab !== 'filter' }"
+                    class="inline-block rounded-t-lg border-b-2 p-4">
                     Điều kiện lọc
                 </a>
             </li>
             <li class="mr-2">
-                <a href="#" x-on:click.prevent="activeTab = 'content'" :class="{ 'border-blue-500 text-blue-600': activeTab === 'content', 'border-transparent hover:text-gray-600 hover:border-gray-300': activeTab !== 'billing' }" class="inline-block rounded-t-lg border-b-2 p-4">
+                <a href="#" x-on:click.prevent="activeTab = 'content'"
+                    :class="{ 'border-blue-500 text-blue-600': activeTab === 'content', 'border-transparent hover:text-gray-600 hover:border-gray-300': activeTab !== 'content' }"
+                    class="inline-block rounded-t-lg border-b-2 p-4">
                     Kết quả
                 </a>
             </li>
@@ -73,11 +77,12 @@
                 <div class="grid grid-cols-3 items-center gap-4 pt-1">
                     <label class="text-right">Đơn vị tính</label>
                     {{-- <input class="col-span-2 rounded-md border-gray-300 py-1 shadow-sm" wire:model="pMa_lo" /> --}}
-                    <x-select class="col-span-2 rounded-md border-gray-300 py-1 shadow-sm" wire:model="pMa_lo" :options="[
-                        0 => 'Đơn vị tính kho',
-                        1 => 'Đơn vị tính mua',
-                        2 => 'Đơn vị tính bán',
-                    ]" />
+                    <x-select class="col-span-2 rounded-md border-gray-300 py-1 shadow-sm" wire:model="pMa_lo"
+                        :options="[
+                            0 => 'Đơn vị tính kho',
+                            1 => 'Đơn vị tính mua',
+                            2 => 'Đơn vị tính bán',
+                        ]" />
                 </div>
 
                 <div class="grid grid-cols-3 items-center gap-4 pt-1">
@@ -99,7 +104,8 @@
                 <div class="grid grid-cols-3 items-center gap-4 pt-1 pt-1">
                     <label class="text-right"></label>
                     <div class="col-span-2 inline-flex items-center">
-                        <x-button-loading class="rounded-md bg-blue-600 px-2 py-1 text-white hover:bg-blue-700" wire:click="submit">
+                        <x-button-loading class="rounded-md bg-blue-600 px-2 py-1 text-white hover:bg-blue-700"
+                            wire:click="submit" x-on:click="activeTab = 'content'">
                             Thực hiện
                         </x-button-loading>
                     </div>
@@ -108,7 +114,7 @@
             </div>
 
             <div x-show="activeTab === 'content'" class="w-full overflow-x-auto rounded-lg py-2">
-                <pre class="whitespace-pre font-mono text-xs">{!! $inDmVts !!}</pre>
+                <p class="whitespace-pre font-mono text-xs leading-tight">{!! $inDmVts !!}</p>
             </div>
         </x-slot:content>
 

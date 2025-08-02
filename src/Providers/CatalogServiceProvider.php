@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-06-14 12:19:56
+ * @lastupdate 2025-08-02 19:15:39
  */
 
 namespace Diepxuan\Catalog\Providers;
@@ -19,10 +19,8 @@ use Diepxuan\Catalog\Commands\Scavenger;
 use Diepxuan\Catalog\Connectors\SqlServerConnector;
 use Diepxuan\Catalog\Facades\CatalogFunctionsFacade;
 use Diepxuan\Catalog\Facades\CatalogServiceFacade;
-use Diepxuan\Catalog\Models\Category;
 use Diepxuan\Catalog\Models\Product;
 use Diepxuan\Catalog\Models\User;
-use Diepxuan\Catalog\Observers\CategoryObserver;
 use Diepxuan\Catalog\Observers\ProductObserver;
 use Diepxuan\Catalog\Services\CatalogFunctions;
 use Diepxuan\Catalog\Services\CatalogService;
@@ -38,7 +36,6 @@ class CatalogServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Category::observe(CategoryObserver::class);
         Product::observe(ProductObserver::class);
 
         // Đăng ký connector tùy chỉnh của chúng ta
