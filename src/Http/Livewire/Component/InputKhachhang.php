@@ -8,13 +8,14 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-07-06 09:40:24
+ * @lastupdate 2025-08-02 23:37:20
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Component;
 
 use Diepxuan\Catalog\Models\ArDmKh;
 use Illuminate\Contracts\View\View;
+use Livewire\Attributes\Modelable;
 use Livewire\Component;
 
 class InputKhachhang extends Component
