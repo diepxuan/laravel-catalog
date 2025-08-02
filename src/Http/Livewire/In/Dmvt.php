@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-07-12 21:10:50
+ * @lastupdate 2025-08-02 21:05:08
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\In;
@@ -76,12 +76,12 @@ class Dmvt extends Component
                 'ma_nhvt'      => 'Mã Nhóm',
                 'ma_kho'       => 'Mã Kho',
                 'ma_vitri'     => 'Mã vị trí',
-                'tk_vt'        => 'TK VT',
-                'tk_dt'        => 'TK DT',
-                'tk_dtnb'      => 'TK DTNB',
-                'tk_gv'        => 'TK GV',
-                'tk_tl'        => 'TK TL',
-                'tk_ck'        => 'TK CK',
+                'tk_vt'        => 'TK vật tư',
+                'tk_dt'        => 'TK doanh thu',
+                'tk_dtnb'      => 'TK doanh thu nội bộ',
+                'tk_gv'        => 'TK giá vốn',
+                'tk_tl'        => 'TK trả lại',
+                'tk_ck'        => 'TK chiết khấu',
                 'ton_kho'      => 'Tính tồn kho',
                 'loai'         => 'Loại',
                 'ten_loai'     => 'Tên loại',

@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-08-02 20:49:03
+ * @lastupdate 2025-08-02 21:03:05
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\In;
@@ -58,21 +58,21 @@ class Dmnhvt extends Component
         // diepxuan/laravel-catalog/resources/views/in/dmvt.blade.php
         return view('catalog::in.dmnhvt', [
             'inDmVts' => $this->inDmNhvts->toMarkdownTable([
-                'ma_nhvt'  => 'Mã nhóm vật tư',
-                'ten_nhvt' => 'Tên nhóm vật tư',
-                'nhom_me'  => 'Nhóm mẹ',
-                'cong_sl'  => 'Cộng số lượng',
-                'tk_vt'    => 'TK VT',
-                'tk_dt'    => 'TK DT',
-                'tk_dtnb'  => 'TK DTNB',
-                'tk_gv'    => 'TK GV',
-                'tk_tl'    => 'TK TL',
-                'tk_ck'    => 'TK CK',
-                'ksd'      => 'KSD',
-                'cdate'    => 'Ngày tạo',
-                'cuser'    => 'Người tạo',
-                'ldate'    => 'Ngày sửa',
-                'luser'    => 'Người sửa',
+                'ma_nhvt'       => 'Mã nhóm vật tư',
+                'ten_nhvt_view' => 'Tên nhóm vật tư',
+                'nhom_me'       => 'Nhóm mẹ',
+                'cong_sl'       => 'Cộng số lượng',
+                'tk_vt'         => 'TK vật tư',
+                'tk_dt'         => 'TK doanh thu',
+                'tk_dtnb'       => 'TK doanh thu nội bộ',
+                'tk_gv'         => 'TK giá vốn',
+                'tk_tl'         => 'TK trả lại',
+                'tk_ck'         => 'TK chiết khấu',
+                'ksd'           => 'KSD',
+                'cdate'         => 'Ngày tạo',
+                'cuser'         => 'Người tạo',
+                'ldate'         => 'Ngày sửa',
+                'luser'         => 'Người sửa',
             ], true),
             // 'inDmVts' => $this->inDmVts,
         ])->layout('catalog::layouts.app');
