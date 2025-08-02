@@ -46,7 +46,10 @@
 
                 <div class="grid grid-cols-3 items-center gap-4 pt-1">
                     <label class="text-right">Mã kho</label>
-                    <input class="col-span-2 rounded-md border-gray-300 py-1 shadow-sm" wire:model="pMa_kho" />
+                    {{-- <input class="col-span-2 rounded-md border-gray-300 py-1 shadow-sm" wire:model="pMa_kho" /> --}}
+                    <div class="col-span-2">
+                        <livewire:catalog::component.input-indmkho wire:model="pMa_kho" />
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-3 items-center gap-4 pt-1">

@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-08-02 22:19:13
+ * @lastupdate 2025-08-02 23:49:27
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -25,9 +25,13 @@ class InDmKho extends Model
      *
      * @return array
      */
-    public static function getAsINGetDMKHO(array $params): Collection
+    public static function getAsINGetDMKHO(array $params = []): Collection
     {
-        return self::hydrate(parent::getAsINGetDMKHO($params)->toArray());
+        return self::hydrate(parent::getAsINGetDMKHO([
+            'pMa_Cty' => $params['pMa_Cty'] ??  \CatalogService::company()->id,
+            'pMa_kho' => $params['pMa_kho'] ?? null,
+            'pStruct' => $params['pStruct'] ?? null,
+        ])->toArray());
     }
 
     protected function cdate(): Attribute

@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-08-02 23:33:32
+ * @lastupdate 2025-08-02 23:54:39
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\In\Baocao;
@@ -21,7 +21,7 @@ use Livewire\Component;
 class Tonkho extends Component
 {
     public $pMa_vt;
-    public $pMa_kho = 'KCC';
+    public $pMa_kho;
     public $pMa_vitri;
     public $pTk_vt = 1_561;
     public $pMa_nhvt;
