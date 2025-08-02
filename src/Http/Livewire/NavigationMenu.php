@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-07-14 08:57:49
+ * @lastupdate 2025-08-02 20:19:16
  */
 
 namespace Diepxuan\Catalog\Http\Livewire;
@@ -74,7 +74,7 @@ class NavigationMenu extends NavigationMenuComponent
                 // 'Phiếu xuất điều chuyển kho' => 'catalog.inventory.index',
                 'Cấu hình'                  => 'space',
                 'Danh sách hàng hoá vật tư' => 'in.dmvt',
-                'Nhóm hàng hoá vật tư'      => 'catalog.category.index',
+                'Nhóm hàng hoá vật tư'      => 'in.dmnhvt',
                 'Báo cáo'                   => 'space',
                 'Báo cáo tồn kho'           => 'in.tonkho',
             ],
