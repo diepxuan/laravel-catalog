@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-08-02 21:43:52
+ * @lastupdate 2025-08-02 22:13:45
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\In;
@@ -51,24 +51,7 @@ class Dmkho extends Component
     {
         // diepxuan/laravel-catalog/resources/views/in/dmvt.blade.php
         return view('catalog::in.dmkho', [
-            'inDmKhos' => $this->inDmKhos->toMarkdownTable([
-                'ma_kho'   => 'Mã kho',
-                'ten_kho'  => 'Tên kho',
-                'kho_dl'   => 'Kho đại lý',
-                'tk_dl'    => 'TK đại lý',
-                'dia_chi'  => 'Địa chỉ',
-                'nguoi_lh' => 'Người liên hệ',
-                'tel'      => 'Số điện thoại',
-                'fax'      => 'Số fax',
-                'email'    => 'Email',
-                'stt_ntxt' => 'Số thứ tự NTXT',
-                'ksd'      => 'KSD',
-                'cdate'    => 'Ngày tạo',
-                'cuser'    => 'Người tạo',
-                'ldate'    => 'Ngày sửa',
-                'luser'    => 'Người sửa',
-            ], true),
-            // 'inDmVts' => $this->inDmVts,
+            'inDmKhos' => $this->inDmKhos,
         ])->layout('catalog::layouts.app');
     }
 }

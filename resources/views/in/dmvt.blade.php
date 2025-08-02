@@ -6,8 +6,9 @@
         </h2>
         <p>{{ 'Danh sách' }}</p>
     </x-slot>
+
     <div class="w-full overflow-x-auto">
-        <pre class="whitespace-pre font-mono text-xs">{!! $inDmVts !!}</pre>
+        <div class="whitespace-pre font-mono text-xs leading-tight">{!! $inDmVts !!}</div>
     </div>
 
 </div>
