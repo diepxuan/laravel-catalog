@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-08-02 19:17:03
+ * @lastupdate 2025-08-02 21:37:24
  */
 
 use Diepxuan\Catalog\Http\Controllers\SellController;
@@ -27,6 +27,7 @@ use Diepxuan\Catalog\Http\Livewire\Cash\Tienmat\Phieuchi;
 use Diepxuan\Catalog\Http\Livewire\Cash\Tienmat\Phieuthu;
 use Diepxuan\Catalog\Http\Livewire\Gl\Taikhoan;
 use Diepxuan\Catalog\Http\Livewire\In\Baocao\Tonkho;
+use Diepxuan\Catalog\Http\Livewire\In\Dmkho;
 use Diepxuan\Catalog\Http\Livewire\In\Dmnhvt;
 use Diepxuan\Catalog\Http\Livewire\In\Dmvt;
 use Illuminate\Support\Facades\Route;
@@ -61,6 +62,7 @@ Route::middleware(['clearcache', 'auth'])->group(static function (): void {
 
     Route::get('khohang/sanpham', Dmvt::class)->name('in.dmvt');
     Route::get('khohang/nhomsanpham', Dmnhvt::class)->name('in.dmnhvt');
+    Route::get('khohang/khohang', Dmkho::class)->name('in.khohang');
     Route::get('khohang/tonkho', Tonkho::class)->name('in.tonkho');
 
     Route::resource('hethong/dashboard', SystemController::class)->names('system');

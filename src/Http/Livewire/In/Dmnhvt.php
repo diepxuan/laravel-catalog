@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-08-02 21:03:05
+ * @lastupdate 2025-08-02 21:39:58
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\In;
@@ -57,7 +57,7 @@ class Dmnhvt extends Component
     {
         // diepxuan/laravel-catalog/resources/views/in/dmvt.blade.php
         return view('catalog::in.dmnhvt', [
-            'inDmVts' => $this->inDmNhvts->toMarkdownTable([
+            'inDmNhvts' => $this->inDmNhvts->toMarkdownTable([
                 'ma_nhvt'       => 'Mã nhóm vật tư',
                 'ten_nhvt_view' => 'Tên nhóm vật tư',
                 'nhom_me'       => 'Nhóm mẹ',
