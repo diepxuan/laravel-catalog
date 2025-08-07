@@ -34,14 +34,14 @@
         @livewire('catalog::navigation-menu')
 
         <!-- Page Heading -->
-        <header class="bg-white shadow">
-            <div class="max-w-7xl mx-auto pt-6 px-4 sm:px-6 lg:px-8">
+        <header class="bg-white shadow print:hidden">
+            <div class="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
                 @if (isset($header))
                     {{ $header }}
                 @endif
             </div>
             <!-- System information -->
-            <div class="max-w-7xl mx-auto pb-6 px-4 sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-7xl px-4 pb-6 sm:px-6 lg:px-8">
                 <div class="text-xs text-gray-500">
                     {{-- <x-catalog::sys-language /> --}}
                     <x-sys-user-info />
@@ -55,11 +55,11 @@
         <!-- Page Content -->
         <main>
 
-            <div class="py-12">
-                <div class="max-w-12xl mx-auto sm:px-6 lg:px-8">
-                    <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-                        <div class="p-6 lg:p-8 bg-white border-b border-gray-200">
-                            {{ $slot }}
+            <div class="py-12 print:py-0">
+                <div class="max-w-12xl mx-auto sm:px-6 lg:px-8 print:px-0">
+                    <div class="overflow-hidden bg-white shadow-xl sm:rounded-lg print:rounded-none print:shadow-none">
+                        <div class="border-b border-gray-200 bg-white p-6 lg:p-8 print:border-0 print:p-0">
+                            {{ $slot ?? '' }}
                         </div>
                     </div>
                 </div>

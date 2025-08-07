@@ -1,12 +1,12 @@
 @props(['defaultTab'])
 
 <div x-data="{ activeTab: '{{ $defaultTab }}' }" x-on:switch-tab.window="activeTab = $event.detail[0]">
-    <div class="mb-4 border-b border-gray-200">
+    <div class="mb-4 border-b border-gray-200 print:hidden">
         <ul class="-mb-px flex flex-wrap">
             {{ $nav }}
             <li class="mr-2">
-                <a href="#" class="inline-block rounded-t-lg p-4 cursor-default">
-                    <svg wire:loading class="-ml-1 mr-3 h-5 w-5 animate-spin text-blue" xmlns="http://www.w3.org/2000/svg"
+                <a href="#" class="inline-block cursor-default rounded-t-lg p-4">
+                    <svg wire:loading class="text-blue -ml-1 mr-3 h-5 w-5 animate-spin" xmlns="http://www.w3.org/2000/svg"
                         fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
                             stroke-width="4"></circle>
