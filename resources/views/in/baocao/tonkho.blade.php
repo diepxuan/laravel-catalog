@@ -62,7 +62,10 @@
 
                 <div class="grid grid-cols-3 items-center gap-4 pt-1">
                     <label class="text-right">Nhóm vật tư</label>
-                    <input class="col-span-2 rounded-md border-gray-300 py-1 shadow-sm" wire:model="pMa_nhvt" />
+                    {{-- <input class="col-span-2 rounded-md border-gray-300 py-1 shadow-sm" wire:model="pMa_nhvt" /> --}}
+                    <div class="col-span-2">
+                        <livewire:catalog::component.input-indmnhvt wire:model="pMa_nhvt" />
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-3 items-center gap-4 pt-1">
