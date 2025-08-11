@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-08-02 21:37:50
+ * @lastupdate 2025-08-11 23:23:56
  */
 
 namespace Diepxuan\Catalog\Http\Livewire;
@@ -87,6 +87,7 @@ class NavigationMenu extends NavigationMenuComponent
                 'Dashboard'          => 'system.index',
                 'Quản lý người dùng' => 'system.user.index',
                 'Website'            => 'system.website.index',
+                'Navigation Menu'    => 'system.menu',
             ],
         ],
     ];

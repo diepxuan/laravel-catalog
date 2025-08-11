@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-08-02 21:37:24
+ * @lastupdate 2025-08-11 23:29:08
  */
 
 use Diepxuan\Catalog\Http\Controllers\SellController;
@@ -30,6 +30,7 @@ use Diepxuan\Catalog\Http\Livewire\In\Baocao\Tonkho;
 use Diepxuan\Catalog\Http\Livewire\In\Dmkho;
 use Diepxuan\Catalog\Http\Livewire\In\Dmnhvt;
 use Diepxuan\Catalog\Http\Livewire\In\Dmvt;
+use Diepxuan\Catalog\Http\Livewire\System\Menu;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -68,6 +69,7 @@ Route::middleware(['clearcache', 'auth'])->group(static function (): void {
     Route::resource('hethong/dashboard', SystemController::class)->names('system');
     Route::resource('hethong/user', SystemUserController::class)->names('system.user');
     Route::resource('hethong/website', SystemWebsiteController::class)->names('system.website');
+    Route::get('hethong/menu', Menu::class)->name('system.menu');
 
     // Route::get('/', [SystemController::class, 'index']);
     Route::get('/', static fn () => view('catalog::dashboard'))->name('home');
