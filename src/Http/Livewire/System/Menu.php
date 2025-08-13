@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-08-11 23:29:54
+ * @lastupdate 2025-08-12 23:07:23
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\System;
@@ -19,17 +19,32 @@ use Livewire\Component;
 
 class Menu extends Component
 {
-    public $menus;
+    public array $newMenu = [
+        'parent_id' => null,
+        'name'      => '',
+        'route'     => '',
+    ];
+    public array $rootIds = [];
+
+    protected $listeners = [
+        'menuDeleted' => 'refreshTree',
+    ];
 
     public function mount(): void
     {
-        // \Debugbar::info($this->timer);
-        $this->menus = NavigationMenu::all();
+        $this->refreshTree();
     }
 
-    public function updated($property): void
+    public function refreshTree(): void
     {
-        // \Debugbar::info($property);
+        $this->rootIds = NavigationMenu::isParent()->get()->pluck('id')->toArray();
+    }
+
+    public function addMenu(): void
+    {
+        NavigationMenu::create($this->newMenu);
+        $this->reset('newMenu');
+        $this->refreshTree();
     }
 
     /**
@@ -40,6 +55,8 @@ class Menu extends Component
     public function render()
     {
         // diepxuan/laravel-catalog/resources/views/system/menu.blade.php
-        return view('catalog::system.menu')->layout('catalog::layouts.app');
+        return view('catalog::system.menu', [
+            'rootIds' => $this->rootIds,
+        ])->layout('catalog::layouts.app');
     }
 }
