@@ -1,5 +1,5 @@
 <div>
-    <x-head-title>{{ 'Hệ thống' }}</x-head-title>
+    <x-head-title>{{ 'Menu - Hệ thống' }}</x-head-title>
     <x-slot name="header">
         <h2 class="text-xl font-semibold leading-tight text-gray-800">
             {{ 'Điều hướng' }}
@@ -19,9 +19,43 @@
         </div>
     </form>
 
-    <div class="space-y-2 pt-2">
+    <div class="space-y-2 pt-2" x-data="menuTree()" x-init="init()">
         @foreach ($rootIds as $id)
             @livewire('catalog::system.menu.item', ['menuId' => $id], key($id))
         @endforeach
     </div>
 </div>
+
+<script>
+    function menuTree() {
+        return {
+            // tree: initialTree,
+            dragging: null,
+            dragOverId: null,
+            init() {},
+
+            dragStart(e) {
+                let el = e.target;
+                let id = el.dataset.id;
+                this.dragging = id;
+                console.log('Dragging element with id:', id);
+            },
+
+            dragEnter(e, id) {
+                if (!this.dragging || id == this.dragging) return;
+                // if (e.target.dataset.id == id) return;
+                this.dragOverId = id;
+                console.log('Dragging ' + this.dragging + ' over ' + id);
+                // e.target.style.backgroundColor = 'lightblue';
+            },
+
+            dragLeave(e, id) {
+                if (!this.dragging || id == this.dragging) return;
+                // if (e.target.dataset.id == id) return;
+                this.dragOverId = id;
+                console.log('Dragging ' + this.dragging + ' out ' + id);
+                // e.target.style.backgroundColor = '';
+            }
+        }
+    }
+</script>

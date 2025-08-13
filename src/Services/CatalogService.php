@@ -8,11 +8,12 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-07-13 22:33:36
+ * @lastupdate 2025-08-13 20:59:15
  */
 
 namespace Diepxuan\Catalog\Services;
 
+use Diepxuan\Catalog\Models\NavigationMenu;
 use Diepxuan\Catalog\Models\SysCompany;
 use Diepxuan\Catalog\Models\SysLanguage;
 use Diepxuan\Catalog\Models\SysUserInfo;
@@ -28,6 +29,7 @@ class CatalogService
     protected ?SysCompany $company = null;
     protected string $maNt;
     protected string $id;
+    protected $menus;
 
     public function __construct()
     {
@@ -72,6 +74,24 @@ class CatalogService
     public function companies()
     {
         return $this->simbaUser()->companies;
+    }
+
+    public function menus()
+    {
+        return $this->menus ?? $this->menus = NavigationMenu::all();
+    }
+
+    public function menuTree($parentId = null)
+    {
+        return $this->menus()
+            ->where('parent_id', $parentId)
+            ->map(function ($menu) {
+                $menu['children'] = $this->menuTree($menu['id']);
+
+                return $menu;
+            })
+            ->values()
+        ;
     }
 
     public function year(?int $year = null): int

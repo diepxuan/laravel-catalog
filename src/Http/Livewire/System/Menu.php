@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-08-12 23:07:23
+ * @lastupdate 2025-08-13 20:55:38
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\System;
@@ -24,7 +24,8 @@ class Menu extends Component
         'name'      => '',
         'route'     => '',
     ];
-    public array $rootIds = [];
+    protected array $rootIds = [];
+    protected $menus;
 
     protected $listeners = [
         'menuDeleted' => 'refreshTree',
@@ -37,7 +38,12 @@ class Menu extends Component
 
     public function refreshTree(): void
     {
-        $this->rootIds = NavigationMenu::isParent()->get()->pluck('id')->toArray();
+        $this->menus = \CatalogService::menuTree();
+        // $this->rootIds = NavigationMenu::isParent()->get()->pluck('id')->toArray();
+        $this->rootIds = $this->menus->pluck('id')
+            ->toArray()
+        ;
+        // dd($this->rootIds, $this->menus->pluck('id')->toArray());
     }
 
     public function addMenu(): void
@@ -57,6 +63,7 @@ class Menu extends Component
         // diepxuan/laravel-catalog/resources/views/system/menu.blade.php
         return view('catalog::system.menu', [
             'rootIds' => $this->rootIds,
+            'menus'   => $this->menus,
         ])->layout('catalog::layouts.app');
     }
 }

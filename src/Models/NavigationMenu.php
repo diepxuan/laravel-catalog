@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-08-12 11:59:04
+ * @lastupdate 2025-08-13 19:57:14
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -67,9 +67,21 @@ class NavigationMenu extends Model
             ->get()
         ;
 
+        return $menus;
         static::getDefaultMenus()->each(static function ($default) use ($menus): void {
-            if (!$menus->contains('route', $default->route)) {
+            if (!$existing = $menus->firstWhere('route', $default->route)) {
                 $menus->push($default);
+            } else {
+                ($default->children ?? collect())->each(static function ($defaultChildren) use ($existing): void {
+                    if (!$existing->children->contains('route', $defaultChildren->route)) {
+                        $existing->children->push($defaultChildren);
+                    }
+                });
+
+                $existing->setRelation(
+                    'children',
+                    $existing->children->sortBy('order')->values()
+                );
             }
         });
 
@@ -89,7 +101,7 @@ class NavigationMenu extends Model
             new static([
                 'name'  => 'Menu',
                 'route' => 'system.menu',
-                'order' => 0,
+                'order' => 999,
             ]),
         ]));
 
