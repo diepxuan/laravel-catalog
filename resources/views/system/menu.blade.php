@@ -46,7 +46,6 @@
                 // if (e.target.dataset.id == id) return;
                 this.dragOverId = id;
                 console.log('Dragging ' + this.dragging + ' over ' + id);
-                // e.target.style.backgroundColor = 'lightblue';
             },
 
             dragLeave(e, id) {
@@ -54,7 +53,15 @@
                 // if (e.target.dataset.id == id) return;
                 this.dragOverId = id;
                 console.log('Dragging ' + this.dragging + ' out ' + id);
-                // e.target.style.backgroundColor = '';
+            },
+
+            dragDrop(e, id) {
+                if (!this.dragging || id == this.dragging) return;
+                // if (e.target.dataset.id == id) return;
+                console.log('Dropped ' + this.dragging + ' on ' + id);
+                this.dragOverId = null;
+                // Livewire.emit('menuItemDropped', this.dragging, id);
+                this.dragging = null;
             }
         }
     }
