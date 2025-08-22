@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-08-12 23:02:55
+ * @lastupdate 2025-08-18 22:40:45
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\System\Menu;
@@ -30,13 +30,15 @@ class Item extends Component
 
     public function mount($menuId): void
     {
-        $this->menu = NavigationMenu::findOrFail($menuId);
+        $this->menus = \CatalogService::menus();
+        $this->menu  = $this->menus->where('id', $menuId)->first()
+            ?? NavigationMenu::findOrFail($menuId);
         $this->loadChildren();
     }
 
     public function loadChildren(): void
     {
-        $this->childIds = $this->menu->children()->pluck('id')->toArray();
+        $this->childIds = $this->menus->where('parent_id', $this->menu->id)->pluck('id')->toArray();
     }
 
     public function deleteMenu(): void

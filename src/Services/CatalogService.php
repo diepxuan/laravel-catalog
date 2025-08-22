@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-08-13 20:59:15
+ * @lastupdate 2025-08-18 22:36:29
  */
 
 namespace Diepxuan\Catalog\Services;
@@ -76,9 +76,13 @@ class CatalogService
         return $this->simbaUser()->companies;
     }
 
-    public function menus()
+    public function menus($forceReload = false)
     {
-        return $this->menus ?? $this->menus = NavigationMenu::all();
+        if ($forceReload) {
+            $this->menus = null;
+        }
+
+        return $this->menus ??= NavigationMenu::all();
     }
 
     public function menuTree($parentId = null)

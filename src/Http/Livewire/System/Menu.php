@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-08-13 20:55:38
+ * @lastupdate 2025-08-22 23:22:27
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\System;
@@ -36,11 +36,11 @@ class Menu extends Component
         $this->refreshTree();
     }
 
-    public function refreshTree(): void
+    public function refreshTree(bool $forceReload = false): void
     {
-        $this->menus = \CatalogService::menuTree();
+        $this->menus = \CatalogService::menus($forceReload);
         // $this->rootIds = NavigationMenu::isParent()->get()->pluck('id')->toArray();
-        $this->rootIds = $this->menus->pluck('id')
+        $this->rootIds = \CatalogService::menuTree()->pluck('id')
             ->toArray()
         ;
         // dd($this->rootIds, $this->menus->pluck('id')->toArray());
@@ -51,6 +51,44 @@ class Menu extends Component
         NavigationMenu::create($this->newMenu);
         $this->reset('newMenu');
         $this->refreshTree();
+    }
+
+    public function updateMenu($id, $parentId, $preId): void
+    {
+        \Debugbar::info($id, $parentId, $preId);
+
+        $menu = \CatalogService::menus()->where('id', $id)->first()
+            ?? NavigationMenu::findOrFail($id);
+
+        // $menu            = NavigationMenu::findOrFail($id);
+        $menu->parent_id = $parentId;
+        // $menu->order     = $order;
+        $menu->save();
+
+        // NavigationMenu::findOrFail($id)->delete();
+        // $this->menu->delete();
+        // $this->dispatchUp('menuDeleted');
+        // $this->dispatch('menuDeleted');
+        $this->refreshTree($forceReload = true);
+    }
+
+    public function updateOrder($draggedId, $targetId, $position): void
+    {
+        // Ví dụ: position = 'top' hoặc 'bottom'
+        $dragged = NavigationMenu::findOrFail($draggedId);
+        $target  = NavigationMenu::findOrFail($targetId);
+
+        if ('top' === $position) {
+            $newOrder = $target->order - 1;
+        } else {
+            $newOrder = $target->order + 1;
+        }
+
+        $dragged->order = $newOrder;
+        $dragged->save();
+
+        // Reload menus
+        $this->menus = NavigationMenu::orderBy('order')->get();
     }
 
     /**
