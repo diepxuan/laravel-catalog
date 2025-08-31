@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-08-22 23:22:27
+ * @lastupdate 2025-08-24 21:49:27
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\System;
@@ -55,14 +55,30 @@ class Menu extends Component
 
     public function updateMenu($id, $parentId, $preId): void
     {
-        \Debugbar::info($id, $parentId, $preId);
+        // \Debugbar::info($id, $parentId, $preId);
 
         $menu = \CatalogService::menus()->where('id', $id)->first()
             ?? NavigationMenu::findOrFail($id);
 
+        if (!$menu) {
+            $this->refreshTree();
+
+            return;
+        }
+
+        if (null === $preId) {
+            $order = 0;
+        } else {
+            $preMenu = \CatalogService::menus()->where('id', $preId)->first()
+                ?? NavigationMenu::findOrFail($preId);
+            $order = $preMenu->order + 0.5;
+        }
+
+        // \Debugbar::info($id, $menu, $parentId, $preId, $order);
+
         // $menu            = NavigationMenu::findOrFail($id);
         $menu->parent_id = $parentId;
-        // $menu->order     = $order;
+        $menu->order     = $order;
         $menu->save();
 
         // NavigationMenu::findOrFail($id)->delete();
@@ -70,6 +86,7 @@ class Menu extends Component
         // $this->dispatchUp('menuDeleted');
         // $this->dispatch('menuDeleted');
         $this->refreshTree($forceReload = true);
+        // $this->refreshTree();
     }
 
     public function updateOrder($draggedId, $targetId, $position): void

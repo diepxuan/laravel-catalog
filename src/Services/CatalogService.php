@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-08-18 22:36:29
+ * @lastupdate 2025-08-30 18:10:06
  */
 
 namespace Diepxuan\Catalog\Services;
@@ -82,19 +82,51 @@ class CatalogService
             $this->menus = null;
         }
 
-        return $this->menus ??= NavigationMenu::all();
+        $this->menus ??= NavigationMenu::all();
+
+        // if ($forceReload) {
+        //     $this->reorderChildren();
+        // }
+
+        return $this->menus;
     }
 
     public function menuTree($parentId = null)
     {
         return $this->menus()
             ->where('parent_id', $parentId)
-            ->map(function ($menu) {
-                $menu['children'] = $this->menuTree($menu['id']);
+            ->sortBy('order')
+            ->values()
+            ->map(function ($menu, $index) {
+                if ($menu->order !== $index) {
+                    $menu->order = $index;
+                    $menu->save();
+                }
+
+                $this->menus = $this->menus->map(static fn ($m) => $m->id === $menu->id ? $menu : $m);
+
+                $menu->setRelation('children', $this->menuTree($menu->id));
 
                 return $menu;
             })
+        ;
+    }
+
+    public function reorderChildren($parentId = null): void
+    {
+        $this->menus()
+            ->where('parent_id', $parentId)
+            ->orderBy('order')
             ->values()
+            // ->dd()
+            ->map(function ($menu, $index) {
+                $menu->order = $index;
+                $menu->save();
+
+                $menu->children = $this->reorderChildren($menu->id);
+
+                return $menu;
+            })
         ;
     }
 
@@ -119,8 +151,8 @@ class CatalogService
         $to     = \is_array($time) && !empty($time['to']) ? Carbon::parse($time['to']) : session('timeEnd');
 
         // Default fallback nếu null
-        $from ??= now()->setYear($year)->startOfYear();
-        $to   ??= now()->setYear($year)->endOfYear();
+        $from ??= now()->setYear($year)->startOfMonth();
+        $to   ??= (clone $from)->endOfMonth();
 
         // Xử lý timeId logic
         $monthList   = collect(range(1, 12))->map(static fn ($m) => 't' . str_pad("{$m}", 2, '0', STR_PAD_LEFT))->toArray();
@@ -147,9 +179,10 @@ class CatalogService
             $from ??= now()->startOfMonth();
             $to   ??= now()->endOfMonth();
         } else {
-            $timeId = 'y';
-            $from   = now()->setYear($year)->startOfYear();
-            $to     = (clone $from)->endOfYear();
+            $month  = (int) now()->month;
+            $timeId = 't' . str_pad("{$month}", 2, '0', STR_PAD_LEFT);
+            $from   = now()->setYear($year)->startOfMonth();
+            $to     = (clone $from)->endOfMonth();
         }
         session([
             'timeId'    => $timeId,

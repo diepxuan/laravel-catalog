@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-06-19 22:36:13
+ * @lastupdate 2025-08-30 18:34:36
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -186,14 +186,14 @@ class GlCt extends Model
     protected function psNo(): Attribute
     {
         return Attribute::get(
-            static fn ($value, array $attributes) => $value ?? $attributes['ps_no'] ?? $attributes['Ps_no']
+            static fn ($value, array $attributes) => $value ?? $attributes['ps_no'] ?? $attributes['Ps_no'] ?? null
         );
     }
 
     protected function psCo(): Attribute
     {
         return Attribute::get(
-            static fn ($value, array $attributes) => $value ?? $attributes['ps_co'] ?? $attributes['Ps_co']
+            static fn ($value, array $attributes) => $value ?? $attributes['ps_co'] ?? $attributes['Ps_co'] ?? null
         );
     }
 
