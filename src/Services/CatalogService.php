@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-08-30 18:10:06
+ * @lastupdate 2025-08-31 08:19:04
  */
 
 namespace Diepxuan\Catalog\Services;
@@ -34,7 +34,7 @@ class CatalogService
     public function __construct()
     {
         $this->id = uniqid('report_');
-        \Log::info('ReportService instance đã được khởi tạo với ID: ' . $this->id);
+        // \Log::info("ReportService instance đã được khởi tạo với ID: {$this->id}");
         // \Debugbar::info('ReportService instance đã được khởi tạo với ID: ' . $this->id);
     }
 
