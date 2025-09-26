@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-09-14 20:07:23
+ * @lastupdate 2025-09-26 21:33:35
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Cash\Nganhang;
@@ -21,7 +21,7 @@ class Baono extends Component
 {
     public $pTk_List   = '';
     public $pTkdu_List = '112';
-    public $pMa_Nt     = 'VND';
+    public $pMa_Nt;
     public $pMa_Bp;
     protected $glCts;
 
@@ -29,6 +29,7 @@ class Baono extends Component
     {
         // \Debugbar::info(\CatalogService::timerFrom());
         // \Debugbar::info(\CatalogService::timerTo());
+        // \Debugbar::info(\CatalogService::timer());
         $this->pMa_Nt = \CatalogService::ma_Nt();
         // $this->resultRender();
     }

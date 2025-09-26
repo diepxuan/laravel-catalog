@@ -15,6 +15,11 @@
         <x-slot:nav>
         </x-slot:nav>
 
+        <x-slot:add>
+            {{-- @livewire('catalog::cash.nganhang.baono.phieubaono') --}}
+            <livewire:catalog::cash.nganhang.baono.phieubaono />
+        </x-slot:add>
+
         <x-slot:filter>
             <div class="grid grid-cols-3 items-center gap-4 pt-1">
                 <label class="text-right">Kỳ báo cáo</label>
