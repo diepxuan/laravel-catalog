@@ -8,17 +8,17 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-10-25 22:19:08
+ * @lastupdate 2025-09-26 22:36:26
  */
 
-namespace Diepxuan\Catalog\Http\Livewire\Banhang;
+namespace Diepxuan\Catalog\Http\Livewire\Muahang;
 
 use Diepxuan\Catalog\Models\ArDmKh;
 use Diepxuan\Support\Collection;
 use Illuminate\View\View;
 use Livewire\Component;
 
-class Khachhang extends Component
+class Cungcap extends Component
 {
     public $pTk_List   = '';
     public $pTkdu_List = '111';
@@ -28,7 +28,7 @@ class Khachhang extends Component
 
     public function mount(): void
     {
-        $this->arDmKhs = ArDmKh::where('isKh', true)
+        $this->arDmKhs = ArDmKh::where('isNcc', true)
             ->orderBy('ma_kh')
             ->get()
         ;
@@ -50,8 +50,8 @@ class Khachhang extends Component
             ? $this->arDmKhs
             : Collection::make($this->arDmKhs->all());
 
-        // diepxuan/laravel-catalog/resources/views/banhang/khachhang.blade.php
-        return view('catalog::banhang.khachhang', [
+        // diepxuan/laravel-catalog/resources/views/muahang/cungcap.blade.php
+        return view('catalog::muahang.cungcap', [
             'arDmKhs' => $this->arDmKhs,
         ])->layout('catalog::layouts.app');
     }

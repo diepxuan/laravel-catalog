@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-08-11 23:29:08
+ * @lastupdate 2025-09-26 21:44:06
  */
 
 use Diepxuan\Catalog\Http\Controllers\SellController;
@@ -30,6 +30,7 @@ use Diepxuan\Catalog\Http\Livewire\In\Baocao\Tonkho;
 use Diepxuan\Catalog\Http\Livewire\In\Dmkho;
 use Diepxuan\Catalog\Http\Livewire\In\Dmnhvt;
 use Diepxuan\Catalog\Http\Livewire\In\Dmvt;
+use Diepxuan\Catalog\Http\Livewire\Muahang\Cungcap;
 use Diepxuan\Catalog\Http\Livewire\System\Menu;
 use Illuminate\Support\Facades\Route;
 
@@ -60,6 +61,8 @@ Route::middleware(['clearcache', 'auth'])->group(static function (): void {
     Route::get('banhang/hoadonbanhang', Hoadonbanhang::class)->name('ar.ph.hdbh');
     Route::resource('banhang/bangkebanhang', SellController::class)->names('sell.list');
     Route::get('/banhang/khachhang', Khachhang::class)->name('ar.khachhang');
+
+    Route::get('/muahang/cungcap', Cungcap::class)->name('ar.cungcap');
 
     Route::get('khohang/sanpham', Dmvt::class)->name('in.dmvt');
     Route::get('khohang/nhomsanpham', Dmnhvt::class)->name('in.dmnhvt');
