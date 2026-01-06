@@ -11,7 +11,7 @@
                 <input type="date" placeholder="dd/mm/yyyy" wire:model="ngayKhoaSo" wire:change="updateKhoaSo()" />
             </td>
             <td>
-                <p class="m-auto inline-block cursor-default rounded-t-lg px-3 py-0">
+                <p class="m-auto cursor-default rounded-t-lg px-3 py-0">
                     <svg wire:loading class="-ml-1 mr-3 h-5 w-5 animate-spin text-blue-500"
                         xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
