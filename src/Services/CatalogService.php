@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-08-31 08:19:04
+ * @lastupdate 2026-01-06 15:59:04
  */
 
 namespace Diepxuan\Catalog\Services;
@@ -24,11 +24,17 @@ use Illuminate\Support\Facades\Auth;
 class CatalogService
 {
     protected SysLanguage $sysLanguage;
+
     protected User $user;
+
     protected SysUserInfo $simbaUser;
+
     protected ?SysCompany $company = null;
+
     protected string $maNt;
+
     protected string $id;
+
     protected $menus;
 
     public function __construct()
@@ -79,10 +85,13 @@ class CatalogService
     public function menus($forceReload = false)
     {
         if ($forceReload) {
-            $this->menus = null;
+            $this->menus = NavigationMenu::all();
         }
 
         $this->menus ??= NavigationMenu::all();
+        $this->menus = $this->menus->merge(NavigationMenu::getDefaultMenus());
+
+        // $this->menus = $forceReload ? NavigationMenu::all() : ($this->menus ?? NavigationMenu::all());
 
         // if ($forceReload) {
         //     $this->reorderChildren();

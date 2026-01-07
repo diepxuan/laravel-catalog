@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-08-13 19:57:14
+ * @lastupdate 2026-01-07 08:27:52
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -60,8 +60,16 @@ class NavigationMenu extends Model
         return $query->whereNull('parent_id');
     }
 
+    /**
+     * Get the menu tree with default menus merged.
+     *
+     * @return Collection<int, NavigationMenu>
+     *
+     * @deprecated use CatalogService::menuTree() instead
+     */
     public static function getTree(): Collection
     {
+        return collect([]);
         $menus = static::isParent()
             ->with('children.children')
             ->get()
@@ -69,20 +77,22 @@ class NavigationMenu extends Model
 
         return $menus;
         static::getDefaultMenus()->each(static function ($default) use ($menus): void {
-            if (!$existing = $menus->firstWhere('route', $default->route)) {
+            $existing = $menus->firstWhere('route', $default->route);
+            if (!$existing) {
                 $menus->push($default);
-            } else {
-                ($default->children ?? collect())->each(static function ($defaultChildren) use ($existing): void {
-                    if (!$existing->children->contains('route', $defaultChildren->route)) {
-                        $existing->children->push($defaultChildren);
-                    }
-                });
 
-                $existing->setRelation(
-                    'children',
-                    $existing->children->sortBy('order')->values()
-                );
+                return;
             }
+            ($default->children ?? collect())->each(static function ($defaultChildren) use ($existing): void {
+                if (!$existing->children->contains('route', $defaultChildren->route)) {
+                    $existing->children->push($defaultChildren);
+                }
+            });
+
+            $existing->setRelation(
+                'children',
+                $existing->children->sortBy('order')->values()
+            );
         });
 
         return $menus;
@@ -91,21 +101,14 @@ class NavigationMenu extends Model
 
     public static function getDefaultMenus(): Collection
     {
-        $menuSystem = new static([
-            'name'  => 'Hệ thống',
-            'route' => 'system.*',
-            'order' => 999,
-        ]);
+        $menus = collect([
+            ['name' => 'Hệ thống', 'route' => 'system.*', 'order' => 999],
+            ['name' => 'Menu', 'route' => 'system.menu', 'order' => 999],
+        ])->mapInto(static::class);
 
-        $menuSystem->setRelation('children', collect([
-            new static([
-                'name'  => 'Menu',
-                'route' => 'system.menu',
-                'order' => 999,
-            ]),
-        ]));
+        return collect([]);
 
-        return collect([$menuSystem]);
+        return $menus;
     }
 
     protected static function booted(): void

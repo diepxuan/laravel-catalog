@@ -8,11 +8,12 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-09-26 21:39:05
+ * @lastupdate 2026-01-06 23:50:53
  */
 
 namespace Diepxuan\Catalog\Http\Livewire;
 
+use Illuminate\Support\Facades\Route;
 use Illuminate\View\View;
 use Laravel\Jetstream\Http\Livewire\NavigationMenu as NavigationMenuComponent;
 use Livewire\Component;
@@ -21,17 +22,17 @@ class NavigationMenu extends NavigationMenuComponent
 {
     public $menus = [
         [
-            'name'   => 'Tổng hợp',
-            'status' => 'gl.*',
-            'items'  => [
+            'name'  => 'Tổng hợp',
+            'route' => 'gl',
+            'items' => [
                 'Cấu hình'  => 'space',
                 'Tài khoản' => 'gl.taikhoan',
             ],
         ],
         [
-            'name'   => 'Tiền tệ',
-            'status' => 'ca.*',
-            'items'  => [
+            'name'  => 'Tiền tệ',
+            'route' => 'ca',
+            'items' => [
                 'Tiền mặt'         => 'space',
                 'Phiếu thu'        => 'ca.tienmat.thu',
                 'Phiếu chi'        => 'ca.tienmat.chi',
@@ -47,9 +48,9 @@ class NavigationMenu extends NavigationMenuComponent
             ],
         ],
         [
-            'name'   => 'Bán hàng',
-            'status' => 'ar.*',
-            'items'  => [
+            'name'  => 'Bán hàng',
+            'route' => 'ar',
+            'items' => [
                 'Hoá đơn bán hàng'     => 'ar.ph.hdbh',
                 'Cấu hình'             => 'space',
                 'Danh sách khách hàng' => 'ar.khachhang',
@@ -58,9 +59,9 @@ class NavigationMenu extends NavigationMenuComponent
             ],
         ],
         [
-            'name'   => 'Mua hàng',
-            'status' => 'purchase.*',
-            'items'  => [
+            'name'  => 'Mua hàng',
+            'route' => 'purchase',
+            'items' => [
                 // 'Hoá đơn mua hàng' => 'purchase.index',
                 'Cấu hình'               => 'space',
                 'Danh sách nhà cung cấp' => 'ar.cungcap',
@@ -69,9 +70,9 @@ class NavigationMenu extends NavigationMenuComponent
             ],
         ],
         [
-            'name'   => 'Hàng tồn kho',
-            'status' => 'in.*',
-            'items'  => [
+            'name'  => 'Hàng tồn kho',
+            'route' => 'in',
+            'items' => [
                 // 'Phiếu xuất điều chuyển kho' => 'catalog.inventory.index',
                 'Cấu hình'                  => 'space',
                 'Danh sách hàng hoá vật tư' => 'in.dmvt',
@@ -82,13 +83,13 @@ class NavigationMenu extends NavigationMenuComponent
             ],
         ],
         [
-            'name'   => 'Hệ Thống',
-            'status' => 'system.*',
-            'items'  => [
+            'name'  => 'Hệ Thống',
+            'route' => 'system',
+            'items' => [
                 'Dashboard'          => 'system.index',
                 'Quản lý người dùng' => 'system.user.index',
                 'Website'            => 'system.website.index',
-                // 'Navigation Menu'    => 'system.menu',
+                'Navigation Menu'    => 'system.menu',
             ],
         ],
     ];
@@ -112,11 +113,19 @@ class NavigationMenu extends NavigationMenuComponent
         return view('catalog::navigation-menu');
     }
 
-    public function status(...$args)
+    /**
+     * Check if the given route is active.
+     *
+     * @param mixed ...$routes
+     *
+     * @return bool
+     */
+    public function isActive(...$routes)
     {
-        return collect($args)
+        // dd(request()->route()->getName(), $routeName = Route::currentRouteName());
+        return collect($routes)
             ->flatten()
-            ->map(static fn ($route) => request()->routeIs($route))
+            ->map(static fn ($route) => request()->routeIs($route) || request()->routeIs("{$route}.*"))
             ->filter(static fn ($flag) => $flag)
             ->isNotEmpty()
         ;

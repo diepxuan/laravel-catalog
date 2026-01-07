@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-08-24 21:49:27
+ * @lastupdate 2025-11-23 23:54:22
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\System;
@@ -28,7 +28,7 @@ class Menu extends Component
     protected $menus;
 
     protected $listeners = [
-        'menuDeleted' => 'refreshTree',
+        'menuDeleted' => 'menuDeleted',
     ];
 
     public function mount(): void
@@ -50,7 +50,12 @@ class Menu extends Component
     {
         NavigationMenu::create($this->newMenu);
         $this->reset('newMenu');
-        $this->refreshTree();
+        $this->refreshTree(true);
+    }
+
+    public function menuDeleted(): void
+    {
+        $this->refreshTree(true);
     }
 
     public function updateMenu($id, $parentId, $preId): void
