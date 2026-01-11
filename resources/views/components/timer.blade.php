@@ -1,6 +1,6 @@
 <div wire:change="changeTimer">
-    <x-select class="py-1" :options="$options" wire:model="timer.id" />
-    <x-input-date class="px-2 py-1" wire:model="timer.from" :disabled="$timer['id'] !== 'c'" />
+    <x-select class="mb-1 py-0 text-sm" :options="$options" wire:model="timer.id" />
+    <x-input-date class="mb-1 px-2 py-0 text-sm" wire:model="timer.from" :disabled="$timer['id'] !== 'c'" />
     <span class="text-xs">→</span>
-    <x-input-date class="px-2 py-1" wire:model="timer.to" :disabled="$timer['id'] !== 'c'" />
+    <x-input-date class="mb-1 px-2 py-0 text-sm" wire:model="timer.to" :disabled="$timer['id'] !== 'c'" />
 </div>

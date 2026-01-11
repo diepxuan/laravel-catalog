@@ -27,14 +27,14 @@
     @livewireStyles
 </head>
 
-<body class="font-sans antialiased">
+<body class="font-sans text-sm antialiased">
     <x-banner />
 
     <div class="min-h-screen bg-gray-100">
         @livewire('catalog::navigation-menu')
 
         <!-- Page Heading -->
-        <header class="bg-white shadow print:hidden">
+        <header class="border-b border-gray-200 bg-white shadow print:hidden">
             <div class="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
                 @if (isset($header))
                     {{ $header }}
@@ -55,10 +55,10 @@
         <!-- Page Content -->
         <main>
 
-            <div class="py-12 print:py-0">
-                <div class="max-w-12xl mx-auto sm:px-6 lg:px-8 print:px-0">
-                    <div class="overflow-hidden bg-white shadow-xl sm:rounded-lg print:rounded-none print:shadow-none">
-                        <div class="border-b border-gray-200 bg-white p-6 lg:p-8 print:border-0 print:p-0">
+            <div class="py-0">
+                <div class="max-w-12xl mx-auto px-0">
+                    <div class="overflow-hidden bg-white">
+                        <div class="border-b border-gray-200 bg-white px-6 py-3 lg:p-8 print:border-0 print:p-0">
                             {{ $slot ?? '' }}
                         </div>
                     </div>

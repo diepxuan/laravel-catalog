@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-09-26 21:33:35
+ * @lastupdate 2026-01-11 16:42:19
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Cash\Nganhang;
@@ -31,7 +31,7 @@ class Baono extends Component
         // \Debugbar::info(\CatalogService::timerTo());
         // \Debugbar::info(\CatalogService::timer());
         $this->pMa_Nt = \CatalogService::ma_Nt();
-        // $this->resultRender();
+        $this->resultRender();
     }
 
     public function updated($property): void
