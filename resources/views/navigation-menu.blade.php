@@ -11,30 +11,32 @@
 
                 <div class="hidden min-h-16 w-full md:-my-px md:ms-10 md:flex md:space-x-8"
                     :class="{ 'block': open, 'hidden': !open }" x-transition>
-                    @foreach (json_decode(json_encode($menus), false) as $menuId => $menu)
+                    @foreach ($menus as $menuId => $menu)
                         <div class="group relative md:flex" x-data="{ open: false }">
                             <x-nav-link href="#" :active="$this->isActive($menu->route)" class="w-full" @click="open = !open">
                                 {{ __($menu->name) }}
                             </x-nav-link>
-                            <div x-show="open" @click.outside="open = false" x-transition
-                                class="mt-0 bg-white md:absolute md:left-0 md:top-full md:w-48 md:space-y-2 md:rounded-lg md:border md:shadow-lg md:group-hover:block">
-                                @foreach ($menu->items as $title => $route)
-                                    @if ($route == 'space')
-                                        @isset($title)
-                                            <div class="block ps-4 pt-2 text-xs text-gray-400 md:px-2">
-                                                {{ __($title) }}
-                                            </div>
+                            @if (count($menu->children) > 0)
+                                <div x-show="open" @click.outside="open = false" x-transition
+                                    class="mt-0 bg-white md:absolute md:left-0 md:top-full md:w-48 md:space-y-2 md:rounded-lg md:border md:shadow-lg md:group-hover:block">
+                                    @foreach ($menu->children as $children)
+                                        @if ($children->route == 'space')
+                                            @isset($children->name)
+                                                <div class="block ps-4 pt-2 text-xs text-gray-400 md:px-2">
+                                                    {{ __($children->name) }}
+                                                </div>
+                                            @else
+                                                <div class="w-full border-t border-gray-200"></div>
+                                            @endisset
                                         @else
-                                            <div class="w-full border-t border-gray-200"></div>
-                                        @endisset
-                                    @else
-                                        <x-nav-link :href="route($route)" :active="$this->isActive($route)"
-                                            class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-2">
-                                            {{ __($title) }}
-                                        </x-nav-link>
-                                    @endif
-                                @endforeach
-                            </div>
+                                            <x-nav-link :href="route($children->route)" :active="$this->isActive($children->route)"
+                                                class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-2">
+                                                {{ __($children->name) }}
+                                            </x-nav-link>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
                     @endforeach
                 </div>

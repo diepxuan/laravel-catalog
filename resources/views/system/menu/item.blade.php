@@ -1,26 +1,26 @@
-<div class="ms-4 mt-1 bg-transparent" draggable="true" wire:dragover.prevent data-id="{{ $menu->id }}"
-    x-show="dragging !== '{{ $menu->id }}'" @dragstart="dragStart($event)" {{-- @dragover="dragOver($event, {{ $menu->id }})"  --}}
-    @dragend="dragEnd($event)">
+<div class="ms-4 mt-1 bg-transparent">
 
-    <div @dragenter="dragEnter($event, {{ $menu->id }})" @dragleave="dragLeave($event, {{ $menu->id }})"
-        {{-- @drop="$wire.updateMenu($event, {{ $menu->id }})" --}} @drop="dragDrop($event, {{ $menu->id }})"
-        class="flex items-center justify-between rounded-md border border-gray-300 px-3 py-0">
+    <div class="flex items-center justify-between rounded-md border border-gray-300 px-3 py-0">
         <span>
-            <bold class="text-xs text-gray-700">{{ $menu->id }}.{{ $menu->order }}</bold>
-            {{ $menu->name }}
-            <small class="ps-3 text-gray-500">{{ $menu->route ?? 'N/A' }}</small>
+            <strong class="text-xs text-gray-700">{{ $menu->id }}</strong>
+            @if ($menu->route == 'space')
+                <span class="text-xs text-gray-500">{{ $menu->name }}</span>
+            @else
+                {{ $menu->name }}
+            @endif
+
         </span>
-        <button wire:click="deleteMenu({{ $menu->id }})" class="text-red-500">x</button>
+        <span>
+            <small class="px-1 text-gray-500">{{ $menu->route ?? 'N/A' }}</small>
+            <select class="rounded-md border-0 p-0 text-xs" wire:model="parentId" wire:change="updateMenu">
+                <option value="">---</option>
+                @include('catalog::system.menu.option-tree', ['items' => $availableParents])
+            </select>
+            <small class="px-1 text-gray-500">{{ $menu->order ?? 0 }}</small>
+            <button wire:click="deleteMenu({{ $menu->id }})" class="text-red-500">x</button>
+        </span>
     </div>
     @foreach ($childIds as $id)
-        @livewire('catalog::system.menu.item', ['menuId' => $id], key($id))
+        @livewire('catalog::system.menu.item', ['menuId' => $id], key("menu-item-$id"))
     @endforeach
-
-    @isset($menu->parent_id)
-        <div x-show="dragOverId && dragOverId == {{ $menu->id }}"
-            @drop="dragDrop($event, {{ $menu->parent_id }}, {{ $menu->id }})"
-            class="mt-1 flex items-center justify-between rounded-md border border-blue-300 px-3 py-0">
-            <span>{{ '' }} <small class="ps-3 text-gray-500">{{ '' }}</small></span>
-        </div>
-    @endisset
 </div>

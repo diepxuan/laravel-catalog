@@ -9,10 +9,20 @@
 
     <form wire:submit.prevent="addMenu">
         <div class="items-center gap-2">
-            <input class="rounded-md border-gray-300 py-1 shadow-sm" wire:model="newMenu.name" placeholder="Tên menu" />
-            <input class="rounded-md border-gray-300 py-1 shadow-sm" wire:model="newMenu.route" placeholder="Đường dẫn" />
+            <input class="rounded-md border-gray-300 py-0 shadow-sm" wire:model="newMenu.name" placeholder="Tên menu" />
+            <input class="rounded-md border-gray-300 py-0 shadow-sm" wire:model="newMenu.route" placeholder="Đường dẫn" />
+
+            <input type="text" class="rounded-md border-gray-300 py-0 shadow-sm" list="parent_id-suggestions"
+                placeholder="Parent id" wire:model="newMenu.parent_id" />
+
+            <datalist id="parent_id-suggestions">
+                @foreach ($menus as $menu)
+                    <option value="{{ $menu->id }}">{{ $menu->name }}</option>
+                @endforeach
+            </datalist>
+
             <div class="inline-flex items-center">
-                <x-button-loading class="rounded-md bg-blue-600 px-2 py-1 text-white hover:bg-blue-700" type="submit">
+                <x-button-loading class="rounded-md bg-blue-600 px-2 py-0 text-white hover:bg-blue-700" type="submit">
                     Thêm
                 </x-button-loading>
             </div>
@@ -25,55 +35,4 @@
         @endforeach
     </div>
 
-    <script>
-        function menuTree($wire) {
-            return {
-                // tree: initialTree,
-                dragging: null,
-                dragOverId: null,
-                placeholderPosition: null,
-                init() {},
-
-                dragStart(e) {
-                    let el = e.target;
-                    let id = el.dataset.id;
-                    this.dragging = id;
-                    console.log('Dragging element with id:', id);
-                },
-
-                dragOver(e, id) {
-                    this.dragOverId = id;
-                },
-
-                dragEnd(e) {
-                    this.dragging = null;
-                    this.dragOverId = null;
-                    this.placeholderPosition = null;
-
-                    let el = e.target;
-                    let id = el.dataset.id;
-                    console.log('Drag ended element with id:', id);
-                },
-
-                dragEnter(e, id) {
-                    if (!this.dragging || id == this.dragging) return;
-                    this.dragOverId = id;
-                    console.log('Dragging ' + this.dragging + ' over ' + id);
-                },
-
-                dragLeave(e, id) {
-                    if (!this.dragging || id == this.dragging) return;
-                    this.dragOverId = id;
-                    console.log('Dragging ' + this.dragging + ' out ' + id);
-                },
-
-                dragDrop(e, parentId, preId) {
-                    console.log('Dropped ' + this.dragging + ' on ' + parentId + ' at order after ' + preId);
-                    $wire.updateMenu(this.dragging, parentId, preId);
-                    this.dragOverId = null;
-                    this.dragging = null;
-                }
-            }
-        }
-    </script>
 </div>

@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-08-24 21:35:56
+ * @lastupdate 2026-01-11 12:31:54
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\System\Menu;
@@ -21,25 +21,19 @@ class Item extends Component
 {
     public NavigationMenu $menu;
     public array $childIds = [];
-    protected $menus;
-
-    // public function mount(): void
-    // {
-    //     // \Debugbar::info($this->timer);
-    //     // $this->menus = NavigationMenu::getTree();
-    // }
+    public $parentId;
 
     public function mount($menuId): void
     {
-        $this->menus = \CatalogService::menus();
-        $this->menu  = $this->menus->where('id', $menuId)->first()
+        $this->menu = \CatalogService::menus()->where('id', $menuId)->first()
             ?? NavigationMenu::findOrFail($menuId);
+        $this->parentId = $this->menu->parent_id;
         $this->loadChildren();
     }
 
     public function loadChildren(): void
     {
-        $this->childIds = $this->menus->where('parent_id', $this->menu->id)->pluck('id')->toArray();
+        $this->childIds = \CatalogService::menus()->where('parent_id', $this->menu->id)->pluck('id')->toArray();
     }
 
     public function deleteMenu(): void
@@ -50,6 +44,18 @@ class Item extends Component
         $this->dispatch('menuDeleted');
     }
 
+    public function updateMenu(): void
+    {
+        // \Debugbar::info($this->parentId);
+        // \Debugbar::info($this->menu);
+        if ($this->menu->id === $this->parentId) {
+            return;
+        }
+        $this->menu->parent_id = $this->parentId ?: null;
+        $this->menu->save();
+        $this->dispatch('menuUpdated');
+    }
+
     /**
      * Render the component.
      *
@@ -57,10 +63,38 @@ class Item extends Component
      */
     public function render()
     {
+        // Lấy danh sách menu (trừ chính nó và children) để làm parent
+        $allMenus = \CatalogService::menus()->whereNotIn('id', [$this->menu->id, ...$this->childIds]);
+        $availableParents = $this->buildMenuTree($allMenus->where('parent_id', null)->values());
+
         // diepxuan/laravel-catalog/resources/views/system/menu/item.blade.php
         return view('catalog::system.menu.item', [
-            'menu'     => $this->menu,
-            'childIds' => $this->childIds,
+            'menu'             => $this->menu,
+            'childIds'         => $this->childIds,
+            'availableParents' => $availableParents,
         ])->layout('catalog::layouts.app');
+    }
+
+    /**
+     * Xây dựng cấu trúc cây menu từ danh sách menu.
+     *
+     * @param mixed $menus
+     */
+    private function buildMenuTree($menus): array
+    {
+        $allMenus = \CatalogService::menus()->whereNotIn('id', [$this->menu->id, ...$this->childIds]);
+        $result = [];
+
+        foreach ($menus as $menu) {
+            $result[] = [
+                'id'       => $menu->id,
+                'name'     => $menu->name,
+                'route'    => $menu->route,
+                'display'  => $menu->name . ($menu->route ? " ({$menu->route})" : ''),
+                'children' => $this->buildMenuTree($allMenus->where('parent_id', $menu->id)->values()),
+            ];
+        }
+
+        return $result;
     }
 }
