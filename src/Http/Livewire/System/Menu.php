@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-01-11 00:20:53
+ * @lastupdate 2026-01-11 16:13:59
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\System;
@@ -87,17 +87,11 @@ class Menu extends Component
 
         // \Debugbar::info($id, $menu, $parentId, $preId, $order);
 
-        // $menu            = NavigationMenu::findOrFail($id);
         $menu->parent_id = $parentId;
         $menu->order     = $order;
         $menu->save();
 
-        // NavigationMenu::findOrFail($id)->delete();
-        // $this->menu->delete();
-        // $this->dispatchUp('menuDeleted');
-        // $this->dispatch('menuDeleted');
         $this->refreshTree($forceReload = true);
-        // $this->refreshTree();
     }
 
     public function updateOrder($draggedId, $targetId, $position): void

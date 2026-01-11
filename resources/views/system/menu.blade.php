@@ -29,7 +29,7 @@
         </div>
     </form>
 
-    <div class="space-y-2 pt-2" x-data="menuTree($wire)" x-init="init()">
+    <div class="space-y-2 pt-2">
         @foreach ($rootIds as $id)
             @livewire('catalog::system.menu.item', ['menuId' => $id], key($id))
         @endforeach

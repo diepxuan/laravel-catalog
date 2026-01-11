@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-01-11 11:05:40
+ * @lastupdate 2026-01-11 16:03:06
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -40,6 +40,11 @@ class NavigationMenu extends Model
         'icon',
     ];
 
+    protected $casts = [
+        'order'     => 'integer',
+        'parent_id' => 'integer',
+    ];
+
     /**
      * Get the parent menu.
      */
@@ -56,6 +61,12 @@ class NavigationMenu extends Model
         return $this->hasMany(self::class, 'parent_id');
     }
 
+    // Recursive children
+    public function childrenRecursive()
+    {
+        return $this->children()->with('childrenRecursive');
+    }
+
     /**
      * Scope a query to get parents only.
      *
@@ -66,6 +77,24 @@ class NavigationMenu extends Model
     public function scopeIsParent($query)
     {
         return $query->whereNull('parent_id');
+    }
+
+    public function isSelfParent(?int $parentId): bool
+    {
+        return $this->exists && $parentId === $this->id;
+    }
+
+    public function isDescendantOf(int $parentId): bool
+    {
+        $parent = self::find($parentId);
+        while ($parent) {
+            if ($parent->id === $this->id) {
+                return true;
+            }
+            $parent = $parent->parent;
+        }
+
+        return false;
     }
 
     /**
@@ -107,6 +136,16 @@ class NavigationMenu extends Model
     }
 
     /**
+     * Build full menu tree (optimized).
+     */
+    public static function tree(): Collection
+    {
+        $menus = self::withoutGlobalScopes()->get();
+
+        return self::buildTree($menus);
+    }
+
+    /**
      * Get all menus with default menus merged.
      *
      * @return Collection<int, NavigationMenu>
@@ -136,6 +175,22 @@ class NavigationMenu extends Model
             ['name' => 'Hệ thống', 'route' => 'system', 'order' => 999],
             ['name' => 'Menu', 'route' => 'system.menu', 'order' => 999],
         ])->mapInto(static::class);
+    }
+
+    /**
+     * @param Collection<Menu> $menus
+     */
+    protected static function buildTree(Collection $menus, ?int $parentId = null): Collection
+    {
+        return $menus
+            ->where('parent_id', $parentId)
+            ->values()
+            ->map(static function ($menu) use ($menus) {
+                $menu->children = self::buildTree($menus, $menu->id);
+
+                return $menu;
+            })
+        ;
     }
 
     /**
@@ -177,18 +232,29 @@ class NavigationMenu extends Model
             'parent_id' => ['nullable', 'exists:menus,id'],
         ];
 
-        Validator::make($data, $rules)->after(function ($validator) use ($data): void {
-            // ❗ Cấm parent_id = chính nó
-            if (
-                isset($data['parent_id'], $this->id)
-                && (int) $data['parent_id'] === (int) $this->id
-            ) {
-                $validator->errors()->add(
-                    'parent_id',
-                    'Parent menu cannot be the menu itself.'
-                );
-            }
-        })->validate();
+        Validator::make($data, $rules)
+            ->after(function ($validator) use ($data): void {
+                if (
+                    isset($data['parent_id'], $this->id)
+                    && (int) $data['parent_id'] === (int) $this->id
+                ) {
+                    $validator->errors()->add(
+                        'parent_id',
+                        'Parent menu cannot be the menu itself.'
+                    );
+                }
+
+                if (
+                    isset($data['parent_id'], $this->id)
+                    && $this->isDescendantOf($data['parent_id'])
+                ) {
+                    $validator->errors()->add(
+                        'parent_id',
+                        'Invalid menu hierarchy (loop detected).'
+                    );
+                }
+            })->validate()
+        ;
 
         // $rules = [
         //     'name'      => 'required|string|max:255',

@@ -16,7 +16,7 @@
                             <x-nav-link href="#" :active="$this->isActive($menu->route)" class="w-full" @click="open = !open">
                                 {{ __($menu->name) }}
                             </x-nav-link>
-                            @if (count($menu->children) > 0)
+                            @if ($menu->children && count($menu->children) > 0)
                                 <div x-show="open" @click.outside="open = false" x-transition
                                     class="mt-0 bg-white md:absolute md:left-0 md:top-full md:w-48 md:space-y-2 md:rounded-lg md:border md:shadow-lg md:group-hover:block">
                                     @foreach ($menu->children as $children)

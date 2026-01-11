@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-01-11 13:10:23
+ * @lastupdate 2026-01-11 16:08:42
  */
 
 namespace Diepxuan\Catalog\Services;
@@ -93,8 +93,20 @@ class CatalogService
         return $this->menus;
     }
 
-    public function menuTree($parentId = null)
+    public function menuTree(?int $parentId = null)
     {
+        return $this->menus()
+            ->where('parent_id', $parentId)
+            ->values()
+            ->map(function ($menu) {
+                $menu->children = $this->menuTree($menu->id);
+
+                return $menu;
+            })
+        ;
+
+        return NavigationMenu::tree()->toArray();
+
         return $this->menus()
             ->filter(
                 static fn ($menu) => $menu->parent_id === $parentId || $menu->parent_id === $menu->id
@@ -122,7 +134,6 @@ class CatalogService
             ->where('parent_id', $parentId)
             ->orderBy('order')
             ->values()
-            // ->dd()
             ->map(function ($menu, $index) {
                 $menu->order = $index;
                 $menu->save();

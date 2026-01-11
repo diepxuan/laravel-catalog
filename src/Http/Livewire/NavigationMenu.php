@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-01-07 11:10:24
+ * @lastupdate 2026-01-11 15:56:01
  */
 
 namespace Diepxuan\Catalog\Http\Livewire;
@@ -20,79 +20,7 @@ use Livewire\Component;
 
 class NavigationMenu extends NavigationMenuComponent
 {
-    public $menus = [
-        [
-            'name'     => 'Tổng hợp',
-            'route'    => 'gl',
-            'children' => [
-                'Cấu hình'  => 'space',
-                'Tài khoản' => 'gl.taikhoan',
-            ],
-        ],
-        [
-            'name'     => 'Tiền tệ',
-            'route'    => 'ca',
-            'children' => [
-                'Tiền mặt'         => 'space',
-                'Phiếu thu'        => 'ca.tienmat.thu',
-                'Phiếu chi'        => 'ca.tienmat.chi',
-                'Chuyển khoản'     => 'space',
-                'Báo có'           => 'ca.nganhang.baoco',
-                'Báo nợ'           => 'ca.nganhang.baono',
-                'Báo cáo'          => 'space',
-                'Sổ quỹ tiền mặt'  => 'ca.tienmat.quy',
-                'Sổ quỹ ngân hàng' => 'ca.nganhang.quy',
-                'Nhật ký thu tiền' => 'ca.thu',
-                'Nhật ký chi tiền' => 'ca.chi',
-                'Nhật ký thu chi'  => 'ca.quy',
-            ],
-        ],
-        [
-            'name'     => 'Bán hàng',
-            'route'    => 'ar',
-            'children' => [
-                'Hoá đơn bán hàng'     => 'ar.ph.hdbh',
-                'Cấu hình'             => 'space',
-                'Danh sách khách hàng' => 'ar.khachhang',
-                // 'Danh sách hàng hoá vật tư' => 'catalog.index',
-                // 'Nhóm hàng hoá vật tư' => 'category.index',
-            ],
-        ],
-        [
-            'name'     => 'Mua hàng',
-            'route'    => 'purchase',
-            'children' => [
-                // 'Hoá đơn mua hàng' => 'purchase.index',
-                'Cấu hình'               => 'space',
-                'Danh sách nhà cung cấp' => 'ar.cungcap',
-                // 'Danh sách hàng hoá vật tư' => 'catalog.index',
-                // 'Nhóm hàng hoá vật tư' => 'category.index',
-            ],
-        ],
-        [
-            'name'     => 'Hàng tồn kho',
-            'route'    => 'in',
-            'children' => [
-                // 'Phiếu xuất điều chuyển kho' => 'catalog.inventory.index',
-                'Cấu hình'                  => 'space',
-                'Danh sách hàng hoá vật tư' => 'in.dmvt',
-                'Nhóm hàng hoá vật tư'      => 'in.dmnhvt',
-                'Kho hàng'                  => 'in.khohang',
-                'Báo cáo'                   => 'space',
-                'Báo cáo tồn kho'           => 'in.tonkho',
-            ],
-        ],
-        [
-            'name'     => 'Hệ Thống',
-            'route'    => 'system',
-            'children' => [
-                'Dashboard'          => 'system.index',
-                'Quản lý người dùng' => 'system.user.index',
-                'Website'            => 'system.website.index',
-                'Navigation Menu'    => 'system.menu',
-            ],
-        ],
-    ];
+    public $menus;
 
     /**
      * The component's listeners.
@@ -130,7 +58,6 @@ class NavigationMenu extends NavigationMenuComponent
      */
     public function isActive(...$routes)
     {
-        // dd(request()->route()->getName(), $routeName = Route::currentRouteName());
         return collect($routes)
             ->flatten()
             ->map(static fn ($route) => request()->routeIs($route) || request()->routeIs("{$route}.*"))
