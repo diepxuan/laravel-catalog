@@ -7,7 +7,7 @@
         <p>{{ 'Báo nợ' }}</p>
     </x-slot>
 
-    <livewire:catalog::cash.nganhang.baono.phieubaono />
+    <livewire:catalog::cash.nganhang.baono.phieubaono wire:model="newCaPh" />
 
     <div class="grid grid-cols-1 gap-4 border-t border-gray-200 md:grid-cols-3 lg:grid-cols-4">
         <div class="col-span-1 mb-1 mt-3 md:col-span-1">

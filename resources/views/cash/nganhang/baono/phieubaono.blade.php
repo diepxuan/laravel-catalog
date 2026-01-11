@@ -1,10 +1,19 @@
-<div class="grid grid-cols-2 items-start gap-1 pb-3">
+<div class="grid grid-cols-3 items-start gap-1 pb-3">
     <div class="">
-
         <div class="grid grid-cols-4 items-center gap-4 pt-1">
             <label class="text-right">Mã khách hàng</label>
             <div class="col-span-3">
-                <livewire:catalog::component.input-khachhang wire:model="pMa_Kh" class="py-0" />
+                <div class="relative">
+                    <input type="text"
+                        class="block w-full rounded-md border-gray-300 py-0 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                        list="ArDmKh-suggestions" wire:model="pMa_Kh" wire:change="updateKhachHang" />
+                </div>
+
+                @if (isset($pKh))
+                    <span class="text-xs">{{ $pKh->ten_kh }}</span>
+                    <span class="text-xs">{{ $pKh->dia_chi }}</span>
+                    <span class="text-xs">{{ $pKh->nguoi_gd }}</span>
+                @endif
             </div>
         </div>
 
@@ -40,4 +49,9 @@
         </div>
     </div>
 
+    <datalist id="ArDmKh-suggestions">
+        @foreach ($arDmKhs as $arDmKh)
+            <option value="{{ $arDmKh->ma_kh }}">{{ $arDmKh->ten_kh }}</option>
+        @endforeach
+    </datalist>
 </div>

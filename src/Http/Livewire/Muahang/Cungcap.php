@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-09-26 22:36:26
+ * @lastupdate 2026-01-11 21:25:33
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Muahang;
@@ -29,7 +29,6 @@ class Cungcap extends Component
     public function mount(): void
     {
         $this->arDmKhs = ArDmKh::where('isNcc', true)
-            ->orderBy('ma_kh')
             ->get()
         ;
     }
