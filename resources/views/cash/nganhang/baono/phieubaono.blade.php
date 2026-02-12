@@ -1,7 +1,7 @@
 <div class="grid grid-cols-3 items-start gap-1 pb-3">
     <div class="">
         <div class="grid grid-cols-4 items-center gap-4 pt-1">
-            <label class="text-right">Mã khách hàng</label>
+            <label class="text-right">Mã KH</label>
             <div class="col-span-3">
                 <div class="relative">
                     <input type="text"
@@ -47,6 +47,17 @@
                 <x-input-date class="block w-full px-2 py-0 text-sm" wire:model="pNgay_Lap" />
             </div>
         </div>
+    </div>
+
+    <div>
+        @isset($pCts)
+            @foreach ($pCts as $ct)
+            <div>
+                {{ $ct->ma_ct }}
+            </div>
+            @endforeach
+        @endisset
+        {{ $pCts }}
     </div>
 
     <datalist id="ArDmKh-suggestions">

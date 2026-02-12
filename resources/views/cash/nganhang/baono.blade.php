@@ -19,22 +19,22 @@
             </div>
 
             <div class="grid grid-cols-3 items-center gap-4 pt-1">
-                <label class="text-right">Tài khoản nợ</label>
+                <label class="text-right">TK nợ</label>
                 <input class="col-span-2 rounded-md border-gray-300 py-0 text-sm shadow-sm" wire:model="pTk_List" />
             </div>
 
             <div class="grid grid-cols-3 items-center gap-4 pt-1">
-                <label class="text-right">Tài khoản có</label>
+                <label class="text-right">TK có</label>
                 <input class="col-span-2 rounded-md border-gray-300 py-0 text-sm shadow-sm" wire:model="pTkdu_List" />
             </div>
 
             <div class="grid grid-cols-3 items-center gap-4 pt-1">
-                <label class="text-right">Mã bộ phận</label>
+                <label class="text-right">Mã BP</label>
                 <input class="col-span-2 rounded-md border-gray-300 py-0 text-sm shadow-sm" wire:model="pMa_Bp" />
             </div>
 
             <div class="grid grid-cols-3 items-center gap-4 pt-1">
-                <label class="text-right">Mã ngoại tệ</label>
+                <label class="text-right">Mã NT</label>
                 <input class="col-span-2 rounded-md border-gray-300 py-0 text-sm shadow-sm" wire:model="pMa_Nt" />
             </div>
 

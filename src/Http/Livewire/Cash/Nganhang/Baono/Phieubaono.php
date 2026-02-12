@@ -8,13 +8,14 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-01-12 00:36:13
+ * @lastupdate 2026-01-16 14:21:40
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baono;
 
 use Diepxuan\Catalog\Models\ArDmKh;
 use Diepxuan\Simba\StoredProcedures\AsGetSoCt;
+use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -27,7 +28,7 @@ class Phieubaono extends Component
     public $pNgay_Ct;
     public $pSo_Ct;
     public $pNgay_Lap;
-    public $pCts;
+    public Collection $pCts;
     public $pSoDu;
 
     public function mount(): void
@@ -42,11 +43,14 @@ class Phieubaono extends Component
             'pNgay_Ct' => $this->pNgay_Ct,
         ]);
         // $this->resultRender();
+        \Debugbar::info('mount');
     }
 
     public function updated($property): void
     {
-        // \Debugbar::info($property);
+        $this->updateCt();
+        \Debugbar::info('updated');
+        \Debugbar::info($property);
     }
 
     public function submit(): void
@@ -62,6 +66,37 @@ class Phieubaono extends Component
             'pNgay' => $this->pNgay_Ct,
         ]);
         // $this->resultRender();
+        \Debugbar::info('updateKhachHang');
+    }
+
+    public function updateCt(): void
+    {
+        if (!$this->pKh || !$this->pKh->ma_kh) {
+            $this->pCts = collect();
+
+            return;
+        }
+
+        $this->pCts ??= collect();
+
+        // $this->pSoDu = $this->pKh->getSoduKh([
+        //     'pTk'   => $this->pTk_Co,
+        //     'pNgay' => $this->pNgay_Ct,
+        // ]);
+        \Debugbar::info('updateCt');
+    }
+
+    public function addRow(): void
+    {
+        $this->pCts->push([
+            'SttRec' => '',
+            'ma_tk'  => '',
+            'ps_no'  => 0,
+            // 'so_ct'   => '',
+            // 'ngay_ct' => '',
+            'so_du' => 0,
+        ]);
+        \Debugbar::info('addRow');
     }
 
     /**
@@ -71,6 +106,8 @@ class Phieubaono extends Component
      */
     public function render()
     {
+        \Debugbar::info('render');
+
         // diepxuan/laravel-catalog/resources/views/cash/nganhang/baono/phieubaono.blade.php
         return view('catalog::cash.nganhang.baono.phieubaono', [
             'arDmKhs' => ArDmKh::all(),
