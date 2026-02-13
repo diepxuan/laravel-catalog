@@ -49,15 +49,69 @@
         </div>
     </div>
 
-    <div>
-        @isset($pCts)
-            @foreach ($pCts as $ct)
-            <div>
-                {{ $ct->ma_ct }}
+    <div class="mt-4">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">TK Nợ</th>
+                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Diễn giải</th>
+                    <th scope="col" class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">Số tiền</th>
+                    <th scope="col" class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-10"></th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                @foreach ($pCts as $index => $row)
+                <tr>
+                    <td class="px-3 py-2">
+                        <livewire:catalog::component.input-taikhoan wire:model="pCts.{{ $index }}.ma_tk" :key="'tk-'.$index" />
+                    </td>
+                    <td class="px-3 py-2">
+                        <input type="text" class="block w-full rounded-md border-gray-300 py-1 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" wire:model.defer="pCts.{{ $index }}.dien_giai">
+                    </td>
+                    <td class="px-3 py-2">
+                        <input type="number" class="block w-full rounded-md border-gray-300 py-1 text-sm shadow-sm text-right focus:border-indigo-500 focus:ring-indigo-500" wire:model.lazy="pCts.{{ $index }}.ps_no">
+                    </td>
+                    <td class="px-3 py-2 text-center">
+                        <button wire:click="removeRow({{ $index }})" class="text-red-500 hover:text-red-700 focus:outline-none">
+                            <span class="fas fa-trash"></span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
+            <tfoot class="bg-gray-50">
+                <tr>
+                    <td colspan="2" class="px-3 py-2 text-right font-bold text-gray-700">Tổng cộng:</td>
+                    <td class="px-3 py-2 text-right font-bold text-gray-900">{{ number_format($pTong_Ps_No, 0, ',', '.') }}</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <div class="mt-4 flex justify-between items-center">
+             <button wire:click="addRow" class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                + Thêm dòng
+            </button>
+
+            <div class="flex items-center space-x-2">
+                @if (session()->has('message'))
+                    <span class="text-green-600 text-sm font-medium animate-pulse">
+                        {{ session('message') }}
+                    </span>
+                @endif
+
+                <button wire:click="submit" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    Lưu phiếu
+                </button>
             </div>
-            @endforeach
-        @endisset
-        {{ $pCts }}
+        </div>
+        
+        @error('pCts') <div class="mt-2 text-red-500 text-sm">{{ $message }}</div> @enderror
+        @error('pMa_Kh') <div class="mt-2 text-red-500 text-sm">Vui lòng chọn khách hàng</div> @enderror
+        @error('pTk_Co') <div class="mt-2 text-red-500 text-sm">Vui lòng chọn tài khoản có</div> @enderror
     </div>
 
     <datalist id="ArDmKh-suggestions">
