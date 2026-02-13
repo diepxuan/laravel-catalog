@@ -60,6 +60,13 @@ class Phieubaono extends Component
             $this->updateKhachHang();
         }
 
+        if ($property == 'pDien_Giai') {
+            $this->pCts = $this->pCts->map(function ($row) {
+                $row['dien_giai'] = $this->pDien_Giai;
+                return $row;
+            });
+        }
+
         if (str_contains($property, 'pCts')) {
             $this->calculateTotal();
         }
@@ -181,6 +188,11 @@ class Phieubaono extends Component
     {
         $this->pCts->forget($index);
         $this->pCts = $this->pCts->values(); // Re-index
+        
+        if ($this->pCts->isEmpty()) {
+            $this->addRow();
+        }
+        
         $this->calculateTotal();
     }
 
