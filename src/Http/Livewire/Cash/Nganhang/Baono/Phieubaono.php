@@ -15,6 +15,7 @@ namespace Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baono;
 
 use Diepxuan\Catalog\Models\ArDmKh;
 use Diepxuan\Simba\StoredProcedures\AsGetSoCt;
+use Diepxuan\Simba\StoredProcedures\AsPostCaph3_glct;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -147,9 +148,11 @@ class Phieubaono extends Component
             }
 
             // 3. Post to GL
-            // Executing stored procedure
-            // Using DB::statement or similar
-            \DB::statement("EXEC asPostCaph3_glct ?, ?", [$caPh3->ma_cty, $stt_rec]);
+            // Executing stored procedure using stored procedure class
+            AsPostCaph3_glct::call([
+                'pMa_cty' => $caPh3->ma_cty,
+                'pStt_rec' => $stt_rec,
+            ]);
         });
 
         session()->flash('message', 'Phiếu báo nợ đã được lưu thành công.');
