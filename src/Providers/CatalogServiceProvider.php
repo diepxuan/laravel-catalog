@@ -54,14 +54,6 @@ class CatalogServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        // if ($this->app->runningInConsole()) {
-        //     $this->commands([
-        //         CatalogSync::class,
-        //         EnvTest::class,
-        //         Scavenger::class,
-        //     ]);
-        // }
-
         config([
             'auth.providers.users.model' => User::class,
         ]);
