@@ -1,4 +1,4 @@
-<div class="grid grid-cols-3 items-start gap-1 pb-3">
+<div class="grid grid-cols-1 md:grid-cols-3 items-start gap-1 pb-3">
     <div class="">
         <div class="grid grid-cols-4 items-center gap-4 pt-1">
             <label class="text-right">Mã KH</label>
@@ -49,7 +49,7 @@
         </div>
     </div>
 
-    <div class="mt-4">
+    <div class="mt-4 md:col-span-2">
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
