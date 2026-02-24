@@ -10,16 +10,44 @@
                 </div>
 
                 @if (isset($pKh))
-                    <span class="text-xs">{{ $pKh->ten_kh }}</span>
-                    <span class="text-xs">{{ $pKh->dia_chi }}</span>
-                    <span class="text-xs">{{ $pKh->nguoi_gd }}</span>
+                    <div class="mt-1 text-xs text-gray-600">
+                        <div><strong>Tên:</strong> {{ $pKh->ten_kh }}</div>
+                        <div><strong>Địa chỉ:</strong> {{ $pKh->dia_chi }}</div>
+                        <div><strong>Người GD:</strong> {{ $pKh->nguoi_gd }}</div>
+                    </div>
                 @endif
             </div>
         </div>
 
+        @if (isset($pSoDu) && $pSoDu !== null && is_numeric($pSoDu))
+        <div class="grid grid-cols-4 items-center gap-4 pt-1">
+            <label class="text-right">Số dư</label>
+            <div class="col-span-3">
+                <div class="text-sm font-semibold {{ $pSoDu >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                    {{ number_format($pSoDu, 0, ',', '.') }}
+                </div>
+                <div class="text-xs text-gray-500">
+                    @if(!empty($pMa_Kh) && !empty($pNgay_Ct))
+                        Số dư đến ngày {{ \Carbon\Carbon::parse($pNgay_Ct)->format('d/m/Y') }}
+                    @endif
+                </div>
+            </div>
+        </div>
+        @endif
+
         <div class="grid grid-cols-4 items-center gap-4 pt-1">
             <label class="text-right">Diễn giải</label>
             <input class="col-span-3 rounded-md border-gray-300 py-0 text-sm shadow-sm" wire:model="pDien_Giai" />
+        </div>
+
+        <div class="grid grid-cols-4 items-center gap-4 pt-1">
+            <label class="text-right">Địa chỉ</label>
+            <input class="col-span-3 rounded-md border-gray-300 py-0 text-sm shadow-sm" wire:model="pDia_Chi" />
+        </div>
+
+        <div class="grid grid-cols-4 items-center gap-4 pt-1">
+            <label class="text-right">Người GD</label>
+            <input class="col-span-3 rounded-md border-gray-300 py-0 text-sm shadow-sm" wire:model="pNguoi_Gd" />
         </div>
 
         <div class="grid grid-cols-4 items-center gap-4 pt-1">
@@ -53,9 +81,10 @@
         <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
                 <tr>
-                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider w-1/4">TK Nợ</th>
+                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">TK Nợ</th>
                     <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Diễn giải</th>
-                    <th scope="col" class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider w-1/6">Số tiền</th>
+                    <th scope="col" class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Số dư</th>
+                    <th scope="col" class="px-3 py-2 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Số tiền</th>
                     <th scope="col" class="px-3 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider w-10"></th>
                 </tr>
             </thead>
@@ -63,10 +92,34 @@
                 @foreach ($pCts as $index => $row)
                 <tr>
                     <td class="px-3 py-2">
-                        <livewire:catalog::component.input-taikhoan wire:model="pCts.{{ $index }}.ma_tk" :key="'tk-'.$index" />
+                        <div class="relative">
+                            <input type="text"
+                                class="block w-full rounded-md border-gray-300 py-0 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                                list="GlDmTk-suggestions" 
+                                wire:model.live.debounce.500ms="pCts.{{ $index }}.ma_tk" />
+                            
+                            <datalist id="GlDmTk-suggestions">
+                                @foreach ($glDmTks as $glDmTk)
+                                    <option value="{{ $glDmTk->tk }}">{{ $glDmTk->ten_tk }}</option>
+                                @endforeach
+                            </datalist>
+                        </div>
                     </td>
                     <td class="px-3 py-2">
-                        <input type="text" class="block w-full rounded-md border-gray-300 py-1 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" wire:model.defer="pCts.{{ $index }}.dien_giai">
+                        <input type="text" class="block w-full rounded-md border-gray-300 py-1 text-sm shadow-sm bg-gray-50" 
+                               wire:model="pCts.{{ $index }}.dien_giai" readonly>
+                    </td>
+                    <td class="px-3 py-2 text-right text-sm">
+                        @php
+                            $soDuDong = $pSoDuCts[$index] ?? null;
+                        @endphp
+                        @if ($soDuDong !== null && is_numeric($soDuDong))
+                            <span class="{{ $soDuDong >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                                {{ number_format($soDuDong, 0, ',', '.') }}
+                            </span>
+                        @else
+                            <span class="text-gray-400">-</span>
+                        @endif
                     </td>
                     <td class="px-3 py-2">
                         <input type="number" class="block w-full rounded-md border-gray-300 py-1 text-sm shadow-sm text-right focus:border-indigo-500 focus:ring-indigo-500" wire:model.lazy="pCts.{{ $index }}.ps_no">
@@ -84,7 +137,7 @@
             </tbody>
             <tfoot class="bg-gray-50">
                 <tr>
-                    <td colspan="2" class="px-3 py-2 text-right font-bold text-gray-700">Tổng cộng:</td>
+                    <td colspan="3" class="px-3 py-2 text-right font-bold text-gray-700">Tổng cộng:</td>
                     <td class="px-3 py-2 text-right font-bold text-gray-900">{{ number_format($pTong_Ps_No, 0, ',', '.') }}</td>
                     <td></td>
                 </tr>
