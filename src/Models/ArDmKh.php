@@ -24,7 +24,7 @@ class ArDmKh extends Model
         return $this->hasMany(GlCt::class, 'ma_kh', 'ma_kh');
     }
 
-    public function getSoduKh($params): Collection
+    public function getSoduKh($params): float
     {
         $params = [
             'pMa_Cty' => $params['pMa_Cty'] ?? static::CTY,
@@ -33,17 +33,17 @@ class ArDmKh extends Model
             'pNgay'   => $params['pNgay'] ?? now()->toDateString(),
         ];
 
-        return static::getGetSoDuKh($params);
+        return static::AsGetSoDuKh($params);
     }
 
     /**
      * Gọi stored procedure asGetSoDuKh để lấy số dư khách hàng.
      *
-     * @return array
+     * @return float
      */
-    public static function getGetSoDuKh(array $params): Collection
+    public static function AsGetSoDuKh(array $params): float
     {
-        return self::hydrate(parent::getGetSoDuKh($params)->toArray());
+        return parent::AsGetSoDuKh($params);
     }
 
     protected static function booted(): void

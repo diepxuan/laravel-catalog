@@ -8,32 +8,8 @@
                         class="block w-full rounded-md border-gray-300 py-0 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
                         list="ArDmKh-suggestions" wire:model="pMa_Kh" wire:change="updateKhachHang" />
                 </div>
-
-                @if (isset($pKh))
-                    <div class="mt-1 text-xs text-gray-600">
-                        <div><strong>Tên:</strong> {{ $pKh->ten_kh }}</div>
-                        <div><strong>Địa chỉ:</strong> {{ $pKh->dia_chi }}</div>
-                        <div><strong>Người GD:</strong> {{ $pKh->nguoi_gd }}</div>
-                    </div>
-                @endif
             </div>
         </div>
-
-        @if (isset($pSoDu) && $pSoDu !== null && is_numeric($pSoDu))
-        <div class="grid grid-cols-4 items-center gap-4 pt-1">
-            <label class="text-right">Số dư</label>
-            <div class="col-span-3">
-                <div class="text-sm font-semibold {{ $pSoDu >= 0 ? 'text-green-600' : 'text-red-600' }}">
-                    {{ number_format($pSoDu, 0, ',', '.') }}
-                </div>
-                <div class="text-xs text-gray-500">
-                    @if(!empty($pMa_Kh) && !empty($pNgay_Ct))
-                        Số dư đến ngày {{ \Carbon\Carbon::parse($pNgay_Ct)->format('d/m/Y') }}
-                    @endif
-                </div>
-            </div>
-        </div>
-        @endif
 
         <div class="grid grid-cols-4 items-center gap-4 pt-1">
             <label class="text-right">Diễn giải</label>
