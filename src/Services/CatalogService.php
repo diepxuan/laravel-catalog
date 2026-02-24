@@ -93,37 +93,21 @@ class CatalogService
         return $this->menus;
     }
 
-    public function menuTree(?int $parentId = null)
+    public function menuTree(?int $parentId = null): \Illuminate\Support\Collection
     {
         return $this->menus()
             ->where('parent_id', $parentId)
-            ->values()
-            ->map(function ($menu) {
-                $menu->children = $this->menuTree($menu->id);
-
-                return $menu;
-            })
-        ;
-
-        return NavigationMenu::tree()->toArray();
-
-        return $this->menus()
-            ->filter(
-                static fn ($menu) => $menu->parent_id === $parentId || $menu->parent_id === $menu->id
-            )
             ->sortBy('order')
             ->values()
-            ->map(function ($menu, $index) {
-                if ($menu->order !== $index) {
-                    $menu->order = $index;
-                    $menu->save();
-                }
-
-                $this->menus = $this->menus->map(static fn ($m) => $m->id === $menu->id ? $menu : $m);
-
-                $menu->setRelation('children', $this->menuTree($menu->id));
-
-                return $menu;
+            ->map(function ($menu) {
+                return (object) [
+                    'id'        => $menu->id,
+                    'name'      => $menu->name,
+                    'route'     => $menu->route,
+                    'order'     => $menu->order,
+                    'parent_id' => $menu->parent_id,
+                    'children'  => $this->menuTree($menu->id),
+                ];
             })
         ;
     }
