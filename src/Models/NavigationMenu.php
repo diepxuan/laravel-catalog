@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-01-11 16:03:06
+ * @lastupdate 2026-02-24 23:50:17
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -222,7 +222,8 @@ class NavigationMenu extends Model
      */
     protected function validateData(): void
     {
-        $data = $this->getAttributes();
+        $data              = $this->getAttributes();
+        $data['parent_id'] = null !== $data['parent_id'] && '' !== $data['parent_id'] ? (int) $data['parent_id'] : null;
 
         $rules = [
             'name'      => ['required', 'string', 'max:255'],
