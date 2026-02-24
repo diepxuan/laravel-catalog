@@ -1,4 +1,7 @@
 <nav x-data="{ open: false }" class="border-b border-gray-100 bg-white print:hidden">
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
     <div class="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
         <div class="flex w-full items-start justify-between md:h-16">
             <div class="flex-1 md:flex md:items-center">
@@ -17,7 +20,7 @@
                                 {{ __($menu->name) }}
                             </x-nav-link>
                             @if ($menu->children && count($menu->children) > 0)
-                                <div x-show="open" @click.outside="open = false" x-transition
+                                <div x-cloak x-show="open" @click.outside="open = false" x-transition
                                     class="mt-0 bg-white md:absolute md:left-0 md:top-full md:w-48 md:space-y-2 md:rounded-lg md:border md:shadow-lg md:group-hover:block">
                                     @foreach ($menu->children as $children)
                                         @if ($children->route == 'space')
