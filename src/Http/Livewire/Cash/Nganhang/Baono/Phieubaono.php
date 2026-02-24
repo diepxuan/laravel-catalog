@@ -114,8 +114,6 @@ class Phieubaono extends Component
             ->orderBy('tk')
             ->limit(100)
             ->get();
-        
-        \Debugbar::info('mount');
     }
     
     public function loadPhieu(): void
@@ -184,23 +182,6 @@ class Phieubaono extends Component
 
     public function updated($property): void
     {
-        \Debugbar::info('=== updated called ===');
-        \Debugbar::info('Property changed: ' . $property);
-        
-        // Log chi tiết cho pCts
-        if (str_contains($property, 'pCts')) {
-            $parts = explode('.', $property);
-            if (count($parts) >= 3) {
-                $index = $parts[1];
-                $field = $parts[2];
-                $value = $this->pCts[$index][$field] ?? null;
-                \Debugbar::info('Chi tiết thay đổi - dòng ' . $index . ', field "' . $field . '": ' . $value);
-                
-                // Log toàn bộ dòng để debug
-                \Debugbar::info('Toàn bộ dòng ' . $index . ':', $this->pCts[$index] ?? []);
-            }
-        }
-
         if ($property == 'pMa_Kh') {
             $this->updateKhachHang();
         }
@@ -229,7 +210,6 @@ class Phieubaono extends Component
             
             // Nếu thay đổi tài khoản trong chi tiết, cập nhật số dư
             if (str_contains($property, 'ma_tk')) {
-                \Debugbar::info('Tài khoản thay đổi, gọi updateSoDuChiTiet');
                 $this->updateSoDuChiTiet();
             }
         }
@@ -237,8 +217,6 @@ class Phieubaono extends Component
         if (in_array($property, ['pTong_Ps_No', 'pTy_Gia'])) {
             $this->calculateForeignCurrency();
         }
-        
-        \Debugbar::info('=== updated completed ===');
     }
 
     public function calculateTotal(): void
@@ -489,19 +467,17 @@ class Phieubaono extends Component
             // Lấy số dư khách hàng nếu có đủ thông tin
             $this->updateSoDu();
         }
-        \Debugbar::info('updateKhachHang');
     }
     
     public function updateSoDu(): void
     {
         if (empty($this->pMa_Kh) || empty($this->pNgay_Ct)) {
-            $this->pSoDu = null;
+            $this->pSoDu = 0;
             return;
         }
         
         try {
-            // Lấy số dư tổng (có thể lấy số dư của tài khoản đầu tiên hoặc tổng số dư)
-            // Hiện tại lấy số dư của tài khoản đầu tiên trong chi tiết
+            // Lấy số dư tổng - lấy số dư của tài khoản đầu tiên trong chi tiết
             $tk = null;
             foreach ($this->pCts as $row) {
                 if (!empty($row['ma_tk'])) {
@@ -511,13 +487,6 @@ class Phieubaono extends Component
             }
             
             if ($tk) {
-                \Debugbar::info('Gọi AsGetSoDuKh với params:', [
-                    'pMa_Cty' => \CatalogService::company()->id ?? '001',
-                    'pMa_kh' => $this->pMa_Kh,
-                    'pTk' => $tk,
-                    'pNgay' => $this->pNgay_Ct,
-                ]);
-                
                 $soDuResult = AsGetSoDuKh::call([
                     'pMa_Cty' => \CatalogService::company()->id ?? '001',
                     'pMa_kh' => $this->pMa_Kh,
@@ -525,74 +494,13 @@ class Phieubaono extends Component
                     'pNgay' => $this->pNgay_Ct,
                 ]);
                 
-                \Debugbar::info('Kết quả AsGetSoDuKh (raw):', $soDuResult);
-                \Debugbar::info('Kiểu dữ liệu kết quả: ' . gettype($soDuResult));
-                
-                if (is_object($soDuResult)) {
-                    \Debugbar::info('Class của kết quả: ' . get_class($soDuResult));
-                }
-                
-                // Kiểm tra kết quả trả về
-                // Stored procedure có thể trả về Collection, array hoặc giá trị đơn
-                if (is_numeric($soDuResult)) {
-                    $this->pSoDu = (float) $soDuResult;
-                    \Debugbar::info('Kết quả là số: ' . $this->pSoDu);
-                } elseif ($soDuResult instanceof \Illuminate\Support\Collection) {
-                    \Debugbar::info('Kết quả là Collection, count: ' . $soDuResult->count());
-                    \Debugbar::info('Collection content:', $soDuResult->toArray());
-                    
-                    if ($soDuResult->isNotEmpty()) {
-                        $firstItem = $soDuResult->first();
-                        \Debugbar::info('First item:', $firstItem);
-                        
-                        if (is_object($firstItem) && property_exists($firstItem, 'so_du')) {
-                            $this->pSoDu = (float) $firstItem->so_du;
-                            \Debugbar::info('Lấy so_du từ object: ' . $this->pSoDu);
-                        } elseif (is_array($firstItem) && isset($firstItem['so_du'])) {
-                            $this->pSoDu = (float) $firstItem['so_du'];
-                            \Debugbar::info('Lấy so_du từ array: ' . $this->pSoDu);
-                        } else {
-                            $this->pSoDu = null;
-                            \Debugbar::info('Không tìm thấy so_du trong first item');
-                        }
-                    } else {
-                        $this->pSoDu = null;
-                        \Debugbar::info('Collection rỗng');
-                    }
-                } elseif (is_array($soDuResult)) {
-                    \Debugbar::info('Kết quả là array, count: ' . count($soDuResult));
-                    \Debugbar::info('Array content:', $soDuResult);
-                    
-                    if (!empty($soDuResult)) {
-                        $firstItem = $soDuResult[0];
-                        \Debugbar::info('First item:', $firstItem);
-                        
-                        if (is_object($firstItem) && property_exists($firstItem, 'so_du')) {
-                            $this->pSoDu = (float) $firstItem->so_du;
-                            \Debugbar::info('Lấy so_du từ object: ' . $this->pSoDu);
-                        } elseif (is_array($firstItem) && isset($firstItem['so_du'])) {
-                            $this->pSoDu = (float) $firstItem['so_du'];
-                            \Debugbar::info('Lấy so_du từ array: ' . $this->pSoDu);
-                        } else {
-                            $this->pSoDu = null;
-                            \Debugbar::info('Không tìm thấy so_du trong first item');
-                        }
-                    } else {
-                        $this->pSoDu = null;
-                        \Debugbar::info('Array rỗng');
-                    }
-                } else {
-                    $this->pSoDu = null;
-                    \Debugbar::info('Kết quả không phải số, Collection hay array');
-                }
-                
-                \Debugbar::info('Số dư tổng cuối cùng: ' . $this->pSoDu);
+                // SP class đã được sửa để luôn trả về float
+                $this->pSoDu = is_numeric($soDuResult) ? (float) $soDuResult : 0;
             } else {
-                $this->pSoDu = null;
-                \Debugbar::info('Không có tài khoản để lấy số dư');
+                $this->pSoDu = 0;
             }
         } catch (\Exception $e) {
-            $this->pSoDu = null;
+            $this->pSoDu = 0;
             \Debugbar::error('Lỗi khi lấy số dư: ' . $e->getMessage());
         }
         
@@ -602,7 +510,6 @@ class Phieubaono extends Component
     
     public function updateSoDuChiTiet(): void
     {
-        \Debugbar::info('updateSoDuChiTiet called');
         // Cập nhật số dư khi thay đổi tài khoản trong chi tiết
         $this->updateSoDu();
         $this->updateSoDuTungDong();
@@ -610,23 +517,14 @@ class Phieubaono extends Component
     
     public function updateSoDuTungDong(): void
     {
-        \Debugbar::info('updateSoDuTungDong called');
         // Tính số dư cho từng dòng chi tiết
         $this->pSoDuCts = collect();
         
         foreach ($this->pCts as $index => $row) {
-            $soDuValue = null;
+            $soDuValue = 0;
             
             if (!empty($row['ma_tk']) && !empty($this->pMa_Kh) && !empty($this->pNgay_Ct)) {
                 try {
-                    \Debugbar::info('Lấy số dư cho tài khoản dòng ' . $index . ': ' . $row['ma_tk']);
-                    \Debugbar::info('Params cho dòng ' . $index . ':', [
-                        'pMa_Cty' => \CatalogService::company()->id ?? '001',
-                        'pMa_kh' => $this->pMa_Kh,
-                        'pTk' => $row['ma_tk'],
-                        'pNgay' => $this->pNgay_Ct,
-                    ]);
-                    
                     $soDuResult = AsGetSoDuKh::call([
                         'pMa_Cty' => \CatalogService::company()->id ?? '001',
                         'pMa_kh' => $this->pMa_Kh,
@@ -634,59 +532,10 @@ class Phieubaono extends Component
                         'pNgay' => $this->pNgay_Ct,
                     ]);
                     
-                    \Debugbar::info('Kết quả AsGetSoDuKh cho dòng ' . $index . ' (raw):', $soDuResult);
-                    \Debugbar::info('Kiểu dữ liệu kết quả dòng ' . $index . ': ' . gettype($soDuResult));
-                    
-                    // Xử lý kết quả trả về
-                    if (is_numeric($soDuResult)) {
-                        $soDuValue = (float) $soDuResult;
-                        \Debugbar::info('Kết quả dòng ' . $index . ' là số: ' . $soDuValue);
-                    } elseif ($soDuResult instanceof \Illuminate\Support\Collection) {
-                        \Debugbar::info('Kết quả dòng ' . $index . ' là Collection, count: ' . $soDuResult->count());
-                        
-                        if ($soDuResult->isNotEmpty()) {
-                            $firstItem = $soDuResult->first();
-                            if (is_object($firstItem) && property_exists($firstItem, 'so_du')) {
-                                $soDuValue = (float) $firstItem->so_du;
-                                \Debugbar::info('Lấy so_du từ object dòng ' . $index . ': ' . $soDuValue);
-                            } elseif (is_array($firstItem) && isset($firstItem['so_du'])) {
-                                $soDuValue = (float) $firstItem['so_du'];
-                                \Debugbar::info('Lấy so_du từ array dòng ' . $index . ': ' . $soDuValue);
-                            } else {
-                                $soDuValue = null;
-                                \Debugbar::info('Không tìm thấy so_du trong first item dòng ' . $index);
-                            }
-                        } else {
-                            $soDuValue = null;
-                            \Debugbar::info('Collection rỗng dòng ' . $index);
-                        }
-                    } elseif (is_array($soDuResult)) {
-                        \Debugbar::info('Kết quả dòng ' . $index . ' là array, count: ' . count($soDuResult));
-                        
-                        if (!empty($soDuResult)) {
-                            $firstItem = $soDuResult[0];
-                            if (is_object($firstItem) && property_exists($firstItem, 'so_du')) {
-                                $soDuValue = (float) $firstItem->so_du;
-                                \Debugbar::info('Lấy so_du từ object dòng ' . $index . ': ' . $soDuValue);
-                            } elseif (is_array($firstItem) && isset($firstItem['so_du'])) {
-                                $soDuValue = (float) $firstItem['so_du'];
-                                \Debugbar::info('Lấy so_du từ array dòng ' . $index . ': ' . $soDuValue);
-                            } else {
-                                $soDuValue = null;
-                                \Debugbar::info('Không tìm thấy so_du trong first item dòng ' . $index);
-                            }
-                        } else {
-                            $soDuValue = null;
-                            \Debugbar::info('Array rỗng dòng ' . $index);
-                        }
-                    } else {
-                        $soDuValue = null;
-                        \Debugbar::info('Kết quả dòng ' . $index . ' không phải số, Collection hay array');
-                    }
-                    
-                    \Debugbar::info('Số dư nhận được dòng ' . $index . ': ' . $soDuValue);
+                    // SP class đã được sửa để luôn trả về float
+                    $soDuValue = is_numeric($soDuResult) ? (float) $soDuResult : 0;
                 } catch (\Exception $e) {
-                    $soDuValue = null;
+                    $soDuValue = 0;
                     \Debugbar::error('Lỗi khi lấy số dư dòng ' . $index . ': ' . $e->getMessage());
                 }
             }
@@ -742,8 +591,6 @@ class Phieubaono extends Component
 
     public function render()
     {
-        \Debugbar::info('render');
-
         // diepxuan/laravel-catalog/resources/views/cash/nganhang/baono/phieubaono.blade.php
         return view('catalog::cash.nganhang.baono.phieubaono', [
             'arDmKhs' => ArDmKh::all(),

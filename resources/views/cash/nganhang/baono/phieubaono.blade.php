@@ -11,6 +11,19 @@
             </div>
         </div>
 
+        @if (!empty($pMa_Kh) && !empty($pNgay_Ct))
+        <div class="grid grid-cols-4 items-center gap-4 pt-1">
+            <label class="text-right">Số dư</label>
+            <div class="col-span-3">
+                <div class="text-sm font-semibold {{ $pSoDu >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                    {{ number_format($pSoDu, 0, ',', '.') }}
+                </div>
+                <div class="text-xs text-gray-500">
+                    Số dư đến ngày {{ \Carbon\Carbon::parse($pNgay_Ct)->format('d/m/Y') }}
+                </div>
+            </div>
+        </div>
+
         <div class="grid grid-cols-4 items-center gap-4 pt-1">
             <label class="text-right">Diễn giải</label>
             <input class="col-span-3 rounded-md border-gray-300 py-0 text-sm shadow-sm" wire:model="pDien_Giai" />
@@ -87,15 +100,11 @@
                     </td>
                     <td class="px-3 py-2 text-right text-sm">
                         @php
-                            $soDuDong = $pSoDuCts[$index] ?? null;
+                            $soDuDong = $pSoDuCts[$index] ?? 0;
                         @endphp
-                        @if ($soDuDong !== null && is_numeric($soDuDong))
-                            <span class="{{ $soDuDong >= 0 ? 'text-green-600' : 'text-red-600' }}">
-                                {{ number_format($soDuDong, 0, ',', '.') }}
-                            </span>
-                        @else
-                            <span class="text-gray-400">-</span>
-                        @endif
+                        <span class="{{ $soDuDong >= 0 ? 'text-green-600' : 'text-red-600' }}">
+                            {{ number_format($soDuDong, 0, ',', '.') }}
+                        </span>
                     </td>
                     <td class="px-3 py-2">
                         <input type="number" class="block w-full rounded-md border-gray-300 py-1 text-sm shadow-sm text-right focus:border-indigo-500 focus:ring-indigo-500" wire:model.lazy="pCts.{{ $index }}.ps_no">
