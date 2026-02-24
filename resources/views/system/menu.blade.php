@@ -360,7 +360,8 @@
                         @endif
 
                         <!-- Drop Zone Inside (children area) -->
-                        @if($isExpanded && !$isDragging)
+                        {{-- @if($isExpanded && !$isDragging) --}}
+                        @if($isExpanded && $this->draggingNodeId !== null)
                         <div class="ml-{{ $node->level * 6 + 8 }} my-1 rounded-lg border-2 border-dashed border-blue-300 bg-blue-50 p-2 transition-all duration-200"
                              @dragover="if ($wire.draggingNodeId && $wire.draggingNodeId !== {{ $nodeId }}) { 
                                  $wire.setDropTarget({{ $nodeId }}, 'inside'); 
@@ -369,7 +370,8 @@
                              @dragleave="if ($wire.dropTargetId === {{ $nodeId }} && $wire.dropPosition === 'inside') { 
                                  $wire.clearDropTarget(); 
                              }"
-                             :class="{ 'opacity-100': $wire.dropTargetId === {{ $nodeId }} && $wire.dropPosition === 'inside', 'opacity-0': !($wire.dropTargetId === {{ $nodeId }} && $wire.dropPosition === 'inside') }">
+                             {{-- :class="{ 'opacity-100': $wire.dropTargetId === {{ $nodeId }} && $wire.dropPosition === 'inside', 'opacity-0': !($wire.dropTargetId === {{ $nodeId }} && $wire.dropPosition === 'inside') }" --}}
+                             >
                             <div class="text-center text-sm text-blue-600">
                                 <svg class="mx-auto mb-1 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />

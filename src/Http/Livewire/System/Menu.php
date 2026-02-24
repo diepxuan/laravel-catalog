@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-02-24 23:37:38
+ * @lastupdate 2026-02-25 00:40:30
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\System;
@@ -55,7 +55,7 @@ class Menu extends Component
     {
         $this->refreshTree();
         // Expand all nodes by default
-        $this->expandedNodes = $this->nodes->pluck('id')->toArray();
+        // $this->expandedNodes = $this->nodes->pluck('id')->toArray();
         $this->updateVisibleNodes();
     }
 
@@ -246,38 +246,7 @@ class Menu extends Component
         $this->nodeSaving[$menuId] = true;
 
         try {
-            if (null === $menu->parent_id) {
-                // Root menu reordering
-                $rootMenus    = $this->nodes->where('parent_id', null)->sortBy('order')->values();
-                $currentIndex = $rootMenus->search(static fn ($item) => $item->id === $menuId);
-
-                if (false === $currentIndex) {
-                    return;
-                }
-
-                if ('up' === $direction && $currentIndex > 0) {
-                    $targetIndex = $currentIndex - 1;
-                } elseif ('down' === $direction && $currentIndex < $rootMenus->count() - 1) {
-                    $targetIndex = $currentIndex + 1;
-                } else {
-                    return;
-                }
-
-                // Swap orders
-                $currentMenu = $rootMenus[$currentIndex];
-                $targetMenu  = $rootMenus[$targetIndex];
-
-                $tempOrder          = $currentMenu->order;
-                $currentMenu->order = $targetMenu->order;
-                $targetMenu->order  = $tempOrder;
-
-                // Save both menus
-                $this->treeBuilder->updateRootMenuOrder($currentMenu->id, $currentMenu->order);
-                $this->treeBuilder->updateRootMenuOrder($targetMenu->id, $targetMenu->order);
-            } else {
-                // Child menu reordering
-                $this->treeBuilder->reorderChildMenu($menuId, $direction);
-            }
+            $this->treeBuilder->reorderMenu($menuId, $direction);
 
             $this->refreshTree();
             $this->dispatch('refresh-menu');
