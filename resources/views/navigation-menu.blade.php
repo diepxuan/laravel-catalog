@@ -1,6 +1,8 @@
 <nav x-data="{ open: false }" class="border-b border-gray-100 bg-white print:hidden">
     <style>
-        [x-cloak] { display: none !important; }
+        [x-cloak] {
+            display: none !important;
+        }
     </style>
     <div class="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
         <div class="flex w-full items-start justify-between md:h-16">
@@ -44,127 +46,44 @@
                     @endforeach
                 </div>
 
-                <div class="hidden min-h-16 md:ms-6 md:flex md:items-center"
-                    :class="{ 'block': open, 'hidden': !open }">
-                    <!-- Teams Dropdown -->
-                    @if (Laravel\Jetstream\Jetstream::hasTeamFeatures())
-                        <div class="relative md:ms-3">
-                            <x-dropdown align="right" width="60">
-                                <x-slot name="trigger">
-                                    <span class="inline-flex rounded-md">
-                                        <button type="button"
-                                            class="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:bg-gray-50 focus:outline-none active:bg-gray-50">
-                                            {{ Auth::user()->currentTeam->name }}
-
-                                            <svg class="-me-0.5 ms-2 size-4" xmlns="http://www.w3.org/2000/svg"
-                                                fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                                stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M8.25 15L12 18.75 15.75 15m-7.5-6L12 5.25 15.75 9" />
-                                            </svg>
-                                        </button>
-                                    </span>
-                                </x-slot>
-
-                                <x-slot name="content">
-                                    <div class="w-60">
-                                        <!-- Team Management -->
-                                        <div class="block px-4 py-2 text-xs text-gray-400">
-                                            {{ __('Manage Team') }}
-                                        </div>
-
-                                        <!-- Team Settings -->
-                                        <x-dropdown-link
-                                            href="{{ route('teams.show', Auth::user()->currentTeam->id) }}">
-                                            {{ __('Team Settings') }}
-                                        </x-dropdown-link>
-
-                                        @can('create', Laravel\Jetstream\Jetstream::newTeamModel())
-                                            <x-dropdown-link href="{{ route('teams.create') }}">
-                                                {{ __('Create New Team') }}
-                                            </x-dropdown-link>
-                                        @endcan
-
-                                        <!-- Team Switcher -->
-                                        @if (Auth::user()->allTeams()->count() > 1)
-                                            <div class="border-t border-gray-200"></div>
-
-                                            <div class="block px-4 py-2 text-xs text-gray-400">
-                                                {{ __('Switch Teams') }}
-                                            </div>
-
-                                            @foreach (Auth::user()->allTeams() as $team)
-                                                <x-switchable-team :team="$team" />
-                                            @endforeach
-                                        @endif
-                                    </div>
-                                </x-slot>
-                            </x-dropdown>
-                        </div>
-                    @endif
-
+                <div class="hidden min-h-16 md:ms-6 md:flex" :class="{ 'block': open, 'hidden': !open }">
                     <!-- Settings Dropdown -->
-                    <div class="relative md:ms-3">
-                        <x-dropdown align="right" width="48">
-                            <x-slot name="trigger">
-                                @if (Laravel\Jetstream\Jetstream::managesProfilePhotos())
-                                    <button
-                                        class="flex rounded-full border-2 border-transparent text-sm transition focus:border-gray-300 focus:outline-none">
-                                        <img class="size-8 rounded-full object-cover"
-                                            src="{{ Auth::user()->profile_photo_url }}"
-                                            alt="{{ Auth::user()->name }}" />
-                                    </button>
-                                @else
-                                    <span class="inline-flex rounded-md">
-                                        <button type="button"
-                                            class="inline-flex items-center rounded-md border-0 border-b-2 border-transparent bg-white px-1 pt-1 text-sm font-medium leading-5 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none">
-                                            {{ Auth::user()->name }}
+                    <div class="group relative md:flex" x-data="{ open: false }">
+                        <x-nav-link href="#" class="w-full shrink-0 whitespace-nowrap" @click="open = !open">
+                            {{ Auth::user()->name }}
+                        </x-nav-link>
+                        <div x-cloak x-show="open" @click.outside="open = false" x-transition
+                            class="mt-0 bg-white md:absolute md:right-0 md:top-full md:w-48 md:space-y-2 md:rounded-lg md:border md:shadow-lg md:group-hover:block">
+                            <div class="block ps-4 pt-2 text-xs text-gray-400 md:px-2">
+                                {{ __('Manage Account') }}
+                            </div>
+                            <x-nav-link :href="route('profile.show')" :active="$this->isActive('profile.show')"
+                                class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-2">
+                                {{ __('Profile') }}
+                            </x-nav-link>
+                            @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
+                                <x-nav-link href="{{ route('api-tokens.index') }}" :active="$this->isActive('api-tokens.index')"
+                                    class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-2">
+                                    {{ __('API Tokens') }}
+                                </x-nav-link>
+                            @endif
+                            <div class="border-t border-gray-200"></div>
+                            <!-- Authentication -->
+                            <form method="POST" action="{{ route('logout') }}" x-data>
+                                @csrf
 
-                                            {{-- <svg class="-me-0.5 ms-2 size-4" xmlns="http://www.w3.org/2000/svg"
-                                                fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                                stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                    d="M19.5 8.25l-7.5 7.5-7.5-7.5" />
-                                            </svg> --}}
-                                        </button>
-                                    </span>
-                                @endif
-                            </x-slot>
-
-                            <x-slot name="content">
-                                <!-- Account Management -->
-                                <div class="block px-4 py-2 text-xs text-gray-400">
-                                    {{ __('Manage Account') }}
-                                </div>
-
-                                <x-dropdown-link href="{{ route('profile.show') }}">
-                                    {{ __('Profile') }}
-                                </x-dropdown-link>
-
-                                @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
-                                    <x-dropdown-link href="{{ route('api-tokens.index') }}">
-                                        {{ __('API Tokens') }}
-                                    </x-dropdown-link>
-                                @endif
-
-                                <div class="border-t border-gray-200"></div>
-
-                                <!-- Authentication -->
-                                <form method="POST" action="{{ route('logout') }}" x-data>
-                                    @csrf
-
-                                    <x-dropdown-link href="{{ route('logout') }}" @click.prevent="$root.submit();">
-                                        {{ __('Log Out') }}
-                                    </x-dropdown-link>
-                                </form>
-                            </x-slot>
-                        </x-dropdown>
+                                <x-nav-link href="{{ route('logout') }}" @click.prevent="$root.submit();"
+                                    class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-2">
+                                    {{ __('Log Out') }}
+                                </x-nav-link>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Hamburger -->
-            <div class="-me-2 flex min-h-16 w-auto shrink-0 items-center md:hidden">
+            <div class="flex h-16 items-center md:hidden">
                 <button @click="open = ! open"
                     class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none">
                     <svg class="size-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
