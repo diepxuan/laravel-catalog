@@ -8,23 +8,13 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-02-25 17:33:38
+ * @lastupdate 2026-02-26 15:19:32
  */
 
 use Diepxuan\Catalog\Http\Controllers\SellController;
 use Diepxuan\Catalog\Http\Controllers\SystemController;
 use Diepxuan\Catalog\Http\Controllers\SystemUserController;
 use Diepxuan\Catalog\Http\Controllers\SystemWebsiteController;
-use Diepxuan\Catalog\Http\Livewire\System\Balance\Index as BalanceIndex;
-use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountOpening;
-use Diepxuan\Catalog\Http\Livewire\System\Balance\Transfer;
-use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountsReceivable;
-use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountsPayable;
-use Diepxuan\Catalog\Http\Livewire\System\Balance\InventoryOpening;
-use Diepxuan\Catalog\Http\Livewire\System\Balance\InventoryOpeningNtxt;
-use Diepxuan\Catalog\Http\Livewire\System\Balance\InventoryTransfer;
-use Diepxuan\Catalog\Http\Livewire\System\Balance\WorkInProgress;
-use Diepxuan\Catalog\Http\Livewire\System\Balance\CumulativeTransactions;
 use Diepxuan\Catalog\Http\Livewire\Banhang\Hoadonbanhang;
 use Diepxuan\Catalog\Http\Livewire\Banhang\Khachhang;
 use Diepxuan\Catalog\Http\Livewire\Cash\Baocao\Chi;
@@ -41,6 +31,16 @@ use Diepxuan\Catalog\Http\Livewire\In\Dmkho;
 use Diepxuan\Catalog\Http\Livewire\In\Dmnhvt;
 use Diepxuan\Catalog\Http\Livewire\In\Dmvt;
 use Diepxuan\Catalog\Http\Livewire\Muahang\Cungcap;
+use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountOpening;
+use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountsPayable;
+use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountsReceivable;
+use Diepxuan\Catalog\Http\Livewire\System\Balance\CumulativeTransactions;
+use Diepxuan\Catalog\Http\Livewire\System\Balance\Index as BalanceIndex;
+use Diepxuan\Catalog\Http\Livewire\System\Balance\InventoryOpening;
+use Diepxuan\Catalog\Http\Livewire\System\Balance\InventoryOpeningNtxt;
+use Diepxuan\Catalog\Http\Livewire\System\Balance\InventoryTransfer;
+use Diepxuan\Catalog\Http\Livewire\System\Balance\Transfer;
+use Diepxuan\Catalog\Http\Livewire\System\Balance\WorkInProgress;
 use Diepxuan\Catalog\Http\Livewire\System\Dashboard;
 use Diepxuan\Catalog\Http\Livewire\System\Menu;
 use Illuminate\Support\Facades\Route;
@@ -87,7 +87,7 @@ Route::middleware(['clearcache', 'auth'])->group(static function (): void {
     Route::get('hethong/menu', Menu::class)->name('system.menu');
 
     // Balance Management Routes - Livewire Components
-    Route::prefix('hethong/balance')->name('system.balance.')->group(function () {
+    Route::prefix('hethong/balance')->name('system.balance.')->group(static function (): void {
         Route::get('/', BalanceIndex::class)->name('index');
         Route::get('/account-opening', AccountOpening::class)->name('account-opening');
         Route::get('/transfer', Transfer::class)->name('transfer');
@@ -104,3 +104,13 @@ Route::middleware(['clearcache', 'auth'])->group(static function (): void {
     Route::get('/', static fn () => view('catalog::dashboard'))->name('home');
     Route::get('/dashboard', static fn () => view('catalog::dashboard'))->name('dashboard');
 });
+
+Route::get('/check-proxy', static fn () => [
+    'app_url'           => config('app.url'),
+    'url()'             => url('/'),
+    'secure_url()'      => secure_url('/'),
+    'request_scheme'    => request()->getScheme(),
+    'request_secure'    => request()->isSecure(),
+    'x_forwarded_proto' => request()->header('x-forwarded-proto'),
+    'server_https'      => $_SERVER['HTTPS'] ?? null,
+]);
