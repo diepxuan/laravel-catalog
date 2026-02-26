@@ -1,3 +1,11 @@
+<x-catalog::head-title>{{ __('Hệ Thống') }}</x-catalog::head-title>
+<x-slot name="header">
+    <h2 class="text-xl font-semibold leading-tight text-gray-800">
+        {{ __('Hệ Thống') }}
+    </h2>
+    <p>{{ __('Khoá Số Liệu') }}</p>
+</x-slot>
+
 <div wire:init="loadData" class="mx-4 my-2">
 
     <h1 class="mt-1 text-2xl font-medium text-gray-900">

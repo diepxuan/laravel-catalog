@@ -8,13 +8,23 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-09-26 21:44:06
+ * @lastupdate 2026-02-25 17:33:38
  */
 
 use Diepxuan\Catalog\Http\Controllers\SellController;
 use Diepxuan\Catalog\Http\Controllers\SystemController;
 use Diepxuan\Catalog\Http\Controllers\SystemUserController;
 use Diepxuan\Catalog\Http\Controllers\SystemWebsiteController;
+use Diepxuan\Catalog\Http\Livewire\System\Balance\Index as BalanceIndex;
+use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountOpening;
+use Diepxuan\Catalog\Http\Livewire\System\Balance\Transfer;
+use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountsReceivable;
+use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountsPayable;
+use Diepxuan\Catalog\Http\Livewire\System\Balance\InventoryOpening;
+use Diepxuan\Catalog\Http\Livewire\System\Balance\InventoryOpeningNtxt;
+use Diepxuan\Catalog\Http\Livewire\System\Balance\InventoryTransfer;
+use Diepxuan\Catalog\Http\Livewire\System\Balance\WorkInProgress;
+use Diepxuan\Catalog\Http\Livewire\System\Balance\CumulativeTransactions;
 use Diepxuan\Catalog\Http\Livewire\Banhang\Hoadonbanhang;
 use Diepxuan\Catalog\Http\Livewire\Banhang\Khachhang;
 use Diepxuan\Catalog\Http\Livewire\Cash\Baocao\Chi;
@@ -31,6 +41,7 @@ use Diepxuan\Catalog\Http\Livewire\In\Dmkho;
 use Diepxuan\Catalog\Http\Livewire\In\Dmnhvt;
 use Diepxuan\Catalog\Http\Livewire\In\Dmvt;
 use Diepxuan\Catalog\Http\Livewire\Muahang\Cungcap;
+use Diepxuan\Catalog\Http\Livewire\System\Dashboard;
 use Diepxuan\Catalog\Http\Livewire\System\Menu;
 use Illuminate\Support\Facades\Route;
 
@@ -69,10 +80,25 @@ Route::middleware(['clearcache', 'auth'])->group(static function (): void {
     Route::get('khohang/khohang', Dmkho::class)->name('in.khohang');
     Route::get('khohang/tonkho', Tonkho::class)->name('in.tonkho');
 
-    Route::resource('hethong/dashboard', SystemController::class)->names('system');
+    Route::get('hethong/dashboard', Dashboard::class)->name('system.dashboard');
+    // Route::resource('hethong/dashboard', SystemController::class)->names('system.dashboard');
     Route::resource('hethong/user', SystemUserController::class)->names('system.user');
     Route::resource('hethong/website', SystemWebsiteController::class)->names('system.website');
     Route::get('hethong/menu', Menu::class)->name('system.menu');
+
+    // Balance Management Routes - Livewire Components
+    Route::prefix('hethong/balance')->name('system.balance.')->group(function () {
+        Route::get('/', BalanceIndex::class)->name('index');
+        Route::get('/account-opening', AccountOpening::class)->name('account-opening');
+        Route::get('/transfer', Transfer::class)->name('transfer');
+        Route::get('/accounts-receivable', AccountsReceivable::class)->name('accounts-receivable');
+        Route::get('/accounts-payable', AccountsPayable::class)->name('accounts-payable');
+        Route::get('/inventory-opening', InventoryOpening::class)->name('inventory-opening');
+        Route::get('/inventory-opening-ntxt', InventoryOpeningNtxt::class)->name('inventory-opening-ntxt');
+        Route::get('/inventory-transfer', InventoryTransfer::class)->name('inventory-transfer');
+        Route::get('/work-in-progress', WorkInProgress::class)->name('work-in-progress');
+        Route::get('/cumulative-transactions', CumulativeTransactions::class)->name('cumulative-transactions');
+    });
 
     // Route::get('/', [SystemController::class, 'index']);
     Route::get('/', static fn () => view('catalog::dashboard'))->name('home');
