@@ -7,7 +7,6 @@
 </x-slot>
 
 <div class="mx-4 my-2">
-    <!-- Message Display -->
     @if ($message)
         <div
             class="{{ $messageType === 'success' ? 'bg-green-50' : ($messageType === 'error' ? 'bg-red-50' : 'bg-yellow-50') }} mt-4 rounded-md p-4">
@@ -68,158 +67,70 @@
                     Chuyển số dư tài khoản
                 </h3>
                 <p class="mt-1 max-w-2xl text-sm text-gray-500">
-                    Chuyển số dư từ năm hiện tại sang năm mới sử dụng stored procedure asGLChuyenSdTk.
+                    Thực hiện chuyển số dư cuối năm sang năm kế tiếp.
                 </p>
             </div>
             <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
-                <form wire:submit.prevent="executeTransfer">
-                    <div class="sm:divide-y sm:divide-gray-200">
-                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
-                            <div class="text-sm font-medium text-gray-500">
-                                Năm hiện tại
-                            </div>
-                            <div class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                                <input type="text" wire:model="currentYear"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                    readonly>
-                            </div>
+                <div class="sm:divide-y sm:divide-gray-200">
+                    <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
+                        <div class="text-sm font-medium text-gray-500">
+                            Năm hiện tại
                         </div>
-                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
-                            <div class="text-sm font-medium text-gray-500">
-                                Năm mới
-                            </div>
-                            <div class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                                <input type="text" wire:model="newYear"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                @error('newYear')
-                                    <span class="text-xs text-red-500">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
-                            <div class="text-sm font-medium text-gray-500">
-                                Ngày chuyển (cuối năm)
-                            </div>
-                            <div class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                                <input type="date" wire:model="transferDate"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
-                                @error('transferDate')
-                                    <span class="text-xs text-red-500">{{ $message }}</span>
-                                @enderror
-                            </div>
-                        </div>
-                        <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 sm:py-5">
-                            <div class="text-sm font-medium text-gray-500">
-                                Ghi chú
-                            </div>
-                            <div class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                                <textarea rows="3" wire:model="note"
-                                    class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                                    placeholder="Ghi chú về việc chuyển số dư..."></textarea>
-                                @error('note')
-                                    <span class="text-xs text-red-500">{{ $message }}</span>
-                                @enderror
+                        <div class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+                            <select wire:model.live="currentYear"
+                                class="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
+                                @for ($y = $minYear; $y <= $maxYear; $y++)
+                                    <option value="{{ $y }}">{{ $y }}</option>
+                                @endfor
+                            </select>
+                            @error('currentYear')
+                                <span class="text-xs text-red-500">{{ $message }}</span>
+                            @enderror
+
+                            <div class="text-xs text-gray-500">
+                                <p>
+                                    Ngày chuyển (cuối năm) {{ \Carbon\Carbon::parse($transferDate)->format('d/m/Y') }}
+                                </p>
+                                <p>Năm mới: {{ $newYear }}</p>
                             </div>
                         </div>
                     </div>
-                    <div class="bg-gray-50 px-4 py-3 text-right sm:px-6">
-                        <button type="submit"
-                            class="inline-flex justify-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                            wire:loading.attr="disabled" wire:target="executeTransfer">
-                            <span wire:loading.remove wire:target="executeTransfer">
-                                Thực hiện chuyển số dư
-                            </span>
-                            <span wire:loading wire:target="executeTransfer">
-                                <svg class="-ml-1 mr-3 h-5 w-5 animate-spin text-white"
-                                    xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10"
-                                        stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor"
-                                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                    </path>
-                                </svg>
-                                Đang xử lý...
-                            </span>
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-
-        <!-- Preview -->
-        <div class="overflow-hidden bg-white shadow sm:rounded-lg">
-            <div class="px-4 py-5 sm:px-6">
-                <h3 class="text-lg font-medium leading-6 text-gray-900">
-                    Xem trước số dư sẽ được chuyển
-                </h3>
-                <p class="mt-1 max-w-2xl text-sm text-gray-500">
-                    Danh sách số dư từ năm {{ $currentYear }} sẽ được chuyển sang năm {{ $newYear }}
-                </p>
-            </div>
-            <div class="border-t border-gray-200">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                Tài khoản
-                            </th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                Số dư {{ $currentYear }}
-                            </th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                Số dư {{ $newYear }}
-                            </th>
-                            <th scope="col"
-                                class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                                Trạng thái
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200 bg-white">
-                        @foreach ($previewData as $item)
-                            <tr>
-                                <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
-                                    {{ $item['account'] }}
-                                </td>
-                                <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                    {{ $item['current_balance'] }}
-                                </td>
-                                <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                    {{ $item['new_balance'] }}
-                                </td>
-                                <td class="whitespace-nowrap px-6 py-4">
-                                    <span
-                                        class="inline-flex rounded-full bg-green-100 px-2 text-xs font-semibold leading-5 text-green-800">
-                                        {{ $item['status'] }}
-                                    </span>
-                                </td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Stored Procedure Information -->
-        <div class="border-l-4 border-blue-400 bg-blue-50 p-4">
-            <div class="flex">
-                <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd"
-                            d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                            clip-rule="evenodd" />
-                    </svg>
                 </div>
-                <div class="ml-3">
-                    <p class="text-sm text-blue-700">
-                        <strong>Thông tin stored procedure:</strong> Trang này sử dụng stored procedure
-                        <code>asGLChuyenSdTk</code> để chuyển số dư.
-                        Procedure này thực hiện chuyển số dư cuối kỳ của các tài khoản công nợ (khách hàng) và tài khoản
-                        tổng hợp sang năm tài chính tiếp theo.
-                    </p>
+                <div class="bg-gray-50 px-4 py-3 text-right sm:px-6">
+                    <button type="submit" wire:click="executeTransfer()"
+                        class="inline-flex justify-center rounded-md border border-transparent bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        wire:loading.attr="disabled" wire:target="executeTransfer">
+                        <span wire:loading.remove wire:target="executeTransfer">Thực hiện chuyển số dư</span>
+                        <span wire:loading wire:target="executeTransfer">
+                            <svg class="-ml-1 mr-3 h-5 w-5 animate-spin text-white" xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                    stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                            Đang xử lý...
+                        </span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="border-l-4 border-blue-400 bg-blue-50 p-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-blue-700"><strong>Thông tin stored procedure:</strong> Trang này sử dụng
+                            stored procedure <code>asGLChuyenSdTk</code> để chuyển số dư. Procedure này thực hiện chuyển
+                            số dư cuối kỳ của các tài khoản công nợ (khách hàng) và tài khoản tổng hợp sang năm tài
+                            chính tiếp theo.</p>
+                    </div>
                 </div>
             </div>
         </div>
