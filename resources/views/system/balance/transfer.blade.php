@@ -89,7 +89,7 @@
 
                             <div class="text-xs text-gray-500">
                                 <p>
-                                    Ngày chuyển (cuối năm) {{ \Carbon\Carbon::parse($transferDate)->format('d/m/Y') }}
+                                    Ngày chuyển (cuối năm) {{ $transferDate }}
                                 </p>
                                 <p>Năm mới: {{ $newYear }}</p>
                             </div>

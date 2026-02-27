@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-02-27 21:55:53
+ * @lastupdate 2026-02-27 22:00:28
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\System\Balance;
@@ -80,8 +80,8 @@ class Transfer extends Component
         }
 
         // Force transferDate to be 31/12/<currentYear>
-        $this->transferDate = $this->currentYear . '-12-31';
-        $this->newYear      = $this->currentYear + 1;
+        $this->newYear      = now()->setYear((int) $this->currentYear)->addYear()->year;
+        $this->transferDate = now()->setYear((int) $this->currentYear)->endOfYear();
 
         $this->validate();
 
@@ -93,11 +93,11 @@ class Transfer extends Component
             // Prepare parameters for stored procedure
             $params = [
                 'pMa_cty'   => catalog()->company()->id, // Default company code
-                'pNgay_cnt' => $this->transferDate . ' 23:59:59', // End of year datetime
+                'pNgay_cnt' => $this->transferDate, // End of year datetime
             ];
 
             // Call the stored procedure
-            // $result = AsGLChuyenSdTk::call($params);
+            $result = AsGLChuyenSdTk::call($params);
 
             // Handling result left commented to avoid accidental execution in dev
         } catch (\Exception $e) {
