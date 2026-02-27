@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-02-27 15:52:50
+ * @lastupdate 2026-02-27 21:55:53
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\System\Balance;
@@ -40,7 +40,7 @@ class Transfer extends Component
     {
         $this->maxYear     = now()->year;
         $this->minYear     = now()->subYears(4)->year;
-        $this->currentYear = now()->year;
+        $this->currentYear = now()->subYears(1)->year;
 
         // Load preview data
         $this->resultRender();
@@ -95,8 +95,6 @@ class Transfer extends Component
                 'pMa_cty'   => catalog()->company()->id, // Default company code
                 'pNgay_cnt' => $this->transferDate . ' 23:59:59', // End of year datetime
             ];
-
-            \Debugbar::log($params);
 
             // Call the stored procedure
             // $result = AsGLChuyenSdTk::call($params);
