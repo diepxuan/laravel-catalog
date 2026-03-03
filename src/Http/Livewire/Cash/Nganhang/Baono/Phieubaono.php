@@ -35,14 +35,14 @@ class Phieubaono extends Component
     public $pMa_Kh;
     public $pKh;
     public $pDien_Giai;
-    public $pTk_Co = 11_217;
+    public $pTk_Co = self::DEFAULT_TK_CO;
     public $pNgay_Ct;
     public $pSo_Ct;
     public $pNgay_Lap;
     public $pDia_Chi    = '';
     public $pNguoi_Gd   = '';
-    public $pMa_Nt      = 'VND';
-    public $pTy_Gia     = 1;
+    public $pMa_Nt      = self::DEFAULT_MA_NT;
+    public $pTy_Gia     = self::DEFAULT_TY_GIA;
     public $pT_Tien_Nt  = 0;
     public $pT_Thue     = 0; // Tự động = 0
     public $pT_TT       = 0; // Tự động = tổng cộng
@@ -64,6 +64,12 @@ class Phieubaono extends Component
 
     // Danh sách tài khoản cho datalist
     public $glDmTks = [];
+
+    // Constants cho cấu hình
+    const MA_CT = 'CA4';
+    const DEFAULT_TK_CO = 11217;
+    const DEFAULT_MA_NT = 'VND';
+    const DEFAULT_TY_GIA = 1;
 
     protected $rules = [
         'pMa_Kh'          => 'required',
@@ -88,6 +94,26 @@ class Phieubaono extends Component
         'pCts.*.ma_ku'    => 'nullable|string|max:20',
     ];
 
+    protected $messages = [
+        'pMa_Kh.required'          => 'Vui lòng chọn khách hàng',
+        'pTk_Co.required'          => 'Vui lòng chọn tài khoản Có',
+        'pNgay_Ct.required'        => 'Vui lòng chọn ngày chứng từ',
+        'pNgay_Ct.date'            => 'Ngày chứng từ không hợp lệ',
+        'pNgay_Lap.required'       => 'Vui lòng chọn ngày lập',
+        'pNgay_Lap.date'           => 'Ngày lập không hợp lệ',
+        'pMa_Nt.required'          => 'Vui lòng chọn mã ngoại tệ',
+        'pMa_Nt.size'              => 'Mã ngoại tệ phải có 3 ký tự',
+        'pTy_Gia.required'         => 'Vui lòng nhập tỷ giá',
+        'pTy_Gia.numeric'          => 'Tỷ giá phải là số',
+        'pTy_Gia.min'              => 'Tỷ giá phải lớn hơn hoặc bằng 0',
+        'pCts.*.ma_tk.required'    => 'Vui lòng chọn tài khoản Nợ',
+        'pCts.*.ps_no.required'    => 'Vui lòng nhập số tiền',
+        'pCts.*.ps_no.numeric'     => 'Số tiền phải là số',
+        'pCts.*.ps_no.min'         => 'Số tiền phải lớn hơn hoặc bằng 0',
+        'pCts.*.ps_co.numeric'     => 'Số tiền phải là số',
+        'pCts.*.ps_co.min'         => 'Số tiền phải lớn hơn hoặc bằng 0',
+    ];
+
     public function mount(): void
     {
         $this->pNgay_Ct  = now()->toDateString();
@@ -98,12 +124,12 @@ class Phieubaono extends Component
         $this->addRow();
 
         $this->pSo_Ct = AsGetSoCt::call([
-            'pMa_ct'   => 'CA4',
+            'pMa_ct'   => self::MA_CT,
             'pNgay_Ct' => $this->pNgay_Ct,
         ]);
 
         // Lấy mã ngoại tệ mặc định từ CatalogService
-        $this->pMa_Nt = \CatalogService::ma_Nt();
+        $this->pMa_Nt = \CatalogService::ma_Nt() ?: self::DEFAULT_MA_NT;
 
         // Nếu có stt_rec, load phiếu để sửa
         if (!empty($this->pStt_Rec)) {
@@ -248,8 +274,43 @@ class Phieubaono extends Component
         });
     }
 
+    /**
+     * Xử lý khi nhấn Enter trong ô số tiền
+     * Tự động thêm dòng mới và focus vào dòng tiếp theo
+     */
+    public function handleEnter($index): void
+    {
+        // Nếu đang ở dòng cuối cùng, thêm dòng mới
+        if ($index === $this->pCts->count() - 1) {
+            $this->addRow();
+        }
+    }
+
+    /**
+     * Loại bỏ các dòng có số tiền = 0 trước khi lưu
+     */
+    protected function removeEmptyRows(): void
+    {
+        $this->pCts = $this->pCts->filter(function ($row) {
+            $ps_no = (float) ($row['ps_no'] ?? 0);
+            return $ps_no > 0;
+        })->values();
+
+        // Nếu không còn dòng nào, thêm 1 dòng trống
+        if ($this->pCts->isEmpty()) {
+            $this->addRow();
+        }
+
+        // Tính lại tổng
+        $this->calculateTotal();
+        $this->calculateForeignCurrency();
+    }
+
     public function submit(): void
     {
+        // Loại bỏ các dòng có số tiền = 0 trước khi validate
+        $this->removeEmptyRows();
+
         $this->validate();
 
         if ($this->pTong_Ps_No <= 0) {
@@ -258,10 +319,17 @@ class Phieubaono extends Component
             return;
         }
 
+        // Kiểm tra số dư khách hàng trước khi lưu
+        if ($this->pSoDu < $this->pTong_Ps_No) {
+            $this->addError('pCts', "Số dư khách hàng không đủ. Số dư hiện tại: " . number_format($this->pSoDu, 0, ',', '.') . " VNĐ");
+
+            return;
+        }
+
         // Generate So Ct if empty
         if (empty($this->pSo_Ct)) {
             $this->pSo_Ct = AsGetSoCt::call([
-                'pMa_ct'   => 'CA4',
+                'pMa_ct'   => self::MA_CT,
                 'pNgay_Ct' => $this->pNgay_Ct,
             ]);
         }
@@ -282,7 +350,7 @@ class Phieubaono extends Component
         ]);
 
         if (0 !== $checkSoCt) {
-            $this->addError('pSo_Ct', 'Số chứng từ đã tồn tại hoặc không hợp lệ');
+            $this->addError('pSo_Ct', 'Số chứng từ đã tồn tại. Vui lòng nhập số khác.');
 
             return;
         }
@@ -308,7 +376,7 @@ class Phieubaono extends Component
                 ]);
 
                 if (0 !== $deleteDetails) {
-                    throw new \Exception('Lỗi khi xóa chi tiết cũ');
+                    throw new \Exception('Không thể xóa chi tiết cũ. Vui lòng thử lại.');
                 }
 
                 // 3. Update Header bằng stored procedure
@@ -338,7 +406,7 @@ class Phieubaono extends Component
                 ]);
 
                 if (0 !== $updateHeader) {
-                    throw new \Exception('Lỗi khi cập nhật header phiếu báo nợ');
+                    throw new \Exception('Không thể cập nhật phiếu báo nợ. Vui lòng thử lại.');
                 }
             } else {
                 // MODE TẠO MỚI
@@ -377,7 +445,7 @@ class Phieubaono extends Component
                 ]);
 
                 if (0 !== $insertHeader) {
-                    throw new \Exception('Lỗi khi lưu header phiếu báo nợ');
+                    throw new \Exception('Không thể lưu phiếu báo nợ. Vui lòng thử lại.');
                 }
             }
 
@@ -409,7 +477,7 @@ class Phieubaono extends Component
                 ]);
 
                 if (0 !== $insertDetail) {
-                    throw new \Exception('Lỗi khi lưu chi tiết dòng ' . ($index + 1));
+                    throw new \Exception('Không thể lưu chi tiết dòng ' . ($index + 1) . '. Vui lòng kiểm tra lại thông tin.');
                 }
             }
 
@@ -429,8 +497,8 @@ class Phieubaono extends Component
         });
 
         $message = $isEditMode
-            ? 'Phiếu báo nợ đã được cập nhật thành công.'
-            : 'Phiếu báo nợ đã được lưu thành công.';
+            ? 'Cập nhật phiếu báo nợ thành công.'
+            : 'Lưu phiếu báo nợ thành công.';
         session()->flash('message', $message);
 
         // Reset form

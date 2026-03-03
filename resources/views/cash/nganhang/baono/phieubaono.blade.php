@@ -107,7 +107,8 @@
                         <td class="px-3 py-2">
                             <input type="number"
                                 class="block w-full rounded-md border-gray-300 py-1 text-right text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                wire:model.lazy="pCts.{{ $index }}.ps_no">
+                                wire:model.lazy="pCts.{{ $index }}.ps_no"
+                                wire:keydown.enter="handleEnter({{ $index }})">
                         </td>
                         <td class="px-3 py-2 text-center">
                             <button wire:click="removeRow({{ $index }})"
@@ -155,12 +156,6 @@
 
         @error('pCts')
             <div class="mt-2 text-sm text-red-500">{{ $message }}</div>
-        @enderror
-        @error('pMa_Kh')
-            <div class="mt-2 text-sm text-red-500">Vui lòng chọn khách hàng</div>
-        @enderror
-        @error('pTk_Co')
-            <div class="mt-2 text-sm text-red-500">Vui lòng chọn tài khoản có</div>
         @enderror
     </div>
 
