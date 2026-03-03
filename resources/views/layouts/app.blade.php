@@ -68,7 +68,8 @@
     </div>
 
     @stack('modals')
-
+    <!-- Scripts Stack -->
+    @stack('scripts')
     @livewireScripts
 </body>
 
