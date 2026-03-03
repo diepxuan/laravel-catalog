@@ -8,25 +8,26 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-01-16 14:21:40
+ * @lastupdate 2026-03-02 23:10:16
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baono;
 
 use Diepxuan\Catalog\Models\ArDmKh;
+use Diepxuan\Catalog\Models\CaCt3;
+use Diepxuan\Catalog\Models\CaPh3;
 use Diepxuan\Simba\Models\GlDmTk;
-use Diepxuan\Simba\StoredProcedures\AsGetSoCt;
-use Diepxuan\Simba\StoredProcedures\AsGetSttRec;
-use Diepxuan\Simba\StoredProcedures\AsChkSoCt;
-use Diepxuan\Simba\StoredProcedures\AsProcessCt;
+use Diepxuan\Simba\StoredProcedures\AsCADelCT2;
+use Diepxuan\Simba\StoredProcedures\AsCAInsCT2;
 use Diepxuan\Simba\StoredProcedures\AsCAInsPH2;
 use Diepxuan\Simba\StoredProcedures\AsCAUpdPH2;
-use Diepxuan\Simba\StoredProcedures\AsCAInsCT2;
-use Diepxuan\Simba\StoredProcedures\AsCADelCT2;
+use Diepxuan\Simba\StoredProcedures\AsChkSoCt;
+use Diepxuan\Simba\StoredProcedures\AsGetSoCt;
 use Diepxuan\Simba\StoredProcedures\AsGetSoDuKh;
+use Diepxuan\Simba\StoredProcedures\AsGetSttRec;
 use Diepxuan\Simba\StoredProcedures\AsPostCaph3_glct;
+use Diepxuan\Simba\StoredProcedures\AsProcessCt;
 use Illuminate\Support\Collection;
-use Illuminate\View\View;
 use Livewire\Component;
 
 class Phieubaono extends Component
@@ -34,57 +35,57 @@ class Phieubaono extends Component
     public $pMa_Kh;
     public $pKh;
     public $pDien_Giai;
-    public $pTk_Co = 11217;
+    public $pTk_Co = 11_217;
     public $pNgay_Ct;
     public $pSo_Ct;
     public $pNgay_Lap;
-    public $pDia_Chi = '';
-    public $pNguoi_Gd = '';
-    public $pMa_Nt = 'VND';
-    public $pTy_Gia = 1;
-    public $pT_Tien_Nt = 0;
-    public $pT_Thue = 0; // Tự động = 0
-    public $pT_TT = 0; // Tự động = tổng cộng
-    public $pT_Thue_Nt = 0; // Tự động = 0
-    public $pT_TT_Nt = 0; // Tự động = tổng NT
-    public $pKht_Tain = '0'; // Tự động = 0
+    public $pDia_Chi    = '';
+    public $pNguoi_Gd   = '';
+    public $pMa_Nt      = 'VND';
+    public $pTy_Gia     = 1;
+    public $pT_Tien_Nt  = 0;
+    public $pT_Thue     = 0; // Tự động = 0
+    public $pT_TT       = 0; // Tự động = tổng cộng
+    public $pT_Thue_Nt  = 0; // Tự động = 0
+    public $pT_TT_Nt    = 0; // Tự động = tổng NT
+    public $pKht_Tain   = '0'; // Tự động = 0
     public $pTrang_Thai = ''; // Tự động = '' (theo SQL history)
-    public $pPost2Gl = ''; // Tự động = '' (theo SQL history)
+    public $pPost2Gl    = ''; // Tự động = '' (theo SQL history)
     public Collection $pCts;
     public $pSoDu;
     public $pTong_Ps_No = 0;
-    
+
     // Properties cho sửa phiếu
     public $pStt_Rec = ''; // stt_rec của phiếu cần sửa (nếu có)
-    public $pMode = 'create'; // 'create' hoặc 'edit'
-    
+    public $pMode    = 'create'; // 'create' hoặc 'edit'
+
     // Số dư cho từng dòng chi tiết
     public Collection $pSoDuCts;
-    
+
     // Danh sách tài khoản cho datalist
     public $glDmTks = [];
 
     protected $rules = [
-        'pMa_Kh'       => 'required',
-        'pTk_Co'       => 'required',
-        'pNgay_Ct'     => 'required|date',
-        'pNgay_Lap'    => 'required|date',
-        'pDia_Chi'     => 'nullable|string|max:255',
-        'pNguoi_Gd'    => 'nullable|string|max:30',
-        'pMa_Nt'       => 'required|string|size:3',
-        'pTy_Gia'      => 'required|numeric|min:0',
-        'pCts.*.ma_tk' => 'required',
-        'pCts.*.ps_no' => 'required|numeric|min:0',
-        'pCts.*.ps_co' => 'nullable|numeric|min:0',
+        'pMa_Kh'          => 'required',
+        'pTk_Co'          => 'required',
+        'pNgay_Ct'        => 'required|date',
+        'pNgay_Lap'       => 'required|date',
+        'pDia_Chi'        => 'nullable|string|max:255',
+        'pNguoi_Gd'       => 'nullable|string|max:30',
+        'pMa_Nt'          => 'required|string|size:3',
+        'pTy_Gia'         => 'required|numeric|min:0',
+        'pCts.*.ma_tk'    => 'required',
+        'pCts.*.ps_no'    => 'required|numeric|min:0',
+        'pCts.*.ps_co'    => 'nullable|numeric|min:0',
         'pCts.*.ps_no_nt' => 'nullable|numeric|min:0',
         'pCts.*.ps_co_nt' => 'nullable|numeric|min:0',
-        'pCts.*.ma_kh' => 'nullable|string|max:20',
-        'pCts.*.ma_hd' => 'nullable|string|max:20',
-        'pCts.*.ma_bp' => 'nullable|string|max:20',
-        'pCts.*.ma_phi' => 'nullable|string|max:20',
-        'pCts.*.ma_spct' => 'nullable|string|max:20',
-        'pCts.*.ma_lo' => 'nullable|string|max:20',
-        'pCts.*.ma_ku' => 'nullable|string|max:20',
+        'pCts.*.ma_kh'    => 'nullable|string|max:20',
+        'pCts.*.ma_hd'    => 'nullable|string|max:20',
+        'pCts.*.ma_bp'    => 'nullable|string|max:20',
+        'pCts.*.ma_phi'   => 'nullable|string|max:20',
+        'pCts.*.ma_spct'  => 'nullable|string|max:20',
+        'pCts.*.ma_lo'    => 'nullable|string|max:20',
+        'pCts.*.ma_ku'    => 'nullable|string|max:20',
     ];
 
     public function mount(): void
@@ -95,85 +96,87 @@ class Phieubaono extends Component
         $this->pCts      = collect();
         $this->pSoDuCts  = collect();
         $this->addRow();
-        
-        $this->pSo_Ct    = AsGetSoCt::call([
+
+        $this->pSo_Ct = AsGetSoCt::call([
             'pMa_ct'   => 'CA4',
             'pNgay_Ct' => $this->pNgay_Ct,
         ]);
-        
+
         // Lấy mã ngoại tệ mặc định từ CatalogService
         $this->pMa_Nt = \CatalogService::ma_Nt();
-        
+
         // Nếu có stt_rec, load phiếu để sửa
         if (!empty($this->pStt_Rec)) {
             $this->loadPhieu();
         }
-        
+
         // Load danh sách tài khoản cho datalist
-        $this->glDmTks = \Diepxuan\Simba\Models\GlDmTk::select('tk', 'ten_tk')
+        $this->glDmTks = GlDmTk::select('tk', 'ten_tk')
             ->orderBy('tk')
             ->limit(100)
-            ->get();
+            ->get()
+        ;
     }
-    
+
     public function loadPhieu(): void
     {
         if (empty($this->pStt_Rec)) {
             return;
         }
-        
+
         // Load header từ database
-        $caPh3 = \Diepxuan\Catalog\Models\CaPh3::where('stt_rec', $this->pStt_Rec)->first();
-        
+        $caPh3 = CaPh3::where('stt_rec', $this->pStt_Rec)->first();
+
         if ($caPh3) {
-            $this->pMode = 'edit';
-            $this->pSo_Ct = $caPh3->so_ct;
-            $this->pNgay_Ct = $caPh3->ngay_ct->toDateString();
+            $this->pMode     = 'edit';
+            $this->pSo_Ct    = $caPh3->so_ct;
+            $this->pNgay_Ct  = $caPh3->ngay_ct->toDateString();
             $this->pNgay_Lap = $caPh3->ngay_lct->toDateString();
             // Không load các trường tự động: pKht_Tain, pTrang_Thai, pPost2Gl
             // Chỉ load các trường cần thiết từ phiếu cũ
-            $this->pMa_Kh = $caPh3->ma_kh;
-            $this->pDia_Chi = $caPh3->dia_chi;
-            $this->pNguoi_Gd = $caPh3->nguoi_gd;
+            $this->pMa_Kh     = $caPh3->ma_kh;
+            $this->pDia_Chi   = $caPh3->dia_chi;
+            $this->pNguoi_Gd  = $caPh3->nguoi_gd;
             $this->pDien_Giai = $caPh3->dien_giai;
-            $this->pTk_Co = $caPh3->tk_co;
-            $this->pMa_Nt = $caPh3->ma_nt;
-            $this->pTy_Gia = $caPh3->ty_gia;
+            $this->pTk_Co     = $caPh3->tk_co;
+            $this->pMa_Nt     = $caPh3->ma_nt;
+            $this->pTy_Gia    = $caPh3->ty_gia;
             // Các trường pT_Thue, pT_TT, pT_Thue_Nt, pT_TT_Nt sẽ tự động tính toán lại
-            
+
             // Load chi tiết
-            $caCt3s = \Diepxuan\Catalog\Models\CaCt3::where('stt_rec', $this->pStt_Rec)
+            $caCt3s = CaCt3::where('stt_rec', $this->pStt_Rec)
                 ->orderBy('stt_rec0')
-                ->get();
-            
-            $this->pCts = collect();
+                ->get()
+            ;
+
+            $this->pCts     = collect();
             $this->pSoDuCts = collect();
-            
+
             foreach ($caCt3s as $index => $caCt3) {
                 $this->pCts->push([
-                    'ma_tk'      => $caCt3->tk,
-                    'dien_giai'  => $caCt3->dien_giai,
-                    'ps_no'      => $caCt3->ps_no,
-                    'ps_co'      => $caCt3->ps_co,
-                    'ps_no_nt'   => $caCt3->ps_no_nt,
-                    'ps_co_nt'   => $caCt3->ps_co_nt,
-                    'ma_kh'      => $caCt3->ma_kh,
-                    'ma_hd'      => $caCt3->ma_hd,
-                    'ma_bp'      => $caCt3->ma_bp,
-                    'ma_phi'     => $caCt3->ma_phi,
-                    'ma_spct'    => $caCt3->ma_spct,
-                    'ma_lo'      => $caCt3->ma_lo,
-                    'ma_ku'      => $caCt3->ma_ku,
+                    'ma_tk'     => $caCt3->tk,
+                    'dien_giai' => $caCt3->dien_giai,
+                    'ps_no'     => $caCt3->ps_no,
+                    'ps_co'     => $caCt3->ps_co,
+                    'ps_no_nt'  => $caCt3->ps_no_nt,
+                    'ps_co_nt'  => $caCt3->ps_co_nt,
+                    'ma_kh'     => $caCt3->ma_kh,
+                    'ma_hd'     => $caCt3->ma_hd,
+                    'ma_bp'     => $caCt3->ma_bp,
+                    'ma_phi'    => $caCt3->ma_phi,
+                    'ma_spct'   => $caCt3->ma_spct,
+                    'ma_lo'     => $caCt3->ma_lo,
+                    'ma_ku'     => $caCt3->ma_ku,
                 ]);
-                
+
                 // Khởi tạo số dư cho từng dòng (sẽ được tính sau)
                 $this->pSoDuCts->put($index, null);
             }
-            
+
             // Tính tổng
             $this->calculateTotal();
             $this->calculateForeignCurrency();
-            
+
             // Update khách hàng info và số dư
             $this->updateKhachHang();
             $this->updateSoDu();
@@ -182,24 +185,25 @@ class Phieubaono extends Component
 
     public function updated($property): void
     {
-        if ($property == 'pMa_Kh') {
+        if ('pMa_Kh' === $property) {
             $this->updateKhachHang();
         }
 
-        if ($property == 'pDien_Giai') {
+        if ('pDien_Giai' === $property) {
             // Auto-fill diễn giải mới vào tất cả các dòng chi tiết
             $this->pCts = $this->pCts->map(function ($row) {
                 $row['dien_giai'] = $this->pDien_Giai;
+
                 return $row;
             });
         }
-        
-        if ($property == 'pNgay_Ct') {
+
+        if ('pNgay_Ct' === $property) {
             // Khi thay đổi ngày chứng từ, cập nhật số dư
             $this->updateSoDu();
         }
-        
-        if ($property == 'pMa_Kh') {
+
+        if ('pMa_Kh' === $property) {
             // Khi thay đổi mã KH, cập nhật số dư
             $this->updateSoDu();
         }
@@ -207,26 +211,24 @@ class Phieubaono extends Component
         if (str_contains($property, 'pCts')) {
             $this->calculateTotal();
             $this->calculateForeignCurrency();
-            
+
             // Nếu thay đổi tài khoản trong chi tiết, cập nhật số dư
             if (str_contains($property, 'ma_tk')) {
                 $this->updateSoDuChiTiet();
             }
         }
 
-        if (in_array($property, ['pTong_Ps_No', 'pTy_Gia'])) {
+        if (\in_array($property, ['pTong_Ps_No', 'pTy_Gia'], true)) {
             $this->calculateForeignCurrency();
         }
     }
 
     public function calculateTotal(): void
     {
-        $this->pTong_Ps_No = $this->pCts->sum(function ($item) {
-            return (float) ($item['ps_no'] ?? 0);
-        });
-        
+        $this->pTong_Ps_No = $this->pCts->sum(static fn ($item) => (float) ($item['ps_no'] ?? 0));
+
         // Tổng thanh toán = Tổng phát sinh nợ (vì không có thuế)
-        $this->pT_TT = $this->pTong_Ps_No;
+        $this->pT_TT   = $this->pTong_Ps_No;
         $this->pT_Thue = 0; // Luôn = 0
     }
 
@@ -235,12 +237,13 @@ class Phieubaono extends Component
         // Tính tiền ngoại tệ
         $this->pT_Tien_Nt = $this->pTong_Ps_No * $this->pTy_Gia;
         $this->pT_Thue_Nt = 0; // Luôn = 0
-        $this->pT_TT_Nt = $this->pT_Tien_Nt; // = tổng NT (vì không có thuế)
-        
+        $this->pT_TT_Nt   = $this->pT_Tien_Nt; // = tổng NT (vì không có thuế)
+
         // Cập nhật ps_no_nt và ps_co_nt cho từng dòng
         $this->pCts = $this->pCts->map(function ($row) {
             $row['ps_no_nt'] = ($row['ps_no'] ?? 0) * $this->pTy_Gia;
             $row['ps_co_nt'] = ($row['ps_co'] ?? 0) * $this->pTy_Gia;
+
             return $row;
         });
     }
@@ -251,12 +254,13 @@ class Phieubaono extends Component
 
         if ($this->pTong_Ps_No <= 0) {
             $this->addError('pCts', 'Tổng phát sinh nợ phải lớn hơn 0');
+
             return;
         }
 
         // Generate So Ct if empty
         if (empty($this->pSo_Ct)) {
-             $this->pSo_Ct = AsGetSoCt::call([
+            $this->pSo_Ct = AsGetSoCt::call([
                 'pMa_ct'   => 'CA4',
                 'pNgay_Ct' => $this->pNgay_Ct,
             ]);
@@ -264,184 +268,186 @@ class Phieubaono extends Component
 
         $maCty = \CatalogService::company()->id ?? '001';
         $lUser = \Auth::user()->name ?? '';
-        
+
         // Xác định mode: create hoặc edit
-        $isEditMode = !empty($this->pStt_Rec) && $this->pMode === 'edit';
-        
+        $isEditMode = !empty($this->pStt_Rec) && 'edit' === $this->pMode;
+
         // Check số chứng từ
         $checkSoCt = AsChkSoCt::call([
-            'pMa_Cty' => $maCty,
-            'pMa_Ct' => 'CA4',
+            'pMa_Cty'  => $maCty,
+            'pMa_Ct'   => 'CA4',
             'pStt_Rec' => $isEditMode ? $this->pStt_Rec : '0', // 0 cho tạo mới
-            'pSo_ct' => $this->pSo_Ct,
+            'pSo_ct'   => $this->pSo_Ct,
             'pNgay_ct' => $this->pNgay_Ct,
         ]);
 
-        if ($checkSoCt !== 0) {
+        if (0 !== $checkSoCt) {
             $this->addError('pSo_Ct', 'Số chứng từ đã tồn tại hoặc không hợp lệ');
+
             return;
         }
 
         // Transaction to ensure atomicity
-        \DB::transaction(function () use ($maCty, $lUser, $isEditMode) {
+        \DB::transaction(function () use ($maCty, $lUser, $isEditMode): void {
             if ($isEditMode) {
                 // MODE SỬA PHIẾU
                 $stt_rec = $this->pStt_Rec;
-                
+
                 // 1. Process chứng từ để unlock (mode 2 = sửa/xóa)
                 AsProcessCt::call([
-                    'pMa_cty' => $maCty,
-                    'pMa_Ct' => 'CA4',
+                    'pMa_cty'  => $maCty,
+                    'pMa_Ct'   => 'CA4',
                     'pStt_rec' => $stt_rec,
-                    'pMode' => '2',
-                ]);
-                
-                // 2. Xóa chi tiết cũ
-                $deleteDetails = AsCADelCT2::call([
-                    'pMa_cty' => $maCty,
-                    'pStt_rec' => $stt_rec,
-                ]);
-                
-                if ($deleteDetails !== 0) {
-                    throw new \Exception('Lỗi khi xóa chi tiết cũ');
-                }
-                
-                // 3. Update Header bằng stored procedure
-                $updateHeader = AsCAUpdPH2::call([
-                    'pMa_cty' => $maCty,
-                    'pStt_rec' => $stt_rec,
-                    'pMa_ct' => 'CA4',
-                    'pSo_ct' => $this->pSo_Ct,
-                    'pNgay_ct' => $this->pNgay_Ct,
-                    'pNgay_lct' => $this->pNgay_Lap,
-                    'pKht_tain' => $this->pKht_Tain,
-                    'pMa_kh' => $this->pMa_Kh,
-                    'pDia_chi' => $this->pDia_Chi,
-                    'pNguoi_gd' => $this->pNguoi_Gd,
-                    'pDien_giai' => $this->pDien_Giai,
-                    'pTk_co' => $this->pTk_Co,
-                    'pMa_nt' => $this->pMa_Nt,
-                    'pTy_gia' => $this->pTy_Gia,
-                    'pT_tien_nt' => $this->pT_Tien_Nt,
-                    'pT_tien' => $this->pTong_Ps_No,
-                    'pT_Thue' => $this->pT_Thue,
-                    'pT_Tt_nt' => $this->pT_TT_Nt,
-                    'pT_Tt' => $this->pT_TT,
-                    'pTrang_thai' => '', // Luôn rỗng theo SQL history
-                    'pPost2gl' => '', // Luôn rỗng theo SQL history
-                    'pLUser' => $lUser,
+                    'pMode'    => '2',
                 ]);
 
-                if ($updateHeader !== 0) {
+                // 2. Xóa chi tiết cũ
+                $deleteDetails = AsCADelCT2::call([
+                    'pMa_cty'  => $maCty,
+                    'pStt_rec' => $stt_rec,
+                ]);
+
+                if (0 !== $deleteDetails) {
+                    throw new \Exception('Lỗi khi xóa chi tiết cũ');
+                }
+
+                // 3. Update Header bằng stored procedure
+                $updateHeader = AsCAUpdPH2::call([
+                    'pMa_cty'     => $maCty,
+                    'pStt_rec'    => $stt_rec,
+                    'pMa_ct'      => 'CA4',
+                    'pSo_ct'      => $this->pSo_Ct,
+                    'pNgay_ct'    => $this->pNgay_Ct,
+                    'pNgay_lct'   => $this->pNgay_Lap,
+                    'pKht_tain'   => $this->pKht_Tain,
+                    'pMa_kh'      => $this->pMa_Kh,
+                    'pDia_chi'    => $this->pDia_Chi,
+                    'pNguoi_gd'   => $this->pNguoi_Gd,
+                    'pDien_giai'  => $this->pDien_Giai,
+                    'pTk_co'      => $this->pTk_Co,
+                    'pMa_nt'      => $this->pMa_Nt,
+                    'pTy_gia'     => $this->pTy_Gia,
+                    'pT_tien_nt'  => $this->pT_Tien_Nt,
+                    'pT_tien'     => $this->pTong_Ps_No,
+                    'pT_Thue'     => $this->pT_Thue,
+                    'pT_Tt_nt'    => $this->pT_TT_Nt,
+                    'pT_Tt'       => $this->pT_TT,
+                    'pTrang_thai' => '', // Luôn rỗng theo SQL history
+                    'pPost2gl'    => '', // Luôn rỗng theo SQL history
+                    'pLUser'      => $lUser,
+                ]);
+
+                if (0 !== $updateHeader) {
                     throw new \Exception('Lỗi khi cập nhật header phiếu báo nợ');
                 }
-                
             } else {
                 // MODE TẠO MỚI
                 // Lấy stt_rec từ stored procedure
                 $stt_rec_result = AsGetSttRec::call([
                     'pMa_cty' => $maCty,
-                    'pMa_Ct' => 'CA4',
-                ]);
-                
-                $stt_rec = $stt_rec_result; // Kết quả từ stored procedure
-                
-                // 1. Insert Header bằng stored procedure
-                $insertHeader = AsCAInsPH2::call([
-                    'pMa_cty' => $maCty,
-                    'pStt_rec' => $stt_rec,
-                    'pMa_ct' => 'CA4',
-                    'pSo_ct' => $this->pSo_Ct,
-                    'pNgay_ct' => $this->pNgay_Ct,
-                    'pNgay_lct' => $this->pNgay_Lap,
-                    'pKht_tain' => $this->pKht_Tain,
-                    'pMa_kh' => $this->pMa_Kh,
-                    'pDia_chi' => $this->pDia_Chi,
-                    'pNguoi_gd' => $this->pNguoi_Gd,
-                    'pDien_giai' => $this->pDien_Giai,
-                    'pTk_co' => $this->pTk_Co,
-                    'pMa_nt' => $this->pMa_Nt,
-                    'pTy_gia' => $this->pTy_Gia,
-                    'pT_tien_nt' => $this->pT_Tien_Nt,
-                    'pT_tien' => $this->pTong_Ps_No,
-                    'pT_Thue' => $this->pT_Thue,
-                    'pT_Tt_nt' => $this->pT_TT_Nt,
-                    'pT_Tt' => $this->pT_TT,
-                    'pTrang_thai' => '', // Luôn rỗng theo SQL history
-                    'pPost2gl' => '', // Luôn rỗng theo SQL history
-                    'pLUser' => $lUser,
+                    'pMa_Ct'  => 'CA4',
                 ]);
 
-                if ($insertHeader !== 0) {
+                $stt_rec = $stt_rec_result; // Kết quả từ stored procedure
+
+                // 1. Insert Header bằng stored procedure
+                $insertHeader = AsCAInsPH2::call([
+                    'pMa_cty'     => $maCty,
+                    'pStt_rec'    => $stt_rec,
+                    'pMa_ct'      => 'CA4',
+                    'pSo_ct'      => $this->pSo_Ct,
+                    'pNgay_ct'    => $this->pNgay_Ct,
+                    'pNgay_lct'   => $this->pNgay_Lap,
+                    'pKht_tain'   => $this->pKht_Tain,
+                    'pMa_kh'      => $this->pMa_Kh,
+                    'pDia_chi'    => $this->pDia_Chi,
+                    'pNguoi_gd'   => $this->pNguoi_Gd,
+                    'pDien_giai'  => $this->pDien_Giai,
+                    'pTk_co'      => $this->pTk_Co,
+                    'pMa_nt'      => $this->pMa_Nt,
+                    'pTy_gia'     => $this->pTy_Gia,
+                    'pT_tien_nt'  => $this->pT_Tien_Nt,
+                    'pT_tien'     => $this->pTong_Ps_No,
+                    'pT_Thue'     => $this->pT_Thue,
+                    'pT_Tt_nt'    => $this->pT_TT_Nt,
+                    'pT_Tt'       => $this->pT_TT,
+                    'pTrang_thai' => '', // Luôn rỗng theo SQL history
+                    'pPost2gl'    => '', // Luôn rỗng theo SQL history
+                    'pLUser'      => $lUser,
+                ]);
+
+                if (0 !== $insertHeader) {
                     throw new \Exception('Lỗi khi lưu header phiếu báo nợ');
                 }
             }
-            
+
             // 4. Insert Details bằng stored procedure (chung cho cả create và edit)
             foreach ($this->pCts as $index => $row) {
-                if (empty($row['ma_tk']) || empty($row['ps_no'])) continue;
+                if (empty($row['ma_tk']) || empty($row['ps_no'])) {
+                    continue;
+                }
 
-                $stt_rec0 = str_pad((string)($index + 1), 3, '0', STR_PAD_LEFT);
-                
+                $stt_rec0 = str_pad((string) ($index + 1), 3, '0', STR_PAD_LEFT);
+
                 $insertDetail = AsCAInsCT2::call([
-                    'pMa_cty' => $maCty,
-                    'pStt_rec' => $stt_rec,
-                    'pStt_rec0' => $stt_rec0,
-                    'pTk' => $row['ma_tk'],
-                    'pPs_no' => $row['ps_no'] ?? 0,
-                    'pPs_co' => $row['ps_co'] ?? 0,
-                    'pPs_no_nt' => $row['ps_no_nt'] ?? 0,
-                    'pPs_co_nt' => $row['ps_co_nt'] ?? 0,
+                    'pMa_cty'    => $maCty,
+                    'pStt_rec'   => $stt_rec,
+                    'pStt_rec0'  => $stt_rec0,
+                    'pTk'        => $row['ma_tk'],
+                    'pPs_no'     => $row['ps_no'] ?? 0,
+                    'pPs_co'     => $row['ps_co'] ?? 0,
+                    'pPs_no_nt'  => $row['ps_no_nt'] ?? 0,
+                    'pPs_co_nt'  => $row['ps_co_nt'] ?? 0,
                     'pDien_giai' => $row['dien_giai'] ?? $this->pDien_Giai,
-                    'pMa_kh' => $row['ma_kh'] ?? $this->pMa_Kh,
-                    'pMa_ku' => $row['ma_ku'] ?? '',
-                    'pMa_lo' => $row['ma_lo'] ?? '',
-                    'pMa_bp' => $row['ma_bp'] ?? '',
-                    'pMa_hd' => $row['ma_hd'] ?? '',
-                    'pMa_phi' => $row['ma_phi'] ?? '',
-                    'pMa_spct' => $row['ma_spct'] ?? '',
+                    'pMa_kh'     => $row['ma_kh'] ?? $this->pMa_Kh,
+                    'pMa_ku'     => $row['ma_ku'] ?? '',
+                    'pMa_lo'     => $row['ma_lo'] ?? '',
+                    'pMa_bp'     => $row['ma_bp'] ?? '',
+                    'pMa_hd'     => $row['ma_hd'] ?? '',
+                    'pMa_phi'    => $row['ma_phi'] ?? '',
+                    'pMa_spct'   => $row['ma_spct'] ?? '',
                 ]);
 
-                if ($insertDetail !== 0) {
+                if (0 !== $insertDetail) {
                     throw new \Exception('Lỗi khi lưu chi tiết dòng ' . ($index + 1));
                 }
             }
 
             // 5. Process chứng từ (mode 1 = tạo mới/xác nhận sửa)
             AsProcessCt::call([
-                'pMa_cty' => $maCty,
-                'pMa_Ct' => 'CA4',
+                'pMa_cty'  => $maCty,
+                'pMa_Ct'   => 'CA4',
                 'pStt_rec' => $stt_rec,
-                'pMode' => '1',
+                'pMode'    => '1',
             ]);
 
             // 6. Post to GL
             AsPostCaph3_glct::call([
-                'pMa_cty' => $maCty,
+                'pMa_cty'  => $maCty,
                 'pStt_rec' => $stt_rec,
             ]);
         });
 
-        $message = $isEditMode 
-            ? 'Phiếu báo nợ đã được cập nhật thành công.' 
+        $message = $isEditMode
+            ? 'Phiếu báo nợ đã được cập nhật thành công.'
             : 'Phiếu báo nợ đã được lưu thành công.';
         session()->flash('message', $message);
-        
+
         // Reset form
         $this->reset([
             'pDien_Giai', 'pCts', 'pSo_Ct', 'pTong_Ps_No',
-            'pDia_Chi', 'pNguoi_Gd', 'pSoDu', 'pSoDuCts'
+            'pDia_Chi', 'pNguoi_Gd', 'pSoDu', 'pSoDuCts',
         ]);
         // Các trường pT_Thue, pT_TT, pKht_Tain, pTrang_Thai, pPost2Gl sẽ tự động set giá trị mặc định
-        
+
         // Nếu đang ở chế độ tạo mới, reset hoàn toàn
-        if ($this->pMode === 'create') {
+        if ('create' === $this->pMode) {
             // Giữ nguyên pMa_Nt = 'VND' và pTy_Gia = 1
             // Các trường ngoại tệ sẽ tự động tính toán lại
             $this->mount();
         } else {
             // Nếu đang sửa, chỉ reset một phần và giữ stt_rec
-            $this->pCts = collect();
+            $this->pCts     = collect();
             $this->pSoDuCts = collect();
             $this->addRow();
             $this->calculateTotal();
@@ -453,47 +459,50 @@ class Phieubaono extends Component
     {
         $this->pKh = ArDmKh::where('ma_kh', $this->pMa_Kh)->first();
         if ($this->pKh) {
-            $this->pDien_Giai = 'Thu tiền khách hàng ' . $this->pKh->ten_kh;
-            $this->pDia_Chi = $this->pKh->dia_chi ?? '';
-            $this->pNguoi_Gd = $this->pKh->nguoi_gd ?? '';
-            
+            $this->pDien_Giai = 'Thanh toán nhà chung cấp ' . $this->pKh->ten_kh;
+            $this->pDia_Chi   = $this->pKh->dia_chi ?? '';
+            $this->pNguoi_Gd  = $this->pKh->nguoi_gd ?? '';
+
             // Auto-fill mã khách hàng và diễn giải vào các dòng chi tiết
             $this->pCts = $this->pCts->map(function ($row) {
-                $row['ma_kh'] = $this->pMa_Kh;
+                $row['ma_kh']     = $this->pMa_Kh;
                 $row['dien_giai'] = $this->pDien_Giai;
+
                 return $row;
             });
-            
+
             // Lấy số dư khách hàng nếu có đủ thông tin
             $this->updateSoDu();
         }
     }
-    
+
     public function updateSoDu(): void
     {
         if (empty($this->pMa_Kh) || empty($this->pNgay_Ct)) {
             $this->pSoDu = 0;
+
             return;
         }
-        
+
         try {
             // Lấy số dư tổng - lấy số dư của tài khoản đầu tiên trong chi tiết
             $tk = null;
             foreach ($this->pCts as $row) {
                 if (!empty($row['ma_tk'])) {
                     $tk = $row['ma_tk'];
+
                     break;
                 }
             }
-            
+
             if ($tk) {
                 $soDuResult = AsGetSoDuKh::call([
                     'pMa_Cty' => \CatalogService::company()->id ?? '001',
-                    'pMa_kh' => $this->pMa_Kh,
-                    'pTk' => $tk,
-                    'pNgay' => $this->pNgay_Ct,
+                    'pMa_kh'  => $this->pMa_Kh,
+                    'pTk'     => $tk,
+                    'pNgay'   => $this->pNgay_Ct,
                 ]);
-                
+
                 // SP class đã được sửa để luôn trả về float
                 $this->pSoDu = is_numeric($soDuResult) ? (float) $soDuResult : 0;
             } else {
@@ -503,35 +512,35 @@ class Phieubaono extends Component
             $this->pSoDu = 0;
             \Debugbar::error('Lỗi khi lấy số dư: ' . $e->getMessage());
         }
-        
+
         // Cập nhật số dư cho từng dòng
         $this->updateSoDuTungDong();
     }
-    
+
     public function updateSoDuChiTiet(): void
     {
         // Cập nhật số dư khi thay đổi tài khoản trong chi tiết
         $this->updateSoDu();
         $this->updateSoDuTungDong();
     }
-    
+
     public function updateSoDuTungDong(): void
     {
         // Tính số dư cho từng dòng chi tiết
         $this->pSoDuCts = collect();
-        
+
         foreach ($this->pCts as $index => $row) {
             $soDuValue = 0;
-            
+
             if (!empty($row['ma_tk']) && !empty($this->pMa_Kh) && !empty($this->pNgay_Ct)) {
                 try {
                     $soDuResult = AsGetSoDuKh::call([
                         'pMa_Cty' => \CatalogService::company()->id ?? '001',
-                        'pMa_kh' => $this->pMa_Kh,
-                        'pTk' => $row['ma_tk'],
-                        'pNgay' => $this->pNgay_Ct,
+                        'pMa_kh'  => $this->pMa_Kh,
+                        'pTk'     => $row['ma_tk'],
+                        'pNgay'   => $this->pNgay_Ct,
                     ]);
-                    
+
                     // SP class đã được sửa để luôn trả về float
                     $soDuValue = is_numeric($soDuResult) ? (float) $soDuResult : 0;
                 } catch (\Exception $e) {
@@ -539,7 +548,7 @@ class Phieubaono extends Component
                     \Debugbar::error('Lỗi khi lấy số dư dòng ' . $index . ': ' . $e->getMessage());
                 }
             }
-            
+
             $this->pSoDuCts->put($index, $soDuValue);
         }
     }
@@ -553,21 +562,21 @@ class Phieubaono extends Component
     {
         $newIndex = $this->pCts->count();
         $this->pCts->push([
-            'ma_tk'      => '',
-            'dien_giai'  => $this->pDien_Giai,
-            'ps_no'      => 0,
-            'ps_co'      => 0,
-            'ps_no_nt'   => 0,
-            'ps_co_nt'   => 0,
-            'ma_kh'      => $this->pMa_Kh ?? '',
-            'ma_hd'      => '',
-            'ma_bp'      => '',
-            'ma_phi'     => '',
-            'ma_spct'    => '',
-            'ma_lo'      => '',
-            'ma_ku'      => '',
+            'ma_tk'     => '',
+            'dien_giai' => $this->pDien_Giai,
+            'ps_no'     => 0,
+            'ps_co'     => 0,
+            'ps_no_nt'  => 0,
+            'ps_co_nt'  => 0,
+            'ma_kh'     => $this->pMa_Kh ?? '',
+            'ma_hd'     => '',
+            'ma_bp'     => '',
+            'ma_phi'    => '',
+            'ma_spct'   => '',
+            'ma_lo'     => '',
+            'ma_ku'     => '',
         ]);
-        
+
         // Thêm entry số dư cho dòng mới
         $this->pSoDuCts->put($newIndex, null);
     }
@@ -576,16 +585,14 @@ class Phieubaono extends Component
     {
         $this->pCts->forget($index);
         $this->pCts = $this->pCts->values(); // Re-index
-        
+
         $this->pSoDuCts->forget($index);
-        $this->pSoDuCts = $this->pSoDuCts->values()->mapWithKeys(function ($value, $newIndex) {
-            return [$newIndex => $value];
-        });
-        
+        $this->pSoDuCts = $this->pSoDuCts->values()->mapWithKeys(static fn ($value, $newIndex) => [$newIndex => $value]);
+
         if ($this->pCts->isEmpty()) {
             $this->addRow();
         }
-        
+
         $this->calculateTotal();
     }
 
