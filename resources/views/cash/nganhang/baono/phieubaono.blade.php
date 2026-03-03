@@ -78,18 +78,10 @@
                 @foreach ($pCts as $index => $row)
                     <tr>
                         <td class="px-3 py-2">
-                            <div class="relative">
-                                <input type="text"
-                                    class="block w-full rounded-md border-gray-300 py-0 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                                    list="GlDmTk-suggestions"
-                                    wire:model.live.debounce.500ms="pCts.{{ $index }}.ma_tk" />
-
-                                <datalist id="GlDmTk-suggestions">
-                                    @foreach ($glDmTks as $glDmTk)
-                                        <option value="{{ $glDmTk->tk }}">{{ $glDmTk->ten_tk }}</option>
-                                    @endforeach
-                                </datalist>
-                            </div>
+                            <livewire:catalog::component.input-taikhoan
+                                wire:model="pCts.{{ $index }}.ma_tk"
+                                :key="'tk-no-' . $index"
+                                placeholder="Chọn TK..." />
                         </td>
                         <td class="px-3 py-2">
                             <input type="text"
