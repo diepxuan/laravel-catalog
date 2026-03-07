@@ -8,11 +8,12 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-01-11 16:08:42
+ * @lastupdate 2026-03-06
  */
 
 namespace Diepxuan\Catalog\Services;
 
+use Diepxuan\Catalog\Config\TimerConfig;
 use Diepxuan\Catalog\Models\NavigationMenu;
 use Diepxuan\Catalog\Models\SysCompany;
 use Diepxuan\Catalog\Models\SysLanguage;
@@ -140,72 +141,171 @@ class CatalogService
         return $year;
     }
 
-    public function timer(null|array|string $time = null)
+    /**
+     * Get current timer settings from session.
+     *
+     * @return array{id: string, from: string, to: string}
+     */
+    public function getTimer(): array
     {
-        $year = $this->year();
+        $timeId = session('timeId', $this->getDefaultTimeId());
+        $from = session('timeStart');
+        $to = session('timeEnd');
 
-        // Xử lý input ban đầu
-        $timeId = \is_array($time) ? ($time['id'] ?? session('timeId', 'y')) : ($time ?? session('timeId', 'y'));
-        $from   = \is_array($time) && !empty($time['from']) ? Carbon::parse($time['from']) : session('timeStart');
-        $to     = \is_array($time) && !empty($time['to']) ? Carbon::parse($time['to']) : session('timeEnd');
-
-        // Default fallback nếu null
-        $from ??= now()->setYear($year)->startOfMonth();
-        $to   ??= (clone $from)->endOfMonth();
-
-        // Xử lý timeId logic
-        $monthList   = collect(range(1, 12))->map(static fn ($m) => 't' . str_pad("{$m}", 2, '0', STR_PAD_LEFT))->toArray();
-        $quarterList = collect(range(1, 4))->map(static fn ($q) => "q{$q}")->toArray();
-        if (\in_array($timeId, $monthList, true)) {
-            // $timeId nằm trong 't01' đến 't12'
-            $month = (int) substr($timeId, 1);
-            $from  = now()->setYear($year)->setMonth($month)->startOfMonth();
-            $to    = (clone $from)->endOfMonth();
-            // \Debugbar::info($timeId, $month, $from);
-        } elseif (\in_array($timeId, $quarterList, true)) {
-            // $timeId nằm trong 'q1' đến 'q4'
-            $quarter = (int) substr($timeId, 1);
-            $from    = now()->setYear($year)->setMonth(($quarter - 1) * 3 + 1)->startOfQuarter();
-            $to      = (clone $from)->addMonths(2)->endOfQuarter();
-        } elseif ('h1' === $timeId) {
-            $from = now()->setYear($year)->setMonth(1)->startOfMonth(); // Tháng 1
-            $to   = now()->setYear($year)->setMonth(6)->endOfMonth();   // Tháng 6
-        } elseif ('h2' === $timeId) {
-            $from = now()->setYear($year)->setMonth(7)->startOfMonth(); // Tháng 7
-            $to   = now()->setYear($year)->setMonth(12)->endOfMonth();  // Tháng 12
-        } elseif ('c' === $timeId) {
-            // $timeId là 'c', không cần thay đổi $from và $to
-            $from ??= now()->startOfMonth();
-            $to   ??= now()->endOfMonth();
-        } else {
-            $month  = (int) now()->month;
-            $timeId = 't' . str_pad("{$month}", 2, '0', STR_PAD_LEFT);
-            $from   = now()->setYear($year)->startOfMonth();
-            $to     = (clone $from)->endOfMonth();
+        // Nếu chưa có session, tính toán mặc định
+        if (!$from || !$to) {
+            $result = $this->calculateTimeRange($timeId);
+            $from = $result['from'];
+            $to = $result['to'];
         }
-        session([
-            'timeId'    => $timeId,
-            'timeStart' => $from,
-            'timeEnd'   => $to,
-        ]);
-
-        // \Debugbar::info($timeId, $from->toDateString(), $to->toDateString());
 
         return [
-            'id'   => $timeId,
+            'id' => $timeId,
             'from' => $from->toDateString(),
-            'to'   => $to->toDateString(),
+            'to' => $to->toDateString(),
         ];
     }
 
-    public function timerFrom()
+    /**
+     * Set timer settings and update session.
+     *
+     * @param array{id?: string, from?: string, to?: string} $time Timer settings
+     * @return array{id: string, from: string, to: string}
+     */
+    public function setTimer(array $time = []): array
     {
-        return $this->timer()['from'];
+        $timeId = $time['id'] ?? session('timeId', $this->getDefaultTimeId());
+        $from = $time['from'] ?? null;
+        $to = $time['to'] ?? null;
+
+        // Tính toán date range dựa trên timeId (trừ khi là custom)
+        if (TimerConfig::isCustom($timeId)) {
+            // Custom mode: sử dụng from/to được cung cấp
+            $from = $from ? Carbon::parse($from) : now()->startOfMonth();
+            $to = $to ? Carbon::parse($to) : now()->endOfMonth();
+        } else {
+            // Predefined mode: tính toán từ timeId, ignore from/to
+            $result = $this->calculateTimeRange($timeId);
+            $from = $result['from'];
+            $to = $result['to'];
+        }
+
+        // Lưu session
+        session([
+            'timeId' => $timeId,
+            'timeStart' => $from,
+            'timeEnd' => $to,
+        ]);
+
+        return [
+            'id' => $timeId,
+            'from' => $from->toDateString(),
+            'to' => $to->toDateString(),
+        ];
     }
 
-    public function timerTo()
+    /**
+     * Calculate date range for a given timeId.
+     *
+     * @param string $timeId Time period identifier
+     * @return array{from: \Illuminate\Support\Carbon, to: \Illuminate\Support\Carbon}
+     */
+    protected function calculateTimeRange(string $timeId): array
     {
-        return $this->timer()['to'];
+        $year = $this->year();
+        $now = now();
+
+        // Month (t01-t12)
+        if (TimerConfig::isMonth($timeId)) {
+            $month = TimerConfig::getMonthFromTimeId($timeId);
+            $from = $now->setYear($year)->setMonth($month)->startOfMonth();
+            $to = (clone $from)->endOfMonth();
+        }
+        // Quarter (q1-q4)
+        elseif (TimerConfig::isQuarter($timeId)) {
+            $quarter = TimerConfig::getQuarterFromTimeId($timeId);
+            $from = $now->setYear($year)->setMonth(($quarter - 1) * 3 + 1)->startOfQuarter();
+            $to = (clone $from)->addMonths(2)->endOfQuarter();
+        }
+        // Half year (h1, h2)
+        elseif (TimerConfig::isHalfYear($timeId)) {
+            if ($timeId === 'h1') {
+                $from = $now->setYear($year)->setMonth(1)->startOfMonth();
+                $to = $now->setYear($year)->setMonth(6)->endOfMonth();
+            } else { // h2
+                $from = $now->setYear($year)->setMonth(7)->startOfMonth();
+                $to = $now->setYear($year)->setMonth(12)->endOfMonth();
+            }
+        }
+        // Year (y)
+        elseif (TimerConfig::isYear($timeId)) {
+            $from = $now->setYear($year)->startOfYear();
+            $to = $now->setYear($year)->endOfYear();
+        }
+        // Custom (c) - default to current month
+        elseif (TimerConfig::isCustom($timeId)) {
+            $from = $now->setYear($year)->startOfMonth();
+            $to = (clone $from)->endOfMonth();
+        }
+        // Invalid timeId - fallback to current month
+        else {
+            $from = $now->setYear($year)->startOfMonth();
+            $to = (clone $from)->endOfMonth();
+            $timeId = 't' . str_pad("{$now->month}", 2, '0', STR_PAD_LEFT);
+        }
+
+        return [
+            'from' => $from,
+            'to' => $to,
+        ];
+    }
+
+    /**
+     * Get default timeId (current month).
+     *
+     * @return string
+     */
+    protected function getDefaultTimeId(): string
+    {
+        return 't' . str_pad((string) now()->month, 2, '0', STR_PAD_LEFT);
+    }
+
+    /**
+     * Get timer from date.
+     *
+     * @return string
+     * @deprecated Use getTimer()['from'] instead
+     */
+    public function timerFrom(): string
+    {
+        return $this->getTimer()['from'];
+    }
+
+    /**
+     * Get timer to date.
+     *
+     * @return string
+     * @deprecated Use getTimer()['to'] instead
+     */
+    public function timerTo(): string
+    {
+        return $this->getTimer()['to'];
+    }
+
+    /**
+     * Legacy timer method for backward compatibility.
+     *
+     * @param null|array|string $time Timer settings
+     * @return array{id: string, from: string, to: string}
+     * @deprecated Use getTimer() or setTimer() instead
+     */
+    public function timer(null|array|string $time = null): array
+    {
+        if ($time === null) {
+            return $this->getTimer();
+        }
+
+        return $this->setTimer(\is_array($time) ? $time : ['id' => $time]);
     }
 
     public function ma_Nt()
