@@ -34,17 +34,43 @@ Sử dụng helper `catalog()` để truy cập CatalogService, `catalog_functio
 laravel-catalog/
 ├── src/
 │   ├── Commands/          # Các command Artisan
+│   ├── Config/            # Configuration classes (TimerConfig)
 │   ├── Connectors/        # Connector SQL Server tùy chỉnh
-│   ├── Http/              # Controller và API
+│   ├── Http/              # Controller, Livewire components và API
 │   ├── Models/            # Các model Eloquent
 │   ├── Observers/         # Observer cho model
 │   ├── Providers/         # ServiceProvider
-│   ├── Services/          # Các service chính
+│   ├── Services/          # Các service chính (CatalogService)
 │   └── View/Components/   # Các component Blade
 ├── database/              # Factory, seeders
 ├── helpers.php            # Global helpers
 └── composer.json
 ```
+
+## Timer System
+
+Package cung cấp hệ thống timer để lọc báo cáo theo thời gian:
+
+- **TimerConfig** (`Config/TimerConfig.php`): Model quản lý cấu hình timer
+  - `timer()`: Tạo instance timer từ session
+  - `setTimer()`: Thiết lập timer và lưu session
+  - `getTimer()`: Lấy timer settings từ session
+  - `calculateTimeRange()`: Tính toán date range từ timeId
+  - Constants: `TIME_MONTHS`, `TIME_QUARTERS`, `TIME_HALF_YEARS`, `TIME_YEAR`, `TIME_CUSTOM`
+
+- **CatalogService** methods:
+  - `timer()`: Legacy wrapper cho TimerConfig
+  - `timerFrom()`: Lấy ngày bắt đầu
+  - `timerTo()`: Lấy ngày kết thúc
+  - `year()`: Lấy năm hiện tại từ session
+
+- **Time format**:
+  - `t01-t12`: Tháng 01-12
+  - `q1-q4`: Quý 1-4
+  - `h1`: 6 tháng đầu năm
+  - `h2`: 6 tháng cuối năm
+  - `y`: Cả năm
+  - `c`: Custom (từ ... đến ...)
 
 ## Liên kết đến các package liên quan
 

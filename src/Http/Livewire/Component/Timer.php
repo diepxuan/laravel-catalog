@@ -6,8 +6,9 @@ declare(strict_types=1);
  * @copyright  © 2019 Dxvn, Inc.
  *
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
+ * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-03-06
+ * @lastupdate 2026-03-09 19:25:00
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Component;
@@ -52,24 +53,20 @@ class Timer extends Component
 
     /**
      * Mount the component.
-     *
-     * @return void
      */
     public function mount(): void
     {
         $this->options = TimerConfig::options();
 
         // Load current timer settings from session
-        $timer = \CatalogService::getTimer();
-        $this->timerId = $timer['id'];
+        $timer           = \CatalogService::timer();
+        $this->timerId   = $timer['id'];
         $this->timerFrom = $timer['from'];
-        $this->timerTo = $timer['to'];
+        $this->timerTo   = $timer['to'];
     }
 
     /**
      * Handle timer ID change.
-     *
-     * @return void
      */
     public function updatedTimerId(): void
     {
@@ -79,44 +76,40 @@ class Timer extends Component
         }
 
         // Update timer settings
-        $result = \CatalogService::setTimer([
-            'id' => $this->timerId,
+        $result = \CatalogService::timer([
+            'id'   => $this->timerId,
             'from' => $this->timerFrom,
-            'to' => $this->timerTo,
+            'to'   => $this->timerTo,
         ]);
 
         $this->timerFrom = $result['from'];
-        $this->timerTo = $result['to'];
+        $this->timerTo   = $result['to'];
     }
 
     /**
      * Handle date change (custom mode only).
-     *
-     * @return void
      */
     public function updatedTimerFrom(): void
     {
         if (TimerConfig::isCustom($this->timerId)) {
-            \CatalogService::setTimer([
-                'id' => $this->timerId,
+            \CatalogService::timer([
+                'id'   => $this->timerId,
                 'from' => $this->timerFrom,
-                'to' => $this->timerTo,
+                'to'   => $this->timerTo,
             ]);
         }
     }
 
     /**
      * Handle date change (custom mode only).
-     *
-     * @return void
      */
     public function updatedTimerTo(): void
     {
         if (TimerConfig::isCustom($this->timerId)) {
-            \CatalogService::setTimer([
-                'id' => $this->timerId,
+            \CatalogService::timer([
+                'id'   => $this->timerId,
                 'from' => $this->timerFrom,
-                'to' => $this->timerTo,
+                'to'   => $this->timerTo,
             ]);
         }
     }
