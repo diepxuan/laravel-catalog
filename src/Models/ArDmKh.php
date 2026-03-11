@@ -8,14 +8,13 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-01-11 23:03:33
+ * @lastupdate 2026-03-11 16:05:25
  */
 
 namespace Diepxuan\Catalog\Models;
 
 use Diepxuan\Simba\Models\ArDmKh as Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Support\Collection;
 
 class ArDmKh extends Model
 {
@@ -38,8 +37,6 @@ class ArDmKh extends Model
 
     /**
      * Gọi stored procedure asGetSoDuKh để lấy số dư khách hàng.
-     *
-     * @return float
      */
     public static function AsGetSoDuKh(array $params): float
     {
@@ -48,6 +45,7 @@ class ArDmKh extends Model
 
     protected static function booted(): void
     {
+        parent::boot();
         static::addGlobalScope('orderByMaKh', static function ($query): void {
             $query->orderBy('ma_kh');
         });
