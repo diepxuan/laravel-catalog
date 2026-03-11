@@ -8,36 +8,38 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-03-11 18:45:00
+ * @lastupdate 2026-03-11 20:06:58
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Component;
 
 use Diepxuan\Catalog\Models\ArDmKh;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\View\View;
 use Livewire\Component;
 
 /**
  * Input autocomplete đối tượng (khách hàng, nhà cung cấp, nhân viên).
  *
- * Hỗ trợ nhiều mode (single hoặc multi-mode):
+ * Hỗ trợ nhiều mode (single hoặc multi-mode, OR logic):
  * - khachhang: Chỉ khách hàng (isKh = true)
  * - nhacungcap: Chỉ nhà cung cấp (isNcc = true)
  * - nhanvien: Chỉ nhân viên (isNv = true)
  * - all: Tất cả (không lọc)
- * - Multi-mode: khachhang,nhacungcap | khachhang,nhanvien | nhacungcap,nhanvien
+ * - Multi-mode OR: khachhang,nhacungcap (isKh = true OR isNcc = true)
+ *
+ * Lưu ý: Cả comma (,) và pipe (|) đều dùng OR logic
  *
  * Usage:
  * <livewire:catalog::component.input-khachhang mode="khachhang" wire:model="pMa_Kh" />
  * <livewire:catalog::component.input-khachhang mode="nhanvien" wire:model="pMa_Nv" />
- * <livewire:catalog::component.input-khachhang mode="khachhang,nhacungcap" wire:model="pMa_DoiTuong" />
+ * <livewire:catalog::component.input-khachhang mode="khachhang,nhanvien" wire:model="pMa_KhachHoacNhanVien" />
+ * <livewire:catalog::component.input-khachhang mode="khachhang|nhanvien" wire:model="pMa_KhachHoacNhanVien" />
  */
 class InputKhachhang extends Component
 {
     /**
      * Mode lọc đối tượng.
-     *
-     * @var string
      */
     public string $mode = 'khachhang';
 
@@ -79,8 +81,8 @@ class InputKhachhang extends Component
      */
     public function mount(?string $value = null, string $mode = 'khachhang'): void
     {
-        $this->value = $value;
-        $this->mode  = $mode;
+        $this->value       = $value;
+        $this->mode        = $mode;
         $this->placeholder = $this->getPlaceholderByMode();
 
         // Load tên đối tượng nếu có value
@@ -108,20 +110,35 @@ class InputKhachhang extends Component
             return;
         }
 
-        // Build query theo mode (hỗ trợ multi-mode: khachhang,nhacungcap)
+        // Build query theo mode (OR logic - comma hoặc pipe)
+        // Mode: khachhang,nhacungcap,nhanvien (isKh = true OR isNcc = true OR isNv = true)
         $query = ArDmKh::query();
 
-        // Parse mode (comma-separated)
-        $modes = array_map('trim', explode(',', $this->mode));
+        // Parse mode (hỗ trợ cả comma và pipe, đều là OR logic)
+        $modes = array_map('trim', preg_split('/[,.|]/', $this->mode));
 
-        foreach ($modes as $m) {
-            match ($m) {
-                'khachhang'  => $query->laKhachHang(),
-                'nhacungcap' => $query->laNhaCungCap(),
-                'nhanvien'   => $query->laNhanVien(),
-                default      => null, // all: không lọc
-            };
-        }
+        // Dùng nested closure cho OR logic với scopes
+        $query->where(static function (Builder $q) use ($modes): void {
+            foreach ($modes as $i => $m) {
+                if ($i === 0) {
+                    // Điều kiện đầu tiên dùng where
+                    match ($m) {
+                        'khachhang'  => $q->laKhachHang(),
+                        'nhacungcap' => $q->laNhaCungCap(),
+                        'nhanvien'   => $q->laNhanVien(),
+                        default      => null,
+                    };
+                } else {
+                    // Các điều kiện sau dùng orWhere với scope
+                    match ($m) {
+                        'khachhang'  => $q->orWhere(static fn ($sq) => $sq->laKhachHang()),
+                        'nhacungcap' => $q->orWhere(static fn ($sq) => $sq->laNhaCungCap()),
+                        'nhanvien'   => $q->orWhere(static fn ($sq) => $sq->laNhanVien()),
+                        default      => null,
+                    };
+                }
+            }
+        });
 
         // Tìm kiếm theo mã, tên, địa chỉ, tel
         $this->results = $query
@@ -176,15 +193,24 @@ class InputKhachhang extends Component
     }
 
     /**
+     * Render component.
+     */
+    public function render(): View
+    {
+        return view('catalog::components.input-khachhang');
+    }
+
+    /**
      * Lấy placeholder theo mode.
      */
     protected function getPlaceholderByMode(): string
     {
         // Parse mode để hiển thị placeholder phù hợp
-        $modes = array_map('trim', explode(',', $this->mode));
+        // Hỗ trợ cả comma và pipe (đều là OR logic)
+        $modes = array_map('trim', preg_split('/[,.|]/', $this->mode));
 
         // Nếu có nhiều mode hoặc all → placeholder chung
-        if (count($modes) > 1 || in_array('all', $modes, true)) {
+        if (\count($modes) > 1 || \in_array('all', $modes, true)) {
             return 'Chọn đối tượng...';
         }
 
@@ -195,13 +221,5 @@ class InputKhachhang extends Component
             'nhanvien'   => 'Chọn nhân viên...',
             default      => 'Chọn đối tượng...',
         };
-    }
-
-    /**
-     * Render component.
-     */
-    public function render(): View
-    {
-        return view('catalog::components.input-khachhang');
     }
 }
