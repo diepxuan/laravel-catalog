@@ -40,7 +40,7 @@
                 <div class="grid grid-cols-3 items-center gap-4 pt-1">
                     <label class="text-right">Mã khách hàng</label>
                     <div class="col-span-2">
-                        <livewire:catalog::component.input-khachhang wire:model="pMa_Kh" />
+                        <livewire:catalog::component.input-khachhang mode="khachhang" wire:model="pMa_Kh" />
                     </div>
                 </div>
 

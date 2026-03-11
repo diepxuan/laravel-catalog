@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-03-11 15:52:31
+ * @lastupdate 2026-03-11 18:45:00
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Component;
@@ -18,22 +18,36 @@ use Illuminate\View\View;
 use Livewire\Component;
 
 /**
- * Input autocomplete khách hàng.
+ * Input autocomplete đối tượng (khách hàng, nhà cung cấp, nhân viên).
  *
- * Hỗ trợ:
- * - Tìm kiếm theo mã khách hàng
- * - Tìm kiếm theo tên khách hàng
- * - Dropdown với danh sách gợi ý
+ * Hỗ trợ nhiều mode (single hoặc multi-mode):
+ * - khachhang: Chỉ khách hàng (isKh = true)
+ * - nhacungcap: Chỉ nhà cung cấp (isNcc = true)
+ * - nhanvien: Chỉ nhân viên (isNv = true)
+ * - all: Tất cả (không lọc)
+ * - Multi-mode: khachhang,nhacungcap | khachhang,nhanvien | nhacungcap,nhanvien
+ *
+ * Usage:
+ * <livewire:catalog::component.input-khachhang mode="khachhang" wire:model="pMa_Kh" />
+ * <livewire:catalog::component.input-khachhang mode="nhanvien" wire:model="pMa_Nv" />
+ * <livewire:catalog::component.input-khachhang mode="khachhang,nhacungcap" wire:model="pMa_DoiTuong" />
  */
 class InputKhachhang extends Component
 {
     /**
-     * Giá trị selected (mã khách hàng).
+     * Mode lọc đối tượng.
+     *
+     * @var string
+     */
+    public string $mode = 'khachhang';
+
+    /**
+     * Giá trị selected (mã đối tượng).
      */
     public ?string $value = null;
 
     /**
-     * Text hiển thị (tên khách hàng).
+     * Text hiển thị (tên đối tượng).
      */
     public string $search = '';
 
@@ -55,20 +69,23 @@ class InputKhachhang extends Component
     /**
      * Placeholder text.
      */
-    public string $placeholder = 'Chọn khách hàng...';
+    public string $placeholder = '';
 
     /**
      * Mount component.
      *
      * @param null|string $value Giá trị khởi tạo
+     * @param string      $mode  Mode lọc (khachhang|nhacungcap|nhanvien|khachhang-va-nhacungcap|all)
      */
-    public function mount(?string $value = null): void
+    public function mount(?string $value = null, string $mode = 'khachhang'): void
     {
         $this->value = $value;
+        $this->mode  = $mode;
+        $this->placeholder = $this->getPlaceholderByMode();
 
-        // Load tên khách hàng nếu có value
+        // Load tên đối tượng nếu có value
         if ($value) {
-            $kh = ArDmKh::find($value);
+            $kh = ArDmKh::withoutGlobalScope('ksd')->find($value);
             if ($kh) {
                 $this->search = $kh->ten_kh ?? '';
             }
@@ -91,15 +108,24 @@ class InputKhachhang extends Component
             return;
         }
 
-        // Tìm kiếm theo mã hoặc tên
-        $this->results = ArDmKh::where('isKh', true)
-            ->where(static function ($query) use ($search): void {
-                $query->where('ma_kh', 'like', "%{$search}%")
-                    ->orWhere('ten_kh', 'like', "%{$search}%")
-                    ->orWhere('dia_chi', 'like', "%{$search}%")
-                    ->orWhere('tel', 'like', "%{$search}%")
-                ;
-            })
+        // Build query theo mode (hỗ trợ multi-mode: khachhang,nhacungcap)
+        $query = ArDmKh::query();
+
+        // Parse mode (comma-separated)
+        $modes = array_map('trim', explode(',', $this->mode));
+
+        foreach ($modes as $m) {
+            match ($m) {
+                'khachhang'  => $query->laKhachHang(),
+                'nhacungcap' => $query->laNhaCungCap(),
+                'nhanvien'   => $query->laNhanVien(),
+                default      => null, // all: không lọc
+            };
+        }
+
+        // Tìm kiếm theo mã, tên, địa chỉ, tel
+        $this->results = $query
+            ->search($search)
             ->limit(10)
             ->get()
             ->map(static fn ($kh) => [
@@ -116,7 +142,7 @@ class InputKhachhang extends Component
     }
 
     /**
-     * Chọn khách hàng từ dropdown.
+     * Chọn đối tượng từ dropdown.
      */
     public function selectCustomer(string $ma_kh, string $ten_kh): void
     {
@@ -147,6 +173,28 @@ class InputKhachhang extends Component
         $this->search       = '';
         $this->results      = [];
         $this->showDropdown = false;
+    }
+
+    /**
+     * Lấy placeholder theo mode.
+     */
+    protected function getPlaceholderByMode(): string
+    {
+        // Parse mode để hiển thị placeholder phù hợp
+        $modes = array_map('trim', explode(',', $this->mode));
+
+        // Nếu có nhiều mode hoặc all → placeholder chung
+        if (count($modes) > 1 || in_array('all', $modes, true)) {
+            return 'Chọn đối tượng...';
+        }
+
+        // Single mode
+        return match ($modes[0]) {
+            'khachhang'  => 'Chọn khách hàng...',
+            'nhacungcap' => 'Chọn nhà cung cấp...',
+            'nhanvien'   => 'Chọn nhân viên...',
+            default      => 'Chọn đối tượng...',
+        };
     }
 
     /**
