@@ -53,22 +53,54 @@
 
                 <div class="grid grid-cols-3 items-center gap-4 pt-1">
                     <label class="text-right">Mã kho</label>
-                    <input class="col-span-2 rounded-md border-gray-300 py-1 shadow-sm" wire:model="pMa_Kho" />
+                    <div class="col-span-2">
+                        <livewire:catalog::component.input-don-vi
+                            model="InDmKho"
+                            field="ma_kho"
+                            label="ten_kho"
+                            placeholder="Chọn kho..."
+                            wire:model="pMa_Kho"
+                        />
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-3 items-center gap-4 pt-1">
                     <label class="text-right">Mã vật tư</label>
-                    <input class="col-span-2 rounded-md border-gray-300 py-1 shadow-sm" wire:model="pMa_Vt" />
+                    <div class="col-span-2">
+                        <livewire:catalog::component.input-don-vi
+                            model="InDmVt"
+                            field="ma_vt"
+                            label="ten_vt"
+                            placeholder="Chọn vật tư..."
+                            wire:model="pMa_Vt"
+                        />
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-3 items-center gap-4 pt-1">
                     <label class="text-right">Mã bộ phận</label>
-                    <input class="col-span-2 rounded-md border-gray-300 py-1 shadow-sm" wire:model="pMa_Bp" />
+                    <div class="col-span-2">
+                        <livewire:catalog::component.input-don-vi
+                            model="SiDmBp"
+                            field="ma_bp"
+                            label="ten_bp"
+                            placeholder="Chọn bộ phận..."
+                            wire:model="pMa_Bp"
+                        />
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-3 items-center gap-4 pt-1">
                     <label class="text-right">Mã ngoại tệ</label>
-                    <input class="col-span-2 rounded-md border-gray-300 py-1 shadow-sm" wire:model="pMa_Nt" />
+                    <div class="col-span-2">
+                        <livewire:catalog::component.input-don-vi
+                            model="SiDmNt"
+                            field="ma_nt"
+                            label="ten_nt"
+                            placeholder="Chọn ngoại tệ..."
+                            wire:model="pMa_Nt"
+                        />
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-3 items-center gap-4 pt-1">

@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-07-05 20:25:52
+ * @lastupdate 2026-03-11 23:30:00
  */
 
 namespace Diepxuan\Catalog\Models;
