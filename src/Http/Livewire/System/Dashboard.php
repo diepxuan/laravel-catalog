@@ -36,6 +36,7 @@ class Dashboard extends Component
     public function updateKhoaSo(): void
     {
         $this->system->khoaSo = $this->ngayKhoaSo;
+        $this->dispatch('action-message', ['on' => 'khoa-so-updated']);
         // \Debugbar::info($this->system->khoaSo);
     }
 
