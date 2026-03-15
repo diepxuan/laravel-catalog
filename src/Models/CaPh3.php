@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Models;
 
-use Diepxuan\Simba\Models\CaPh3 as Model;
+use Diepxuan\Simba\SModel\CaPh3Model as Model;
 
 class CaPh3 extends Model
 {

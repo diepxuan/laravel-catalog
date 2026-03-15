@@ -8,12 +8,13 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-03-09 19:25:00
+ * @lastupdate 2026-03-15 22:52:29
  */
 
 namespace Diepxuan\Catalog\Services;
 
 use Diepxuan\Catalog\Config\TimerConfig;
+use Diepxuan\Catalog\Models\GlDmTk;
 use Diepxuan\Catalog\Models\NavigationMenu;
 use Diepxuan\Catalog\Models\SysCompany;
 use Diepxuan\Catalog\Models\SysLanguage;
@@ -25,18 +26,13 @@ use Illuminate\Support\Facades\Auth;
 class CatalogService
 {
     protected SysLanguage $sysLanguage;
-
     protected User $user;
-
     protected SysUserInfo $simbaUser;
-
     protected ?SysCompany $company = null;
-
     protected string $maNt;
-
     protected string $id;
-
     protected $menus;
+    protected $glDmTks;
 
     public function __construct()
     {
@@ -66,7 +62,7 @@ class CatalogService
             return $this->company;
         }
 
-        $ma_cty = session('selected_company');
+        $ma_cty = session('selected_company', '001');
         if ($ma_cty) {
             $this->company = $this->companies()->firstWhere('ma_cty', $ma_cty);
         } else {
@@ -176,5 +172,10 @@ class CatalogService
     public function ma_Nt()
     {
         return $this->maNt ?? $this->maNt = ($this->company()->siSetup->ma_nt0 ?? 'VND');
+    }
+
+    public function glDmTks()
+    {
+        return $this->glDmTks ?? $this->glDmTks = GlDmTk::all();
     }
 }

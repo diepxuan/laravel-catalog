@@ -8,12 +8,11 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-03-06 00:53:40
+ * @lastupdate 2026-03-15 22:49:13
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Component;
 
-use Diepxuan\Catalog\Models\GlDmTk;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Modelable;
 use Livewire\Component;
@@ -35,8 +34,7 @@ class InputTaikhoan extends Component
 
     public function boot(): void
     {
-        $this->glDmTks = GlDmTk::all();
-        \Debugbar::log($this->glDmTks);
+        $this->glDmTks = \CatalogService::glDmTks();
     }
 
     public function mount(): void {}
