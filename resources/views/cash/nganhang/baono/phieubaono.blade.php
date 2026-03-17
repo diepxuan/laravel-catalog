@@ -6,19 +6,12 @@
         <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
             <!-- Mã KH -->
             <div class="grid grid-cols-4 items-center gap-2">
-                <div class="col-span-3">
-                    {{ $sttRec }}
-                    {{ $pStt_Rec }}
-                </div>
-            </div>
-            <!-- Mã KH -->
-            <div class="grid grid-cols-4 items-center gap-2">
                 <label class="col-span-1 text-right text-sm font-medium text-gray-700">Mã KH</label>
                 <div class="col-span-3">
-                    <input type="text"
-                        class="block w-full rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                        list="ArDmKh-suggestions" wire:model="pMa_Kh" wire:change="updateKhachHang"
-                        placeholder="Nhập mã khách hàng..." />
+                    <livewire:catalog::component.input-khachhang mode="khachhang,nhacungcap" wire:model.live="pMa_Kh"
+                        placeholder="Chọn khách hàng..." />
+                    {{ $pKh ? $pKh->ten_kh : '' }}
+                    {{ $pMa_Kh }}
                 </div>
             </div>
 

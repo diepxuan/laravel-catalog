@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-03-15 22:52:29
+ * @lastupdate 2026-03-17 11:42:27
  */
 
 namespace Diepxuan\Catalog\Services;
@@ -124,7 +124,7 @@ class CatalogService
         ;
     }
 
-    public static function year(?int $year = null): int
+    public function year(?int $year = null): int
     {
         if (!is_numeric($year) || $year < 2_006 || $year > 2_100) {
             $year = session('year', now()->year) ?? now()->year;
@@ -142,7 +142,7 @@ class CatalogService
      *
      * @return array{id: string, from: string, to: string}
      */
-    public static function timer(array|string|null $time = null): array
+    public function timer(array|string|null $time = null): array
     {
         $time = match (true) {
             \is_array($time) => $time,
@@ -156,17 +156,17 @@ class CatalogService
     /**
      * Get timer from date.
      */
-    public static function timerFrom(): string
+    public function timerFrom(): string
     {
-        return TimerConfig::timer()['from'];
+        return $this->timer()['from'];
     }
 
     /**
      * Get timer to date.
      */
-    public static function timerTo(): string
+    public function timerTo(): string
     {
-        return TimerConfig::timer()['to'];
+        return $this->timer()['to'];
     }
 
     public function ma_Nt()

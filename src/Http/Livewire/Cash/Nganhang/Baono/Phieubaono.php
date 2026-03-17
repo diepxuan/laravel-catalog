@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-03-02 23:10:16
+ * @lastupdate 2026-03-17 11:24:52
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baono;
@@ -32,13 +32,18 @@ use Livewire\Component;
 
 class Phieubaono extends Component
 {
+    // Constants cho cấu hình
+    const MA_CT          = 'CA4';
+    const DEFAULT_TK_CO  = 11_217;
+    const DEFAULT_MA_NT  = 'VND';
+    const DEFAULT_TY_GIA = 1;
     // Property nhận từ bên ngoài (Baono component)
-    public $sttRec = '';
-    
-    public $pMa_Kh;
+    public ?string $sttRec = '';
+
+    public ?string $pMa_Kh = null;
     public $pKh;
-    public $pDien_Giai;
-    public $pTk_Co = self::DEFAULT_TK_CO;
+    public ?string $pDien_Giai = '';
+    public $pTk_Co             = self::DEFAULT_TK_CO;
     public $pNgay_Ct;
     public $pSo_Ct;
     public $pNgay_Lap;
@@ -54,6 +59,7 @@ class Phieubaono extends Component
     public $pKht_Tain   = '0'; // Tự động = 0
     public $pTrang_Thai = ''; // Tự động = '' (theo SQL history)
     public $pPost2Gl    = ''; // Tự động = '' (theo SQL history)
+
     public Collection $pCts;
     public $pSoDu;
     public $pTong_Ps_No = 0;
@@ -67,12 +73,6 @@ class Phieubaono extends Component
 
     // Danh sách tài khoản cho datalist
     public $glDmTks = [];
-
-    // Constants cho cấu hình
-    const MA_CT = 'CA4';
-    const DEFAULT_TK_CO = 11217;
-    const DEFAULT_MA_NT = 'VND';
-    const DEFAULT_TY_GIA = 1;
 
     protected $rules = [
         'pMa_Kh'          => 'required',
@@ -98,23 +98,23 @@ class Phieubaono extends Component
     ];
 
     protected $messages = [
-        'pMa_Kh.required'          => 'Vui lòng chọn khách hàng',
-        'pTk_Co.required'          => 'Vui lòng chọn tài khoản Có',
-        'pNgay_Ct.required'        => 'Vui lòng chọn ngày chứng từ',
-        'pNgay_Ct.date'            => 'Ngày chứng từ không hợp lệ',
-        'pNgay_Lap.required'       => 'Vui lòng chọn ngày lập',
-        'pNgay_Lap.date'           => 'Ngày lập không hợp lệ',
-        'pMa_Nt.required'          => 'Vui lòng chọn mã ngoại tệ',
-        'pMa_Nt.size'              => 'Mã ngoại tệ phải có 3 ký tự',
-        'pTy_Gia.required'         => 'Vui lòng nhập tỷ giá',
-        'pTy_Gia.numeric'          => 'Tỷ giá phải là số',
-        'pTy_Gia.min'              => 'Tỷ giá phải lớn hơn hoặc bằng 0',
-        'pCts.*.ma_tk.required'    => 'Vui lòng chọn tài khoản Nợ',
-        'pCts.*.ps_no.required'    => 'Vui lòng nhập số tiền',
-        'pCts.*.ps_no.numeric'     => 'Số tiền phải là số',
-        'pCts.*.ps_no.min'         => 'Số tiền phải lớn hơn hoặc bằng 0',
-        'pCts.*.ps_co.numeric'     => 'Số tiền phải là số',
-        'pCts.*.ps_co.min'         => 'Số tiền phải lớn hơn hoặc bằng 0',
+        'pMa_Kh.required'       => 'Vui lòng chọn khách hàng',
+        'pTk_Co.required'       => 'Vui lòng chọn tài khoản Có',
+        'pNgay_Ct.required'     => 'Vui lòng chọn ngày chứng từ',
+        'pNgay_Ct.date'         => 'Ngày chứng từ không hợp lệ',
+        'pNgay_Lap.required'    => 'Vui lòng chọn ngày lập',
+        'pNgay_Lap.date'        => 'Ngày lập không hợp lệ',
+        'pMa_Nt.required'       => 'Vui lòng chọn mã ngoại tệ',
+        'pMa_Nt.size'           => 'Mã ngoại tệ phải có 3 ký tự',
+        'pTy_Gia.required'      => 'Vui lòng nhập tỷ giá',
+        'pTy_Gia.numeric'       => 'Tỷ giá phải là số',
+        'pTy_Gia.min'           => 'Tỷ giá phải lớn hơn hoặc bằng 0',
+        'pCts.*.ma_tk.required' => 'Vui lòng chọn tài khoản Nợ',
+        'pCts.*.ps_no.required' => 'Vui lòng nhập số tiền',
+        'pCts.*.ps_no.numeric'  => 'Số tiền phải là số',
+        'pCts.*.ps_no.min'      => 'Số tiền phải lớn hơn hoặc bằng 0',
+        'pCts.*.ps_co.numeric'  => 'Số tiền phải là số',
+        'pCts.*.ps_co.min'      => 'Số tiền phải lớn hơn hoặc bằng 0',
     ];
 
     public function mount(): void
@@ -152,7 +152,9 @@ class Phieubaono extends Component
     }
 
     /**
-     * Xử lý khi sttRec thay đổi từ bên ngoài
+     * Xử lý khi sttRec thay đổi từ bên ngoài.
+     *
+     * @param mixed $value
      */
     public function updatedSttRec($value): void
     {
@@ -234,11 +236,15 @@ class Phieubaono extends Component
         }
     }
 
+    public function updatedPMaKh($value): void
+    {
+        \Debugbar::info(__METHOD__, $value);
+        $this->updateKhachHang($value);
+    }
+
     public function updated($property): void
     {
-        if ('pMa_Kh' === $property) {
-            $this->updateKhachHang();
-        }
+        \Debugbar::info(__METHOD__, $property);
 
         if ('pDien_Giai' === $property) {
             // Auto-fill diễn giải mới vào tất cả các dòng chi tiết
@@ -301,7 +307,9 @@ class Phieubaono extends Component
 
     /**
      * Xử lý khi nhấn Enter trong ô số tiền
-     * Tự động thêm dòng mới và focus vào dòng tiếp theo
+     * Tự động thêm dòng mới và focus vào dòng tiếp theo.
+     *
+     * @param mixed $index
      */
     public function handleEnter($index): void
     {
@@ -309,26 +317,6 @@ class Phieubaono extends Component
         if ($index === $this->pCts->count() - 1) {
             $this->addRow();
         }
-    }
-
-    /**
-     * Loại bỏ các dòng có số tiền = 0 trước khi lưu
-     */
-    protected function removeEmptyRows(): void
-    {
-        $this->pCts = $this->pCts->filter(function ($row) {
-            $ps_no = (float) ($row['ps_no'] ?? 0);
-            return $ps_no > 0;
-        })->values();
-
-        // Nếu không còn dòng nào, thêm 1 dòng trống
-        if ($this->pCts->isEmpty()) {
-            $this->addRow();
-        }
-
-        // Tính lại tổng
-        $this->calculateTotal();
-        $this->calculateForeignCurrency();
     }
 
     public function submit(): void
@@ -346,7 +334,7 @@ class Phieubaono extends Component
 
         // Kiểm tra số dư khách hàng trước khi lưu
         if ($this->pSoDu < $this->pTong_Ps_No) {
-            $this->addError('pCts', "Số dư khách hàng không đủ. Số dư hiện tại: " . number_format($this->pSoDu, 0, ',', '.') . " VNĐ");
+            $this->addError('pCts', 'Số dư khách hàng không đủ. Số dư hiện tại: ' . number_format($this->pSoDu, 0, ',', '.') . ' VNĐ');
 
             return;
         }
@@ -548,8 +536,15 @@ class Phieubaono extends Component
         }
     }
 
-    public function updateKhachHang(): void
+    public function updateKhachHang($ma_kh = null): void
     {
+        // Nếu có ma_kh từ parameter, cập nhật pMa_Kh
+        if ($ma_kh) {
+            $this->pMa_Kh = $ma_kh;
+        }
+
+        \Debugbar::info('Phieubaono/updateKhachHang/pMa_Kh:', $this->pMa_Kh);
+
         $this->pKh = ArDmKh::where('ma_kh', $this->pMa_Kh)->first();
         if ($this->pKh) {
             $this->pDien_Giai = 'Thanh toán nhà chung cấp ' . $this->pKh->ten_kh;
@@ -690,7 +685,7 @@ class Phieubaono extends Component
     }
 
     /**
-     * Xóa phiếu báo nợ
+     * Xóa phiếu báo nợ.
      */
     public function deletePhieu(): void
     {
@@ -704,7 +699,7 @@ class Phieubaono extends Component
         $lUser = \Auth::user()->name ?? '';
 
         try {
-            \DB::transaction(function () use ($maCty, $lUser): void {
+            \DB::transaction(function () use ($maCty): void {
                 // 1. Process chứng từ để unlock (mode 2 = sửa/xóa)
                 AsProcessCt::call([
                     'pMa_cty'  => $maCty,
@@ -738,38 +733,38 @@ class Phieubaono extends Component
     }
 
     /**
-     * Reset form về trạng thái mặc định
+     * Reset form về trạng thái mặc định.
      */
     public function resetForm(): void
     {
-        $this->pStt_Rec = '';
-        $this->pMode = 'create';
-        $this->pMa_Kh = '';
-        $this->pKh = '';
+        $this->pStt_Rec   = '';
+        $this->pMode      = 'create';
+        $this->pMa_Kh     = '';
+        $this->pKh        = '';
         $this->pDien_Giai = '';
-        $this->pTk_Co = self::DEFAULT_TK_CO;
-        $this->pNgay_Ct = now()->toDateString();
-        $this->pSo_Ct = AsGetSoCt::call([
+        $this->pTk_Co     = self::DEFAULT_TK_CO;
+        $this->pNgay_Ct   = now()->toDateString();
+        $this->pSo_Ct     = AsGetSoCt::call([
             'pMa_ct'   => self::MA_CT,
             'pNgay_Ct' => $this->pNgay_Ct,
         ]);
-        $this->pNgay_Lap = now()->toDateString();
-        $this->pDia_Chi = '';
-        $this->pNguoi_Gd = \Auth::user()->name ?? '';
-        $this->pMa_Nt = \CatalogService::ma_Nt() ?: self::DEFAULT_MA_NT;
-        $this->pTy_Gia = self::DEFAULT_TY_GIA;
-        $this->pT_Tien_Nt = 0;
-        $this->pT_Thue = 0;
-        $this->pT_TT = 0;
-        $this->pT_Thue_Nt = 0;
-        $this->pT_TT_Nt = 0;
-        $this->pKht_Tain = '0';
+        $this->pNgay_Lap   = now()->toDateString();
+        $this->pDia_Chi    = '';
+        $this->pNguoi_Gd   = \Auth::user()->name ?? '';
+        $this->pMa_Nt      = \CatalogService::ma_Nt() ?: self::DEFAULT_MA_NT;
+        $this->pTy_Gia     = self::DEFAULT_TY_GIA;
+        $this->pT_Tien_Nt  = 0;
+        $this->pT_Thue     = 0;
+        $this->pT_TT       = 0;
+        $this->pT_Thue_Nt  = 0;
+        $this->pT_TT_Nt    = 0;
+        $this->pKht_Tain   = '0';
         $this->pTrang_Thai = '';
-        $this->pPost2Gl = '';
-        $this->pCts = collect();
-        $this->pSoDu = 0;
+        $this->pPost2Gl    = '';
+        $this->pCts        = collect();
+        $this->pSoDu       = 0;
         $this->pTong_Ps_No = 0;
-        $this->pSoDuCts = collect();
+        $this->pSoDuCts    = collect();
         $this->addRow();
     }
 
@@ -779,5 +774,26 @@ class Phieubaono extends Component
         return view('catalog::cash.nganhang.baono.phieubaono', [
             'arDmKhs' => ArDmKh::all(),
         ]);
+    }
+
+    /**
+     * Loại bỏ các dòng có số tiền = 0 trước khi lưu.
+     */
+    protected function removeEmptyRows(): void
+    {
+        $this->pCts = $this->pCts->filter(static function ($row) {
+            $ps_no = (float) ($row['ps_no'] ?? 0);
+
+            return $ps_no > 0;
+        })->values();
+
+        // Nếu không còn dòng nào, thêm 1 dòng trống
+        if ($this->pCts->isEmpty()) {
+            $this->addRow();
+        }
+
+        // Tính lại tổng
+        $this->calculateTotal();
+        $this->calculateForeignCurrency();
     }
 }

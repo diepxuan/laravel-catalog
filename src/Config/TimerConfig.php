@@ -8,12 +8,11 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-03-09 19:30:00
+ * @lastupdate 2026-03-17 11:43:45
  */
 
 namespace Diepxuan\Catalog\Config;
 
-use Diepxuan\Catalog\Services\CatalogService;
 use Illuminate\Support\Carbon;
 
 /**
@@ -46,14 +45,14 @@ class TimerConfig
     /**
      * Get/set timer settings.
      *
-     * @param array{id?: string, from?: string, to?: string}|null $time Timer settings (null = read only)
+     * @param null|array{id?: string, from?: string, to?: string} $time Timer settings (null = read only)
      *
      * @return array{id: string, from: string, to: string}
      */
     public static function timer(?array $time = null): array
     {
         // Read mode: không có params
-        if ($time === null) {
+        if (null === $time) {
             $timeId = session('timeId', self::getDefaultTimeId());
             $from   = session('timeStart');
             $to     = session('timeEnd');
@@ -270,7 +269,7 @@ class TimerConfig
      */
     public static function calculateTimeRange(string $timeId): array
     {
-        $year = CatalogService::year();
+        $year = \CatalogService::year();
         $now  = now();
 
         // Month (t01-t12)
