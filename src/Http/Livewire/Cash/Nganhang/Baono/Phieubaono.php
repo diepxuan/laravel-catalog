@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-03-17 11:24:52
+ * @lastupdate 2026-03-18 23:39:54
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baono;
@@ -42,8 +42,8 @@ class Phieubaono extends Component
 
     public ?string $pMa_Kh = null;
     public $pKh;
-    public ?string $pDien_Giai = '';
-    public $pTk_Co             = self::DEFAULT_TK_CO;
+    public string $pDien_Giai = '';
+    public $pTk_Co            = self::DEFAULT_TK_CO;
     public $pNgay_Ct;
     public $pSo_Ct;
     public $pNgay_Lap;
@@ -332,13 +332,6 @@ class Phieubaono extends Component
             return;
         }
 
-        // Kiểm tra số dư khách hàng trước khi lưu
-        if ($this->pSoDu < $this->pTong_Ps_No) {
-            $this->addError('pCts', 'Số dư khách hàng không đủ. Số dư hiện tại: ' . number_format($this->pSoDu, 0, ',', '.') . ' VNĐ');
-
-            return;
-        }
-
         // Generate So Ct if empty
         if (empty($this->pSo_Ct)) {
             $this->pSo_Ct = AsGetSoCt::call([
@@ -361,12 +354,6 @@ class Phieubaono extends Component
             'pSo_ct'   => $this->pSo_Ct,
             'pNgay_ct' => $this->pNgay_Ct,
         ]);
-
-        if (0 !== $checkSoCt) {
-            $this->addError('pSo_Ct', 'Số chứng từ đã tồn tại. Vui lòng nhập số khác.');
-
-            return;
-        }
 
         // Transaction to ensure atomicity
         \DB::transaction(function () use ($maCty, $lUser, $isEditMode): void {

@@ -10,8 +10,6 @@
                 <div class="col-span-3">
                     <livewire:catalog::component.input-khachhang mode="khachhang,nhacungcap" wire:model.live="pMa_Kh"
                         placeholder="Chọn khách hàng..." />
-                    {{ $pKh ? $pKh->ten_kh : '' }}
-                    {{ $pMa_Kh }}
                 </div>
             </div>
 
@@ -20,7 +18,7 @@
                 <label class="col-span-1 text-right text-sm font-medium text-gray-700">Diễn giải</label>
                 <input
                     class="col-span-3 rounded-md border-gray-300 py-1.5 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    wire:model="pDien_Grai" placeholder="Nội dung giao dịch..." />
+                    wire:model.live="pDien_Giai" placeholder="Nội dung giao dịch..." />
             </div>
 
             <!-- Địa chỉ -->
