@@ -370,17 +370,21 @@ class Phieubaono extends Component
                 ]);
 
                 // 2. Xóa chi tiết cũ
-                $deleteDetails = AsCADelCT2::call([
+                $deleteDetailsResult = AsCADelCT2::call([
                     'pMa_cty'  => $maCty,
                     'pStt_rec' => $stt_rec,
                 ]);
 
-                if (0 !== $deleteDetails) {
-                    throw new \Exception('Không thể xóa chi tiết cũ. Vui lòng thử lại.');
+                // Lấy giá trị output parameter pRet
+                $deleteDetailsRet = $deleteDetailsResult->first()->pRet ?? null;
+                \Debugbar::info('AsCADelCT2 pRet:', $deleteDetailsRet);
+
+                if (0 !== $deleteDetailsRet) {
+                    throw new \Exception('Không thể xóa chi tiết cũ. Lỗi SQL: ' . $deleteDetailsRet);
                 }
 
                 // 3. Update Header bằng stored procedure
-                $updateHeader = AsCAUpdPH2::call([
+                $updateHeaderResult = AsCAUpdPH2::call([
                     'pMa_cty'     => $maCty,
                     'pStt_rec'    => $stt_rec,
                     'pMa_ct'      => 'CA4',
@@ -405,8 +409,12 @@ class Phieubaono extends Component
                     'pLUser'      => $lUser,
                 ]);
 
-                if (0 !== $updateHeader) {
-                    throw new \Exception('Không thể cập nhật phiếu báo nợ. Vui lòng thử lại.');
+                // Lấy giá trị output parameter pRet
+                $updateHeaderRet = $updateHeaderResult->first()->pRet ?? null;
+                \Debugbar::info('AsCAUpdPH2 pRet:', $updateHeaderRet);
+
+                if (0 !== $updateHeaderRet) {
+                    throw new \Exception('Không thể cập nhật phiếu báo nợ. Lỗi SQL: ' . $updateHeaderRet);
                 }
             } else {
                 // MODE TẠO MỚI
@@ -416,10 +424,20 @@ class Phieubaono extends Component
                     'pMa_Ct'  => 'CA4',
                 ]);
 
-                $stt_rec = $stt_rec_result; // Kết quả từ stored procedure
+                \Debugbar::info('AsGetSttRec raw result:', $stt_rec_result);
+                \Debugbar::info('AsGetSttRec first():', $stt_rec_result->first());
+                \Debugbar::info('AsGetSttRec pStt_rec:', $stt_rec_result->first()->pStt_rec ?? 'NULL');
+
+                $stt_rec = $stt_rec_result->first()->pStt_rec ?? '';
+
+                \Debugbar::info('Final stt_rec:', $stt_rec);
+
+                if (empty($stt_rec)) {
+                    throw new \Exception('Không thể lấy stt_rec từ AsGetSttRec. Vui lòng kiểm tra stored procedure.');
+                }
 
                 // 1. Insert Header bằng stored procedure
-                $insertHeader = AsCAInsPH2::call([
+                $insertHeaderResult = AsCAInsPH2::call([
                     'pMa_cty'     => $maCty,
                     'pStt_rec'    => $stt_rec,
                     'pMa_ct'      => 'CA4',
@@ -444,8 +462,12 @@ class Phieubaono extends Component
                     'pLUser'      => $lUser,
                 ]);
 
-                if (0 !== $insertHeader) {
-                    throw new \Exception('Không thể lưu phiếu báo nợ. Vui lòng thử lại.');
+                // Lấy giá trị output parameter pRet
+                $insertHeaderRet = $insertHeaderResult->first()->pRet ?? null;
+                \Debugbar::info('AsCAInsPH2 pRet:', $insertHeaderRet);
+
+                if (0 !== $insertHeaderRet) {
+                    throw new \Exception('Không thể lưu phiếu báo nợ. Lỗi SQL: ' . $insertHeaderRet);
                 }
             }
 
@@ -457,7 +479,7 @@ class Phieubaono extends Component
 
                 $stt_rec0 = str_pad((string) ($index + 1), 3, '0', STR_PAD_LEFT);
 
-                $insertDetail = AsCAInsCT2::call([
+                $insertDetailResult = AsCAInsCT2::call([
                     'pMa_cty'    => $maCty,
                     'pStt_rec'   => $stt_rec,
                     'pStt_rec0'  => $stt_rec0,
@@ -476,8 +498,12 @@ class Phieubaono extends Component
                     'pMa_spct'   => $row['ma_spct'] ?? '',
                 ]);
 
-                if (0 !== $insertDetail) {
-                    throw new \Exception('Không thể lưu chi tiết dòng ' . ($index + 1) . '. Vui lòng kiểm tra lại thông tin.');
+                // Lấy giá trị output parameter pRet
+                $insertDetailRet = $insertDetailResult->first()->pRet ?? null;
+                \Debugbar::info('AsCAInsCT2 pRet (dòng ' . ($index + 1) . '):', $insertDetailRet);
+
+                if (0 !== $insertDetailRet) {
+                    throw new \Exception('Không thể lưu chi tiết dòng ' . ($index + 1) . '. Lỗi SQL: ' . $insertDetailRet);
                 }
             }
 
@@ -696,13 +722,17 @@ class Phieubaono extends Component
                 ]);
 
                 // 2. Xóa chi tiết
-                $deleteDetails = AsCADelCT2::call([
+                $deleteDetailsResult = AsCADelCT2::call([
                     'pMa_cty'  => $maCty,
                     'pStt_rec' => $this->pStt_Rec,
                 ]);
 
-                if (0 !== $deleteDetails) {
-                    throw new \Exception('Không thể xóa chi tiết phiếu báo nợ');
+                // Lấy giá trị output parameter pRet
+                $deleteDetailsRet = $deleteDetailsResult->first()->pRet ?? null;
+                \Debugbar::info('AsCADelCT2 pRet (delete):', $deleteDetailsRet);
+
+                if (0 !== $deleteDetailsRet) {
+                    throw new \Exception('Không thể xóa chi tiết phiếu báo nợ. Lỗi SQL: ' . $deleteDetailsRet);
                 }
 
                 // 3. Xóa header (dùng AsCADelPH2 nếu có, hoặc xóa trực tiếp)
