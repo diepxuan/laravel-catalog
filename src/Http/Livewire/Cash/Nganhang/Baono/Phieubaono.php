@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-03-18 23:39:54
+ * @lastupdate 2026-03-19 13:22:14
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baono;
@@ -463,7 +463,7 @@ class Phieubaono extends Component
                 ]);
 
                 // Lấy giá trị output parameter pRet
-                $insertHeaderRet = $insertHeaderResult->first()->pRet ?? null;
+                $insertHeaderRet = (int) ($insertHeaderResult->first()->pRet ?? 0);
                 \Debugbar::info('AsCAInsPH2 pRet:', $insertHeaderRet);
 
                 if (0 !== $insertHeaderRet) {
