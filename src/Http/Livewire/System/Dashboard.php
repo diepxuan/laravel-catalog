@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-02-25 17:32:56
+ * @lastupdate 2026-03-26 18:42:28
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\System;
@@ -47,6 +47,6 @@ class Dashboard extends Component
      */
     public function render()
     {
-        return view('catalog::system.dashboard')->layout('catalog::layouts.app');
+        return view('catalog::system.system')->layout('catalog::layouts.app');
     }
 }
