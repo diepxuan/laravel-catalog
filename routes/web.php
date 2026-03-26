@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-03-26 18:53:02
+ * @lastupdate 2026-03-26 23:13:41
  */
 
 use Diepxuan\Catalog\Http\Controllers\SellController;
@@ -41,6 +41,7 @@ use Diepxuan\Catalog\Http\Livewire\System\Balance\InventoryOpeningNtxt;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\InventoryTransfer;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\Transfer;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\WorkInProgress;
+use Diepxuan\Catalog\Http\Livewire\System\Dashboard;
 use Diepxuan\Catalog\Http\Livewire\System\Menu;
 use Illuminate\Support\Facades\Route;
 
@@ -79,7 +80,7 @@ Route::middleware(['clearcache', 'auth'])->group(static function (): void {
     Route::get('khohang/khohang', Dmkho::class)->name('in.khohang');
     Route::get('khohang/tonkho', Tonkho::class)->name('in.tonkho');
 
-    Route::get('hethong/system', System::class)->name('system.system');
+    Route::get('hethong/system', Dashboard::class)->name('system.system');
     Route::resource('hethong/user', SystemUserController::class)->names('system.user');
     Route::resource('hethong/website', SystemWebsiteController::class)->names('system.website');
     Route::get('hethong/menu', Menu::class)->name('system.menu');
