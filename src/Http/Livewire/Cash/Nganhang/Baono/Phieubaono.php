@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-03-19 13:22:14
+ * @lastupdate 2026-03-26 15:57:12
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baono;
@@ -26,7 +26,7 @@ use Diepxuan\Simba\StoredProcedures\AsGetSoCt;
 use Diepxuan\Simba\StoredProcedures\AsGetSoDuKh;
 use Diepxuan\Simba\StoredProcedures\AsGetSttRec;
 use Diepxuan\Simba\StoredProcedures\AsPostCaph3_glct;
-use Diepxuan\Simba\StoredProcedures\AsProcessCt;
+use Diepxuan\Simba\StoredProcedures\AsProcessCT;
 use Illuminate\Support\Collection;
 use Livewire\Component;
 
@@ -341,7 +341,9 @@ class Phieubaono extends Component
         }
 
         $maCty = \CatalogService::company()->id ?? '001';
-        $lUser = \Auth::user()->name ?? '';
+        $user  = \CatalogService::simbaUser();
+        \Debugbar::info(__METHOD__, $user);
+        $lUser = $user->username ?? '';
 
         // Xác định mode: create hoặc edit
         $isEditMode = !empty($this->pStt_Rec) && 'edit' === $this->pMode;
@@ -362,7 +364,7 @@ class Phieubaono extends Component
                 $stt_rec = $this->pStt_Rec;
 
                 // 1. Process chứng từ để unlock (mode 2 = sửa/xóa)
-                AsProcessCt::call([
+                AsProcessCT::call([
                     'pMa_cty'  => $maCty,
                     'pMa_Ct'   => 'CA4',
                     'pStt_rec' => $stt_rec,
@@ -508,7 +510,7 @@ class Phieubaono extends Component
             }
 
             // 5. Process chứng từ (mode 1 = tạo mới/xác nhận sửa)
-            AsProcessCt::call([
+            AsProcessCT::call([
                 'pMa_cty'  => $maCty,
                 'pMa_Ct'   => 'CA4',
                 'pStt_rec' => $stt_rec,
@@ -714,7 +716,7 @@ class Phieubaono extends Component
         try {
             \DB::transaction(function () use ($maCty): void {
                 // 1. Process chứng từ để unlock (mode 2 = sửa/xóa)
-                AsProcessCt::call([
+                AsProcessCT::call([
                     'pMa_cty'  => $maCty,
                     'pMa_Ct'   => 'CA4',
                     'pStt_rec' => $this->pStt_Rec,

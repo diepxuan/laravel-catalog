@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-03-17 11:42:27
+ * @lastupdate 2026-03-26 15:57:13
  */
 
 namespace Diepxuan\Catalog\Services;
@@ -46,7 +46,10 @@ class CatalogService
         return $this->user ?? $this->user = Auth::user();
     }
 
-    public function simbaUser()
+    /**
+     * Get Simba user.
+     */
+    public function simbaUser(): SysUserInfo
     {
         return $this->simbaUser ?? $this->simbaUser = $this->user()->getSimbaUser();
     }
