@@ -31,7 +31,7 @@
         <tbody>
             @foreach ($glDmTks as $glDmTk)
                 {{-- @dd($glDmTk) --}}
-                <tr wire:loading.class.delay="opacity-50"
+                <tr wire:loading.class="opacity-50"
                     @class([
                         $glDmTk->bold ? 'text-blue-700 dark:text-sky-400' : '',
                     ]) >
