@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-03-26 23:13:41
+ * @lastupdate 2026-03-27 23:48:23
  */
 
 use Diepxuan\Catalog\Http\Controllers\SellController;
@@ -26,6 +26,7 @@ use Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baono;
 use Diepxuan\Catalog\Http\Livewire\Cash\Tienmat\Phieuchi;
 use Diepxuan\Catalog\Http\Livewire\Cash\Tienmat\Phieuthu;
 use Diepxuan\Catalog\Http\Livewire\Gl\Taikhoan;
+use Diepxuan\Catalog\Http\Livewire\Home\Dashboard as DashboardLivewire;
 use Diepxuan\Catalog\Http\Livewire\In\Baocao\Tonkho;
 use Diepxuan\Catalog\Http\Livewire\In\Dmkho;
 use Diepxuan\Catalog\Http\Livewire\In\Dmnhvt;
@@ -101,7 +102,7 @@ Route::middleware(['clearcache', 'auth'])->group(static function (): void {
 
     // Route::get('/', [SystemController::class, 'index']);
     Route::get('/', static fn () => view('catalog::dashboard'))->name('home');
-    Route::get('/dashboard', static fn () => view('catalog::dashboard'))->name('dashboard');
+    Route::get('/dashboard', DashboardLivewire::class)->name('dashboard');
 });
 
 Route::get('/check-proxy', static fn () => [
