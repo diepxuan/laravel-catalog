@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-03-26 23:15:59
+ * @lastupdate 2026-03-30 08:04:06
  */
 
 namespace Diepxuan\Catalog\Models;
@@ -185,7 +185,7 @@ class NavigationMenu extends Model
     protected function route(): Attribute
     {
         return Attribute::make(
-            get: static fn (string $value) => '' === trim($value) ? $value : (!Route::has($value) ? 'home' : $value),
+            get: static fn (?string $value) => empty(trim((string) $value)) || 'space' === trim((string) $value) ? $value : (!Route::has($value) ? 'home' : $value),
         );
     }
 

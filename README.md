@@ -2,6 +2,11 @@
 
 Package catalog cho DXPanel.
 
+## 📚 Documentation
+
+- **Project Docs:** [Model Architecture](../../docs/project/model-architecture.md) - 3-layer Model pattern
+- **Project Docs:** [Package Namespace Conventions](../../docs/project/package-namespace-conventions.md)
+
 ## Mô tả
 
 Catalog package cho DXPanel (lấy từ composer.json).
