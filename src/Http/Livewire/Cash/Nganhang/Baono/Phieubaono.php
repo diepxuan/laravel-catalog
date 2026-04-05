@@ -8,14 +8,14 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-03-26 15:57:12
+ * @lastupdate 2026-04-05 22:36:58
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baono;
 
 use Diepxuan\Catalog\Models\ArDmKh;
-use Diepxuan\Catalog\Models\CaCt3;
-use Diepxuan\Catalog\Models\CaPh3;
+use Diepxuan\Catalog\Models\CaCt2;
+use Diepxuan\Catalog\Models\CaPh2;
 use Diepxuan\Simba\Models\GlDmTk;
 use Diepxuan\Simba\StoredProcedures\AsCADelCT2;
 use Diepxuan\Simba\StoredProcedures\AsCAInsCT2;
@@ -25,7 +25,7 @@ use Diepxuan\Simba\StoredProcedures\AsChkSoCt;
 use Diepxuan\Simba\StoredProcedures\AsGetSoCt;
 use Diepxuan\Simba\StoredProcedures\AsGetSoDuKh;
 use Diepxuan\Simba\StoredProcedures\AsGetSttRec;
-use Diepxuan\Simba\StoredProcedures\AsPostCaph3_glct;
+use Diepxuan\Simba\StoredProcedures\AsPostCaPh2_glct;
 use Diepxuan\Simba\StoredProcedures\AsProcessCT;
 use Illuminate\Support\Collection;
 use Livewire\Component;
@@ -176,28 +176,28 @@ class Phieubaono extends Component
         }
 
         // Load header từ database
-        \Debugbar::info('Querying CaPh3 with stt_rec:', $this->pStt_Rec);
-        $caPh3 = CaPh3::where('stt_rec', $this->pStt_Rec)->first();
-        \Debugbar::info('CaPh3 result:', $caPh3);
+        \Debugbar::info('Querying CaPh2 with stt_rec:', $this->pStt_Rec);
+        $caPh2 = CaPh2::where('stt_rec', $this->pStt_Rec)->first();
+        \Debugbar::info('CaPh2 result:', $caPh2);
 
-        if ($caPh3) {
+        if ($caPh2) {
             $this->pMode     = 'edit';
-            $this->pSo_Ct    = $caPh3->so_ct;
-            $this->pNgay_Ct  = $caPh3->ngay_ct->toDateString();
-            $this->pNgay_Lap = $caPh3->ngay_lct->toDateString();
+            $this->pSo_Ct    = $caPh2->so_ct;
+            $this->pNgay_Ct  = $caPh2->ngay_ct->toDateString();
+            $this->pNgay_Lap = $caPh2->ngay_lct->toDateString();
             // Không load các trường tự động: pKht_Tain, pTrang_Thai, pPost2Gl
             // Chỉ load các trường cần thiết từ phiếu cũ
-            $this->pMa_Kh     = $caPh3->ma_kh;
-            $this->pDia_Chi   = $caPh3->dia_chi;
-            $this->pNguoi_Gd  = $caPh3->nguoi_gd;
-            $this->pDien_Giai = $caPh3->dien_giai;
-            $this->pTk_Co     = $caPh3->tk_co;
-            $this->pMa_Nt     = $caPh3->ma_nt;
-            $this->pTy_Gia    = $caPh3->ty_gia;
+            $this->pMa_Kh     = $caPh2->ma_kh;
+            $this->pDia_Chi   = $caPh2->dia_chi;
+            $this->pNguoi_Gd  = $caPh2->nguoi_gd;
+            $this->pDien_Giai = $caPh2->dien_giai;
+            $this->pTk_Co     = $caPh2->tk_co;
+            $this->pMa_Nt     = $caPh2->ma_nt;
+            $this->pTy_Gia    = $caPh2->ty_gia;
             // Các trường pT_Thue, pT_TT, pT_Thue_Nt, pT_TT_Nt sẽ tự động tính toán lại
 
             // Load chi tiết
-            $caCt3s = CaCt3::where('stt_rec', $this->pStt_Rec)
+            $caCt2s = CaCt2::where('stt_rec', $this->pStt_Rec)
                 ->orderBy('stt_rec0')
                 ->get()
             ;
@@ -205,13 +205,13 @@ class Phieubaono extends Component
             $this->pCts     = collect();
             $this->pSoDuCts = collect();
 
-            foreach ($caCt3s as $index => $caCt3) {
+            foreach ($caCt2s as $index => $caCt2) {
                 $this->pCts->push([
-                    'ma_tk'     => $caCt3->tk,
-                    'dien_giai' => $caCt3->dien_giai,
-                    'ps_no'     => $caCt3->ps_no,
-                    'ps_co'     => $caCt3->ps_co,
-                    'ps_no_nt'  => $caCt3->ps_no_nt,
+                    'ma_tk'     => $caCt2->tk,
+                    'dien_giai' => $caCt2->dien_giai,
+                    'ps_no'     => $caCt2->ps_no,
+                    'ps_co'     => $caCt2->ps_co,
+                    'ps_no_nt'  => $caCt2->ps_no_nt,
                     'ps_co_nt'  => $caCt3->ps_co_nt,
                     'ma_kh'     => $caCt3->ma_kh,
                     'ma_hd'     => $caCt3->ma_hd,
@@ -518,7 +518,7 @@ class Phieubaono extends Component
             ]);
 
             // 6. Post to GL
-            AsPostCaph3_glct::call([
+            AsPostCaPh2_glct::call([
                 'pMa_cty'  => $maCty,
                 'pStt_rec' => $stt_rec,
             ]);
