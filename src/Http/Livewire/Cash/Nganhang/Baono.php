@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-03-15 17:08:09
+ * @lastupdate 2026-04-05 23:07:19
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Cash\Nganhang;
@@ -16,7 +16,7 @@ namespace Diepxuan\Catalog\Http\Livewire\Cash\Nganhang;
 use Diepxuan\Catalog\Models\GlCt;
 use Diepxuan\Simba\StoredProcedures\AsCADelCT2;
 use Diepxuan\Simba\StoredProcedures\AsCADelPH2;
-use Diepxuan\Simba\StoredProcedures\AsProcessCt;
+use Diepxuan\Simba\StoredProcedures\AsProcessCT;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -79,7 +79,7 @@ class Baono extends Component
         try {
             \DB::transaction(static function () use ($maCty, $sttRec): void {
                 // 1. Process chứng từ để unlock (mode 2 = sửa/xóa)
-                AsProcessCt::call([
+                AsProcessCT::call([
                     'pMa_cty'  => $maCty,
                     'pMa_Ct'   => 'CA4',
                     'pStt_rec' => $sttRec,
