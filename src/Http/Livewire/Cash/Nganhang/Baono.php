@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-04-06 08:15:00
+ * @lastupdate 2026-04-06 18:48:35
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Cash\Nganhang;
@@ -133,16 +133,6 @@ class Baono extends Component
 
     protected function resultRender(): void
     {
-        // $this->glCts = GlCt::getNKThuChi([
-        //     'ma_cty'    => \CatalogService::company()->id,
-        //     'ngay_ct1'  => \CatalogService::timerFrom(),
-        //     'ngay_ct2'  => \CatalogService::timerTo(),
-        //     'tk_list'   => $this->pTk_List,
-        //     'tkdu_list' => $this->pTkdu_List,
-        //     'ma_bp'     => $this->pMa_Bp ?? '',
-        //     'ma_nt'     => 'VND',
-        // ])->get();
-
         $this->glCts = GlCt::getGLRptNKC03([
             'pMa_Cty'    => \CatalogService::company()->id,
             'pNgay_Ct1'  => \CatalogService::timerFrom(),
