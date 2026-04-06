@@ -8,13 +8,12 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-04-05 23:07:19
+ * @lastupdate 2026-04-06 08:15:00
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Cash\Nganhang;
 
 use Diepxuan\Catalog\Models\GlCt;
-use Diepxuan\Simba\StoredProcedures\AsCADelCT2;
 use Diepxuan\Simba\StoredProcedures\AsCADelPH2;
 use Diepxuan\Simba\StoredProcedures\AsProcessCT;
 use Illuminate\View\View;
@@ -74,10 +73,10 @@ class Baono extends Component
     {
         // Gọi stored procedure để xóa
         $maCty = \CatalogService::company()->id ?? '001';
-        $lUser = \Auth::user()->name ?? '';
+        $lUser = \CatalogService::simbaUser()->username ?? '';
 
         try {
-            \DB::transaction(static function () use ($maCty, $sttRec): void {
+            \DB::transaction(static function () use ($maCty, $sttRec, $lUser): void {
                 // 1. Process chứng từ để unlock (mode 2 = sửa/xóa)
                 AsProcessCT::call([
                     'pMa_cty'  => $maCty,
@@ -86,27 +85,17 @@ class Baono extends Component
                     'pMode'    => '2',
                 ]);
 
-                // 2. Xóa chi tiết
-                $deleteDetails = AsCADelCT2::call([
+                // 2. Xóa phiếu (cần truyền pLUser để ghi nhận người thực hiện)
+                $deleteHeader = AsCADelPH2::call([
                     'pMa_cty'  => $maCty,
                     'pStt_rec' => $sttRec,
+                    'pLUser'   => $lUser,
                 ]);
 
-                if (0 !== $deleteDetails) {
-                    throw new \Exception('Không thể xóa chi tiết phiếu báo nợ');
-                }
-
-                // 3. Xóa header (dùng AsCADelPH2 nếu có)
-                // Lưu ý: Cần kiểm tra stored procedure AsCADelPH2 có tồn tại chưa
-                if (class_exists('\Diepxuan\Simba\StoredProcedures\AsCADelPH2')) {
-                    $deleteHeader = AsCADelPH2::call([
-                        'pMa_cty'  => $maCty,
-                        'pStt_rec' => $sttRec,
-                    ]);
-
-                    if (0 !== $deleteHeader) {
-                        throw new \Exception('Không thể xóa phiếu báo nợ');
-                    }
+                // 3. Kiểm tra kết quả từ output parameter pRet
+                $ret = $deleteHeader->first()->pRet ?? null;
+                if (0 !== $ret) {
+                    throw new \Exception('Không thể xóa phiếu báo nợ, mã lỗi: ' . ($ret ?? 'unknown'));
                 }
             });
 
