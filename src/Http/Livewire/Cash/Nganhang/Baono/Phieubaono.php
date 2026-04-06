@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-04-05 22:36:58
+ * @lastupdate 2026-04-06 23:10:43
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baono;
@@ -562,7 +562,7 @@ class Phieubaono extends Component
 
         $this->pKh = ArDmKh::where('ma_kh', $this->pMa_Kh)->first();
         if ($this->pKh) {
-            $this->pDien_Giai = 'Thanh toán nhà chung cấp ' . $this->pKh->ten_kh;
+            $this->pDien_Giai = 'Thanh toán nhà cung cấp ' . $this->pKh->ten_kh;
             $this->pDia_Chi   = $this->pKh->dia_chi ?? '';
             $this->pNguoi_Gd  = $this->pKh->nguoi_gd ?? '';
 
