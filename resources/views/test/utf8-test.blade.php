@@ -121,6 +121,33 @@ Charset: {{ $connection['charset'] ?? 'N/A' }}
 Options: {{ json_encode($connection['options'] ?? [], JSON_PRETTY_PRINT) }}
     </pre>
 
+    @php
+        $connection = \Illuminate\Support\Facades\DB::connection('sqlsrv');
+    @endphp
+
+    <h2>7. Test sqlsrv query</h2>
+    @php
+        try {
+            $dbResult = $connection->select("SELECT N'àáảãạăằắẳẵặâầấẩẫậêềếểễệôồốổỗộơờớởỡợưừứửữựđ' AS test_utf8");
+        } catch (\Exception $e) {
+            $dbResult = ['error' => $e->getMessage()];
+        }
+    @endphp
+    <pre>{{ json_encode($dbResult, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
+
+    <h2>8. Test sqlsrv query (Parameter Binding)</h2>
+    @php
+        try {
+            $dbResultBound = $connection->select(
+                "SELECT CAST(? AS NVARCHAR(MAX)) AS test_utf8_bound",
+                ['àáảãạăằắẳẵặâầấẩẫậêềếểễệôồốổỗộơờớởỡợưừứửữựđ']
+            );
+        } catch (\Exception $e) {
+            $dbResultBound = ['error' => $e->getMessage()];
+        }
+    @endphp
+    <pre>{{ json_encode($dbResultBound, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) }}</pre>
+
     <hr>
     <p><em>Nếu tất cả các ký tự trên hiển thị đúng → Blade encoding OK ✅</em></p>
     <p><em>Nếu có ký tự bị lỗi → Kiểm tra charset của file và HTTP headers ❌</em></p>

@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-03-27 23:48:23
+ * @lastupdate 2026-04-07 12:39:37
  */
 
 use Diepxuan\Catalog\Http\Controllers\SellController;
@@ -114,3 +114,11 @@ Route::get('/check-proxy', static fn () => [
     'x_forwarded_proto' => request()->header('x-forwarded-proto'),
     'server_https'      => $_SERVER['HTTPS'] ?? null,
 ]);
+
+/*
+|--------------------------------------------------------------------------
+| Test Routes - UTF-8 Blade Test
+|--------------------------------------------------------------------------
+*/
+
+Route::get('test/utf8', static fn () => view('catalog::test.utf8-test'))->name('test.utf8')->middleware(['web']);
