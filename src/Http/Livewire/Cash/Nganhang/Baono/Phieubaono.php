@@ -8,16 +8,16 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-04-07 12:39:38
+ * @lastupdate 2026-04-12 17:10:45
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baono;
 
 use Diepxuan\Catalog\Models\ArDmKh;
 use Diepxuan\Catalog\Models\CaCt2;
-use Diepxuan\Catalog\Models\CaPh2;
 use Diepxuan\Simba\Models\GlDmTk;
 use Diepxuan\Simba\StoredProcedures\AsCADelCT2;
+use Diepxuan\Simba\StoredProcedures\AsCAGetPH2;
 use Diepxuan\Simba\StoredProcedures\AsCAInsCT2;
 use Diepxuan\Simba\StoredProcedures\AsCAInsPH2;
 use Diepxuan\Simba\StoredProcedures\AsCAUpdPH2;
@@ -135,7 +135,7 @@ class Phieubaono extends Component
         $this->pMa_Nt = \CatalogService::ma_Nt() ?: self::DEFAULT_MA_NT;
 
         // Nếu có stt_rec từ bên ngoài truyền vào, load phiếu để sửa
-        \Debugbar::info('Phieubaono mount - sttRec:', $this->sttRec);
+        \Debugbar::info("Phieubaono mount - sttRec: {$this->sttRec}");
         if (!empty($this->sttRec)) {
             $this->pStt_Rec = $this->sttRec;
             $this->loadPhieu();
@@ -175,10 +175,13 @@ class Phieubaono extends Component
             return;
         }
 
-        // Load header từ database
-        \Debugbar::info('Querying CaPh2 with stt_rec:', $this->pStt_Rec);
-        $caPh2 = CaPh2::where('stt_rec', $this->pStt_Rec)->first();
-        \Debugbar::info('CaPh2 result:', $caPh2);
+        // Load header từ stored procedure
+        \Debugbar::info('Calling AsCAGetPH2::call with pStt_rec:', $this->pStt_Rec);
+        $result = AsCAGetPH2::call([
+            'pStt_rec' => $this->pStt_Rec,
+        ]);
+        $caPh2 = $result->first();
+        \Debugbar::info('AsCAGetPH2 result:', $caPh2);
 
         if ($caPh2) {
             $this->pMode     = 'edit';
@@ -212,14 +215,14 @@ class Phieubaono extends Component
                     'ps_no'     => $caCt2->ps_no,
                     'ps_co'     => $caCt2->ps_co,
                     'ps_no_nt'  => $caCt2->ps_no_nt,
-                    'ps_co_nt'  => $caCt3->ps_co_nt,
-                    'ma_kh'     => $caCt3->ma_kh,
-                    'ma_hd'     => $caCt3->ma_hd,
-                    'ma_bp'     => $caCt3->ma_bp,
-                    'ma_phi'    => $caCt3->ma_phi,
-                    'ma_spct'   => $caCt3->ma_spct,
-                    'ma_lo'     => $caCt3->ma_lo,
-                    'ma_ku'     => $caCt3->ma_ku,
+                    'ps_co_nt'  => $caCt2->ps_co_nt,
+                    'ma_kh'     => $caCt2->ma_kh,
+                    'ma_hd'     => $caCt2->ma_hd,
+                    'ma_bp'     => $caCt2->ma_bp,
+                    'ma_phi'    => $caCt2->ma_phi,
+                    'ma_spct'   => $caCt2->ma_spct,
+                    'ma_lo'     => $caCt2->ma_lo,
+                    'ma_ku'     => $caCt2->ma_ku,
                 ]);
 
                 // Khởi tạo số dư cho từng dòng (sẽ được tính sau)
@@ -233,6 +236,7 @@ class Phieubaono extends Component
             // Update khách hàng info và số dư
             $this->updateKhachHang();
             $this->updateSoDu();
+            $this->updateSoDuTungDong();
         }
     }
 

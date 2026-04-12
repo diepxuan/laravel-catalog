@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-04-06 18:48:35
+ * @lastupdate 2026-04-12 16:59:24
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Cash\Nganhang;
@@ -28,7 +28,6 @@ class Baono extends Component
 
     // Property để quản lý chế độ sửa
     public $editingSttRec = '';
-    public $showForm      = false;
 
     protected $glCts;
 
@@ -56,7 +55,6 @@ class Baono extends Component
     public function editPhieu($sttRec): void
     {
         $this->editingSttRec = $sttRec;
-        $this->showForm      = true;
 
         // Scroll to form
         $this->dispatch('scroll-to-form');
@@ -114,7 +112,6 @@ class Baono extends Component
     public function closeForm(): void
     {
         $this->editingSttRec = '';
-        $this->showForm      = false;
         $this->resultRender();
     }
 
