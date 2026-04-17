@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-04-12 17:10:45
+ * @lastupdate 2026-04-15 23:57:08
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baono;
@@ -34,7 +34,8 @@ class Phieubaono extends Component
 {
     // Constants cho cấu hình
     const MA_CT          = 'CA4';
-    const DEFAULT_TK_CO  = 11_217;
+    const DEFAULT_TK_CO  = 11_217; // TK Có mặc định cho báo nợ
+    const DEFAULT_TK_NO  = '331';  // TK Nợ mặc định cho chi tiết
     const DEFAULT_MA_NT  = 'VND';
     const DEFAULT_TY_GIA = 1;
     // Property nhận từ bên ngoài (Baono component)
@@ -669,7 +670,7 @@ class Phieubaono extends Component
     {
         $newIndex = $this->pCts->count();
         $this->pCts->push([
-            'ma_tk'     => '',
+            'ma_tk'     => self::DEFAULT_TK_NO, // TK Nợ mặc định = 331
             'dien_giai' => $this->pDien_Giai,
             'ps_no'     => 0,
             'ps_co'     => 0,
