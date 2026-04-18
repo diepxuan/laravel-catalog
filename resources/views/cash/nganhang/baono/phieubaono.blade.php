@@ -42,6 +42,7 @@
                 <label class="col-span-1 text-right text-sm font-medium text-gray-700">TK có</label>
                 <div class="col-span-3">
                     <livewire:catalog::component.input-taikhoan wire:model="pTk_Co" />
+                    {{ $pTk_Co }}
                 </div>
             </div>
 
