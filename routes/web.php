@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-04-07 12:39:37
+ * @lastupdate 2026-05-03 16:11:56
  */
 
 use Diepxuan\Catalog\Http\Controllers\SellController;
@@ -57,7 +57,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 // Route::domain(env('APP_URL','portal.diepxuan.io.vn'))->middleware(['clearcache', 'auth'])->group(static function (): void {
-Route::middleware(['clearcache', 'auth'])->group(static function (): void {
+Route::middleware(['auth'])->group(static function (): void {
     Route::get('/gl/taikhoan', Taikhoan::class)->name('gl.taikhoan');
 
     Route::get('/cash/tienmat/thu', Phieuthu::class)->name('ca.tienmat.thu');
