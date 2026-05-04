@@ -41,8 +41,7 @@
             <div class="grid grid-cols-4 items-center gap-2">
                 <label class="col-span-1 text-right text-sm font-medium text-gray-700">TK có</label>
                 <div class="col-span-3">
-                    <livewire:catalog::component.input-taikhoan wire:model="pTk_Co" />
-                    {{ $pTk_Co }}
+                    <livewire:catalog::component.input-taikhoan wire:model.live="pTk_Co" />
                 </div>
             </div>
 
@@ -78,7 +77,7 @@
             <h4 class="text-sm font-semibold uppercase tracking-wide text-gray-700">Chi tiết khoản nợ</h4>
         </div>
 
-        <div class="overflow-x-auto p-4">
+        <div class="p-4">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
                     <tr>
@@ -107,7 +106,7 @@
                     @foreach ($pCts as $index => $row)
                         <tr class="hover:bg-gray-50">
                             <td class="whitespace-nowrap px-3 py-2">
-                                <livewire:catalog::component.input-taikhoan wire:model="pCts.{{ $index }}.ma_tk"
+                                <livewire:catalog::component.input-taikhoan wire:model.live="pCts.{{ $index }}.ma_tk"
                                     wire:key="tk-no-{{ $index }}" placeholder="Chọn TK..." />
                             </td>
                             <td class="px-3 py-2">

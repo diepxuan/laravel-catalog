@@ -1,6 +1,6 @@
 @props(['disabled' => false, 'class' => '', 'placeholder' => 'Nhập mã tài khoản...'])
 
-<div class="relative" x-data="tkInputComponent(@js($glDmTks))" x-init="initComponent()"
+<div class="relative" x-data="tkInputComponent(@js($glDmTks), @js($pTk))" x-init="initComponent()"
     @click.outside="showDropdown = false" @keydown.escape.window="showDropdown = false">
 
     <!-- Input field -->
@@ -84,10 +84,10 @@
              * @param {Array} accounts - List of accounts [{tk, ten_tk}]
              * @returns {Object} Alpine component data
              */
-            window.tkInputComponent = function(accounts) {
+            window.tkInputComponent = function(accounts, initialSearch = '') {
                 return {
                     accounts: accounts,
-                    search: '',
+                    search: initialSearch || '',
                     showDropdown: false,
                     filtered: [],
                     highlightedIndex: -1,
