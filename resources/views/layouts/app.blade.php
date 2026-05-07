@@ -41,6 +41,8 @@
 
     <x-banner />
 
+    <x-catalog::toast />
+
     <div class="min-h-screen bg-gray-100">
         @livewire('catalog::navigation-menu')
 
@@ -82,17 +84,17 @@
     <!-- Scripts Stack -->
     @stack('scripts')
     @livewireScripts
-    
+
     <!-- Loading Overlay Script -->
     <script>
         // Show loading overlay when Livewire request starts
         document.addEventListener('livewire:init', () => {
             const overlay = document.getElementById('catalog-loading-overlay');
-            
+
             Livewire.hook('request', ({ respond }) => {
                 // Show overlay
                 overlay.classList.remove('hidden');
-                
+
                 respond(({ status, preventDefault }) => {
                     // Hide overlay when response received
                     overlay.classList.add('hidden');
