@@ -8,13 +8,14 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-02-25 00:40:11
+ * @lastupdate 2026-05-12 13:56:45
  */
 
 namespace Diepxuan\Catalog\Services;
 
 use Diepxuan\Catalog\Models\NavigationMenu;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class MenuTreeBuilder
 {
@@ -30,30 +31,27 @@ class MenuTreeBuilder
             ->get()
         ;
 
-        // Build parent-child mapping
-        $childrenMap = $allMenus->groupBy('parent_id')->map(static fn ($items) => $items->sortBy('order')->values());
+        $childrenMap = $allMenus
+            ->groupBy('parent_id')
+            ->map(static fn ($items) => $items->sortBy('order')->values())
+        ;
 
-        // Build flattened tree with level information
         $result = collect();
 
-        // First add root menus (parent_id = null) sorted by order
-        $rootMenus = $childrenMap->get(null, collect());
-        foreach ($rootMenus as $rootMenu) {
+        foreach ($childrenMap->get(null, collect()) as $rootMenu) {
             $result->push((object) [
                 'id'           => $rootMenu->id,
                 'parent_id'    => $rootMenu->parent_id,
                 'name'         => $rootMenu->name,
                 'route'        => $rootMenu->route,
+                'simbaid'      => $rootMenu->simbaid,
                 'order'        => $rootMenu->order,
                 'level'        => 0,
                 'has_children' => $childrenMap->has($rootMenu->id),
                 'is_expanded'  => true,
             ]);
 
-            // Add children if expanded
-            if (true) { // Will implement lazy expand later
-                $this->flattenTreeRecursive($childrenMap, $rootMenu->id, 1, $result);
-            }
+            $this->flattenTreeRecursive($childrenMap, $rootMenu->id, 1, $result);
         }
 
         return $result;
@@ -66,21 +64,23 @@ class MenuTreeBuilder
     {
         $menu = NavigationMenu::findOrFail($menuId);
 
-        // Prevent circular reference
         if ($newParentId && $this->isDescendant($newParentId, $menuId)) {
             throw new \InvalidArgumentException('Cannot move menu to its own descendant.');
         }
 
         $oldParentId = $menu->parent_id;
 
-        // Update the menu
-        $menu->parent_id = $newParentId;
-        $menu->order     = $newOrder;
-        $menu->save();
+        DB::transaction(static function () use ($menu, $newParentId, $newOrder, $oldParentId): void {
+            $menu->parent_id = $newParentId;
+            $menu->order     = $newOrder;
+            $menu->save();
 
-        // Reorder siblings in both old and new parent
-        $this->reorderSiblings($oldParentId);
-        $this->reorderSiblings($newParentId);
+            // Reorder siblings in both old and new parent groups
+            self::reorderSiblingsStatic($oldParentId);
+            if ($newParentId !== $oldParentId) {
+                self::reorderSiblingsStatic($newParentId);
+            }
+        });
 
         return [
             'id'        => $menu->id,
@@ -107,20 +107,19 @@ class MenuTreeBuilder
     {
         $menu = NavigationMenu::findOrFail($menuId);
 
-        // Ensure it's a root menu
         if (null !== $menu->parent_id) {
             throw new \InvalidArgumentException('Menu is not a root menu.');
         }
 
-        $menu->order = $newOrder;
-        $menu->save();
-
-        // Reorder all root menus
-        $this->reorderSiblings(null);
+        DB::transaction(static function () use ($menu, $newOrder): void {
+            $menu->order = $newOrder;
+            $menu->save();
+            self::reorderSiblingsStatic(null);
+        });
     }
 
     /**
-     * Reorder child menu within its parent.
+     * Reorder menu up or down among siblings.
      */
     public function reorderMenu(int $menuId, string $direction): array
     {
@@ -145,20 +144,20 @@ class MenuTreeBuilder
             throw new \InvalidArgumentException('Cannot move menu in that direction.');
         }
 
-        // Swap orders
         $currentMenu = $siblings[$currentIndex];
         $targetMenu  = $siblings[$targetIndex];
 
-        $tempOrder          = $currentMenu->order;
-        $currentMenu->order = $targetMenu->order;
-        $targetMenu->order  = $tempOrder;
+        DB::transaction(static function () use ($currentMenu, $targetMenu, $menu): void {
+            $tempOrder          = $currentMenu->order;
+            $currentMenu->order = $targetMenu->order;
+            $targetMenu->order  = $tempOrder;
 
-        // Save both menus
-        $currentMenu->save();
-        $targetMenu->save();
+            $currentMenu->save();
+            $targetMenu->save();
 
-        // Reorder all siblings to ensure consistency
-        $this->reorderSiblings($menu->parent_id);
+            // Ensure consistent ordering
+            self::reorderSiblingsStatic($menu->parent_id);
+        });
 
         return [
             'current_id' => $currentMenu->id,
@@ -168,32 +167,45 @@ class MenuTreeBuilder
     }
 
     /**
-     * Update menu name and route.
+     * Update menu name, route, and simbaid.
      */
-    public function updateMenu(int $menuId, string $name, ?string $route): array
+    public function updateMenu(int $menuId, string $name, ?string $route, ?string $simbaid = null): array
     {
         $menu        = NavigationMenu::findOrFail($menuId);
         $menu->name  = $name;
         $menu->route = $route;
+        if (null !== $simbaid) {
+            $menu->simbaid = $simbaid;
+        }
         $menu->save();
 
         return [
-            'id'    => $menu->id,
-            'name'  => $menu->name,
-            'route' => $menu->route,
+            'id'      => $menu->id,
+            'name'    => $menu->name,
+            'route'   => $menu->route,
+            'simbaid' => $menu->simbaid,
         ];
     }
 
     /**
-     * Delete menu and its children.
+     * Update only the simbaid field without touching name/route.
+     */
+    public function updateSimbaidOnly(int $menuId, string $simbaid): void
+    {
+        $menu          = NavigationMenu::findOrFail($menuId);
+        $menu->simbaid = $simbaid;
+        $menu->save();
+    }
+
+    /**
+     * Delete menu and its children recursively.
      */
     public function deleteMenu(int $menuId): void
     {
-        // Delete children recursively
-        $this->deleteChildrenRecursive($menuId);
+        $ids   = $this->collectDescendantIds($menuId);
+        $ids[] = $menuId;
 
-        // Delete the menu itself
-        NavigationMenu::where('id', $menuId)->delete();
+        NavigationMenu::whereIn('id', $ids)->delete();
     }
 
     /**
@@ -206,7 +218,10 @@ class MenuTreeBuilder
             ->get()
         ;
 
-        $childrenMap = $allMenus->groupBy('parent_id')->map(static fn ($items) => $items->sortBy('order')->values());
+        $childrenMap = $allMenus
+            ->groupBy('parent_id')
+            ->map(static fn ($items) => $items->sortBy('order')->values())
+        ;
 
         return $this->buildDropdownTree($childrenMap, null);
     }
@@ -220,48 +235,69 @@ class MenuTreeBuilder
         int $level,
         Collection &$result
     ): void {
-        $children = $childrenMap->get($parentId, collect());
-
-        foreach ($children as $menu) {
+        foreach ($childrenMap->get($parentId, collect()) as $menu) {
             $result->push((object) [
                 'id'           => $menu->id,
                 'parent_id'    => $menu->parent_id,
                 'name'         => $menu->name,
                 'route'        => $menu->route,
+                'simbaid'      => $menu->simbaid,
                 'order'        => $menu->order,
                 'level'        => $level,
                 'has_children' => $childrenMap->has($menu->id),
-                'is_expanded'  => true, // Default expanded
+                'is_expanded'  => true,
             ]);
 
-            // Add children if expanded
-            if (true) { // Will implement lazy expand later
-                $this->flattenTreeRecursive($childrenMap, $menu->id, $level + 1, $result);
-            }
+            $this->flattenTreeRecursive($childrenMap, $menu->id, $level + 1, $result);
         }
     }
 
     /**
-     * Check if a menu is descendant of another.
+     * Check if a menu is descendant of another — uses in-memory collection to avoid N+1.
      */
     private function isDescendant(int $potentialParentId, int $nodeId): bool
     {
-        $node = NavigationMenu::find($nodeId);
-        while ($node && $node->parent_id) {
-            if ($node->parent_id === $potentialParentId) {
-                return true;
-            }
-            $node = NavigationMenu::find($node->parent_id);
+        // Load once from the already-cached tree if possible; otherwise query
+        static $cache = null;
+        if (null === $cache) {
+            $cache = NavigationMenu::select('id', 'parent_id')->get()->keyBy('id');
         }
 
-        return false;
+        $currentId = $nodeId;
+        while (true) {
+            $node = $cache->get($currentId);
+            if (null === $node || null === $node->parent_id) {
+                return false;
+            }
+            if ((int) $node->parent_id === $potentialParentId) {
+                return true;
+            }
+            $currentId = (int) $node->parent_id;
+        }
     }
 
     /**
-     * Reorder siblings to maintain consistent order.
-     * Handles both root menus (parent_id = null) and child menus.
+     * Collect all descendant IDs for batch deletion.
+     *
+     * @return list<int>
      */
-    private function reorderSiblings(?int $parentId): void
+    private function collectDescendantIds(int $parentId): array
+    {
+        $children = NavigationMenu::where('parent_id', $parentId)->pluck('id');
+        $ids      = $children->toArray();
+
+        foreach ($children as $childId) {
+            $ids = [...$ids, ...$this->collectDescendantIds((int) $childId)];
+        }
+
+        return $ids;
+    }
+
+    /**
+     * Reorder siblings to maintain consistent order (0, 1, 2, ...).
+     * Static variant for use inside transactions.
+     */
+    private static function reorderSiblingsStatic(?int $parentId): void
     {
         $siblings = NavigationMenu::where('parent_id', $parentId)
             ->orderBy('order')
@@ -279,30 +315,17 @@ class MenuTreeBuilder
     }
 
     /**
-     * Recursively delete children.
-     */
-    private function deleteChildrenRecursive(int $parentId): void
-    {
-        $children = NavigationMenu::where('parent_id', $parentId)->get();
-
-        foreach ($children as $child) {
-            $this->deleteChildrenRecursive($child->id);
-            $child->delete();
-        }
-    }
-
-    /**
      * Build hierarchical tree for dropdown.
      */
     private function buildDropdownTree(Collection $childrenMap, ?int $parentId): Collection
     {
-        $children = $childrenMap->get($parentId, collect());
-
-        return $children->map(fn ($menu) => (object) [
-            'id'       => $menu->id,
-            'name'     => $menu->name,
-            'route'    => $menu->route,
-            'children' => $this->buildDropdownTree($childrenMap, $menu->id),
-        ]);
+        return $childrenMap->get($parentId, collect())->map(
+            fn ($menu) => (object) [
+                'id'       => $menu->id,
+                'name'     => $menu->name,
+                'route'    => $menu->route,
+                'children' => $this->buildDropdownTree($childrenMap, $menu->id),
+            ],
+        );
     }
 }
