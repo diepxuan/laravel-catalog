@@ -1,61 +1,62 @@
 @foreach ($nodes as $node)
-    @if ($this->isVisible($node->id))
-        @php
-            $nodeId = $node->id;
-            $isEditing = $this->editingNodeId === $nodeId;
-            $isDragging = $this->draggingNodeId === $nodeId;
-            $isDropTarget = $this->dropTargetId === $nodeId;
-            $dropPosition = $this->dropPosition;
-            $isRecentlyUpdated = $this->recentlyUpdated[$nodeId] ?? false;
-            $isSavingNode = $this->nodeSaving[$nodeId] ?? false;
-            $hasChildren = $node->has_children;
-            $isExpanded = $this->isExpanded($nodeId);
-        @endphp
+    @php
+        $nodeId = $node->id;
+        $isEditing = $this->editingNodeId === $nodeId;
+        $isDragging = $this->draggingNodeId === $nodeId;
+        $isDropTarget = $this->dropTargetId === $nodeId;
+        $dropPosition = $this->dropPosition;
+        $isRecentlyUpdated = $this->recentlyUpdated[$nodeId] ?? false;
+        $isSavingNode = $this->nodeSaving[$nodeId] ?? false;
+        $hasChildren = $node->has_children;
+    @endphp
 
-        {{-- Drop Zone Before --}}
-        @if (!$isDragging)
-            <div class="my-1"
-                @dragover="if ($wire.draggingNodeId && $wire.draggingNodeId !== {{ $nodeId }}) {
-                 $wire.setDropTarget({{ $nodeId }}, 'before');
-                 event.dataTransfer.dropEffect = 'move';
-             }"
-                @dragleave="if ($wire.dropTargetId === {{ $nodeId }} && $wire.dropPosition === 'before') {
-                 $wire.clearDropTarget();
-             }"
-                :class="{
-                    'border-t-2 border-blue-400': $wire.dropTargetId === {{ $nodeId }} &&
-                        $wire.dropPosition === 'before'
-                }">
-            </div>
-        @endif
-
-        {{-- Node Row --}}
-        <div class="{{ $isRecentlyUpdated ? 'border-green-300 bg-green-50' : 'border-gray-200' }} {{ $isDragging ? 'opacity-50' : '' }} {{ $isDropTarget && $dropPosition === 'inside' ? 'border-2 border-dashed border-blue-400 bg-blue-100' : '' }} group relative flex items-center rounded-lg border transition-all duration-200 hover:border-gray-300 hover:bg-gray-50"
-            draggable="true"
+    {{-- Drop Zone Before --}}
+    @if (!$isDragging)
+        <div x-show="isNodeVisible({{ $nodeId }})"
+            class="my-1"
             @dragover="if ($wire.draggingNodeId && $wire.draggingNodeId !== {{ $nodeId }}) {
-                 $wire.setDropTarget({{ $nodeId }}, 'inside');
-                 event.dataTransfer.dropEffect = 'move';
-                 event.preventDefault();
-             }"
-            @dragleave="if ($wire.dropTargetId === {{ $nodeId }} && $wire.dropPosition === 'inside') {
-                 $wire.clearDropTarget();
-             }"
-            @dragstart="$wire.startDrag({{ $nodeId }})" @dragend="$wire.clearDragState()"
-            style="padding-left: {{ $node->level * 24 }}px">
+             $wire.setDropTarget({{ $nodeId }}, 'before');
+             event.dataTransfer.dropEffect = 'move';
+         }"
+            @dragleave="if ($wire.dropTargetId === {{ $nodeId }} && $wire.dropPosition === 'before') {
+             $wire.clearDropTarget();
+         }"
+            :class="{
+                'border-t-2 border-blue-400': $wire.dropTargetId === {{ $nodeId }} &&
+                    $wire.dropPosition === 'before'
+            }">
+        </div>
+    @endif
 
-            {{-- Expand/Collapse --}}
-            @if ($hasChildren)
-                <button type="button"
-                    class="ml-2 flex h-6 w-6 items-center justify-center text-gray-500 hover:text-gray-700"
-                    wire:click="toggleNode({{ $nodeId }})">
-                    <svg class="{{ $isExpanded ? 'rotate-90' : '' }} h-4 w-4 transition-transform duration-200"
-                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                </button>
-            @else
-                <div class="ml-8 w-2"></div>
-            @endif
+    {{-- Node Row --}}
+    <div x-show="isNodeVisible({{ $nodeId }})"
+        class="{{ $isRecentlyUpdated ? 'border-green-300 bg-green-50' : 'border-gray-200' }} {{ $isDragging ? 'opacity-50' : '' }} {{ $isDropTarget && $dropPosition === 'inside' ? 'border-2 border-dashed border-blue-400 bg-blue-100' : '' }} group relative flex items-center rounded-lg border transition-all duration-200 hover:border-gray-300 hover:bg-gray-50"
+        draggable="true"
+        @dragover="if ($wire.draggingNodeId && $wire.draggingNodeId !== {{ $nodeId }}) {
+             $wire.setDropTarget({{ $nodeId }}, 'inside');
+             event.dataTransfer.dropEffect = 'move';
+             event.preventDefault();
+         }"
+        @dragleave="if ($wire.dropTargetId === {{ $nodeId }} && $wire.dropPosition === 'inside') {
+             $wire.clearDropTarget();
+         }"
+        @dragstart="$wire.startDrag({{ $nodeId }})" @dragend="$wire.clearDragState()"
+        style="padding-left: {{ $node->level * 24 }}px">
+
+        {{-- Expand/Collapse — client-side only --}}
+        @if ($hasChildren)
+            <button type="button"
+                class="ml-2 flex h-6 w-6 items-center justify-center text-gray-500 hover:text-gray-700"
+                @click="toggleNode({{ $nodeId }})">
+                <svg class="h-4 w-4 transition-transform duration-200"
+                    :class="{ 'rotate-90': !isCollapsed({{ $nodeId }}) }"
+                    fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
+        @else
+            <div class="ml-8 w-2"></div>
+        @endif
 
             {{-- Drag Handle --}}
             <div class="ml-1 cursor-move text-gray-400 hover:text-gray-600" title="Kéo để di chuyển">
@@ -203,7 +204,7 @@
                         <button type="button"
                             class="rounded-md p-1 text-red-500 hover:bg-red-100 hover:text-red-700"
                             wire:click="deleteNode({{ $nodeId }})"
-                            wire:confirm="Bạn có chắc chắn muốn xóa menu này và tất cả menu con?"
+                            wire:confirm="{{ $this->hasChildren($nodeId) ? 'Bạn có chắc chắn muốn xóa menu này và tất cả menu con?' : 'Bạn có chắc chắn muốn xóa menu này?' }}"
                             title="Xóa"
                             wire:loading.attr="disabled">
                             @if ($isSavingNode)
@@ -225,7 +226,8 @@
 
         {{-- Drop Zone After --}}
         @if (!$isDragging)
-            <div class="my-1"
+            <div x-show="isNodeVisible({{ $nodeId }})"
+                class="my-1"
                 @dragover="if ($wire.draggingNodeId && $wire.draggingNodeId !== {{ $nodeId }}) {
                  $wire.setDropTarget({{ $nodeId }}, 'after');
                  event.dataTransfer.dropEffect = 'move';
@@ -241,8 +243,9 @@
         @endif
 
         {{-- Drop Zone Inside (children area) --}}
-        @if ($isExpanded && $this->draggingNodeId !== null)
-            <div class="ml-[{{ $node->level * 24 + 8 }}px] my-1 rounded-lg border-2 border-dashed border-blue-300 bg-blue-50 p-2 transition-all duration-200"
+        @if (!$isDragging)
+            <div x-show="isNodeVisible({{ $nodeId }}) && $wire.draggingNodeId !== null"
+                class="ml-[{{ $node->level * 24 + 8 }}px] my-1 rounded-lg border-2 border-dashed border-blue-300 bg-blue-50 p-2 transition-all duration-200"
                 @dragover="if ($wire.draggingNodeId && $wire.draggingNodeId !== {{ $nodeId }}) {
                  $wire.setDropTarget({{ $nodeId }}, 'inside');
                  event.dataTransfer.dropEffect = 'move';
@@ -258,5 +261,4 @@
                 </div>
             </div>
         @endif
-    @endif
 @endforeach

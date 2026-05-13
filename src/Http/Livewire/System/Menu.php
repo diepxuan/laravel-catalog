@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-05-12 13:56:43
+ * @lastupdate 2026-05-12 19:54:54
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\System;
@@ -22,8 +22,6 @@ use Livewire\Component;
 class Menu extends Component
 {
     public Collection $nodes;
-    public array $expandedNodes   = [];
-    public array $visibleNodes    = [];
     public ?int $editingNodeId    = null;
     public string $editingName    = '';
     public string $editingRoute   = '';
@@ -58,34 +56,11 @@ class Menu extends Component
     public function mount(): void
     {
         $this->refreshTree();
-        $this->updateVisibleNodes();
     }
 
     public function refreshTree(): void
     {
         $this->nodes = $this->treeBuilder->buildFlattenedTree();
-        $this->updateVisibleNodes();
-    }
-
-    public function toggleNode(int $nodeId): void
-    {
-        if (\in_array($nodeId, $this->expandedNodes, true)) {
-            $this->expandedNodes = array_diff($this->expandedNodes, [$nodeId]);
-        } else {
-            $this->expandedNodes[] = $nodeId;
-        }
-
-        $this->updateVisibleNodes();
-    }
-
-    public function isExpanded(int $nodeId): bool
-    {
-        return \in_array($nodeId, $this->expandedNodes, true);
-    }
-
-    public function isVisible(int $nodeId): bool
-    {
-        return \in_array($nodeId, $this->visibleNodes, true);
     }
 
     // ─── CRUD ───────────────────────────────────────────────
@@ -267,13 +242,6 @@ class Menu extends Component
             );
 
             $this->refreshTree();
-
-            if ('inside' === $this->dropPosition && $newParentId) {
-                if (!\in_array($newParentId, $this->expandedNodes, true)) {
-                    $this->expandedNodes[] = $newParentId;
-                    $this->updateVisibleNodes();
-                }
-            }
         } finally {
             $this->isSaving = false;
             $this->clearDragState();
@@ -344,7 +312,6 @@ class Menu extends Component
         try {
             $this->treeBuilder->deleteMenu($nodeId);
             $this->nodes = $this->nodes->reject(static fn ($node) => $node->id === $nodeId);
-            $this->updateVisibleNodes();
         } finally {
             unset($this->nodeSaving[$nodeId]);
         }
@@ -371,6 +338,56 @@ class Menu extends Component
         $this->refreshTree();
     }
 
+    /**
+     * Check if a node has children.
+     */
+    public function hasChildren(int $nodeId): bool
+    {
+        $node = $this->nodes->firstWhere('id', $nodeId);
+
+        return (bool) $node?->has_children;
+    }
+
+    /**
+     * Build ancestor map: each node ID → closest ancestor with children.
+     * Used for client-side visibility calculation.
+     *
+     * @return array<int, int>
+     */
+    public function getNodeAncestorMapProperty(): array
+    {
+        $map   = [];
+        $stack = [];
+
+        foreach ($this->nodes as $node) {
+            while (\count($stack) && end($stack)[0] >= $node->level) {
+                array_pop($stack);
+            }
+            if (\count($stack) && null !== $node->parent_id) {
+                $map[$node->id] = end($stack)[1];
+            }
+            if ($node->has_children) {
+                $stack[] = [$node->level, $node->id];
+            }
+        }
+
+        return $map;
+    }
+
+    /**
+     * IDs of nodes collapsed by default (all nodes with children).
+     *
+     * @return list<int>
+     */
+    public function getInitiallyCollapsedIdsProperty(): array
+    {
+        return $this->nodes
+            ->filter(static fn ($n) => $n->has_children)
+            ->pluck('id')
+            ->toArray()
+        ;
+    }
+
     public function getParentOptionsProperty(): Collection
     {
         return $this->treeBuilder->getTreeForDropdown();
@@ -379,25 +396,6 @@ class Menu extends Component
     public function render(): View
     {
         return view('catalog::system.menu')->layout('catalog::layouts.app');
-    }
-
-    private function updateVisibleNodes(): void
-    {
-        $visible          = [];
-        $parentVisibility = [null => true];
-
-        foreach ($this->nodes as $node) {
-            $isVisible = $parentVisibility[$node->parent_id] ?? false;
-
-            if ($isVisible) {
-                $visible[]                   = $node->id;
-                $parentVisibility[$node->id] = \in_array($node->id, $this->expandedNodes, true);
-            } else {
-                $parentVisibility[$node->id] = false;
-            }
-        }
-
-        $this->visibleNodes = $visible;
     }
 
     private function isDescendant(int $potentialParentId, int $nodeId): bool

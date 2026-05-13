@@ -26,29 +26,6 @@
     <!-- Styles -->
     @livewireStyles
     @stack('styles')
-
-    {{-- Simba Selection Mode Animations --}}
-    <style>
-        @keyframes pulse-red-select {
-            0%, 100% { background-color: #fecaca !important; }
-            50% { background-color: #fca5a5 !important; }
-        }
-        @keyframes pulse-green-select {
-            0%, 100% { background-color: #bbf7d0 !important; }
-            50% { background-color: #86efac !important; }
-        }
-        .pulse-red-simba {
-            animation: pulse-red-select 1s ease-in-out infinite !important;
-            display: inline-block !important;
-            padding: 2px 6px !important;
-        }
-        .pulse-green-simba {
-            animation: pulse-green-select 1s ease-in-out infinite !important;
-            cursor: pointer !important;
-            display: inline-block !important;
-            padding: 2px 6px !important;
-        }
-    </style>
 </head>
 
 <body class="font-sans text-sm antialiased">
