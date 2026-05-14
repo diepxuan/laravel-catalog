@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-05-07 13:02:11
+ * @lastupdate 2026-05-13 11:29:52
  */
 
 use Diepxuan\Catalog\Http\Controllers\SellController;
@@ -33,6 +33,8 @@ use Diepxuan\Catalog\Http\Livewire\In\Dmkho;
 use Diepxuan\Catalog\Http\Livewire\In\Dmnhvt;
 use Diepxuan\Catalog\Http\Livewire\In\Dmvt;
 use Diepxuan\Catalog\Http\Livewire\Muahang\Cungcap;
+use Diepxuan\Catalog\Http\Livewire\Muahang\Hoadonmua;
+use Diepxuan\Catalog\Http\Livewire\Muahang\HoadonmuaEdit;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountOpening;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountsPayable;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountsReceivable;
@@ -78,6 +80,12 @@ Route::middleware(['auth'])->group(static function (): void {
     Route::get('/banhang/khachhang/edit/{id}', KhachhangForm::class)->name('ar.khachhang.edit');
 
     Route::get('/muahang/cungcap', Cungcap::class)->name('ar.cungcap');
+
+    Route::prefix('muahang')->name('muahang.')->group(static function (): void {
+        Route::get('/hoadonmua', Hoadonmua::class)->name('hoadonmua');
+        Route::get('/hoadonmua/create', HoadonmuaEdit::class)->name('hoadonmua.create');
+        Route::get('/hoadonmua/edit/{stt_rec}', HoadonmuaEdit::class)->name('hoadonmua.edit');
+    });
 
     Route::get('khohang/sanpham', Dmvt::class)->name('in.dmvt');
     Route::get('khohang/nhomsanpham', Dmnhvt::class)->name('in.dmnhvt');
