@@ -78,8 +78,8 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">Mã NCC <span class="text-red-500">*</span></label>
-                    <input type="text" wire:model.live="pMa_kh" required
-                        class="w-full border-gray-300 rounded-md shadow-sm text-xs focus:border-blue-500 focus:ring-blue-500" />
+                    <livewire:catalog::component.input-khachhang mode="nhacungcap" wire:model.live="pMa_kh"
+                        placeholder="Chọn nhà cung cấp..." />
                     @error('pMa_kh') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
                 </div>
                 <div>

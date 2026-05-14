@@ -105,6 +105,11 @@ class InputKhachhang extends Component
 
         $search = trim($this->search);
 
+        if ($this->value) {
+            $this->value = null;
+            $this->dispatch('value-updated', null);
+        }
+
         if ('' === $search) {
             $this->results   = [];
             $this->searching = false;
@@ -193,6 +198,7 @@ class InputKhachhang extends Component
         $this->search       = '';
         $this->results      = [];
         $this->showDropdown = false;
+        $this->dispatch('value-updated', null);
     }
 
     /**
