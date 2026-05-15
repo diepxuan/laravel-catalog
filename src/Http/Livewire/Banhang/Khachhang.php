@@ -23,6 +23,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\View\View;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 /**
  * Component Khachhang.
@@ -32,6 +33,8 @@ use Livewire\Component;
  */
 class Khachhang extends Component
 {
+    use WithPagination;
+
     /**
      * Từ khóa tìm kiếm.
      */
