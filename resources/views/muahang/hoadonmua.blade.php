@@ -19,7 +19,7 @@
     {{-- Bộ lọc --}}
     <div class="bg-white p-4 rounded-lg shadow mb-4 border border-gray-100">
         <form wire:submit.prevent="loadData" class="space-y-4">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">Tìm kiếm</label>
                     <input type="text" wire:model.defer="pSearch"
@@ -27,14 +27,10 @@
                         class="w-full border-gray-300 rounded-md shadow-sm text-xs focus:border-blue-500 focus:ring-blue-500" />
                 </div>
                 <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Từ ngày</label>
-                    <input type="date" wire:model.defer="pNgayCt1"
-                        class="w-full border-gray-300 rounded-md shadow-sm text-xs focus:border-blue-500 focus:ring-blue-500" />
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">Đến ngày</label>
-                    <input type="date" wire:model.defer="pNgayCt2"
-                        class="w-full border-gray-300 rounded-md shadow-sm text-xs focus:border-blue-500 focus:ring-blue-500" />
+                    <label class="block text-xs font-medium text-gray-700 mb-1">Kỳ báo cáo</label>
+                    <div class="w-full">
+                        @livewire('catalog::component.timer')
+                    </div>
                 </div>
             </div>
 

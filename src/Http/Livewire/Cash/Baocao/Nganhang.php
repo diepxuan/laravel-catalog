@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-06-20 13:24:11
+ * @lastupdate 2026-05-16 00:27:57
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Cash\Baocao;
@@ -58,7 +58,7 @@ class Nganhang extends Component
 
     protected function resultRender(): void
     {
-        $this->glCts = GlCt::getCARptTMNH01([
+        $this->glCts = GlCt::getCARptTMNH02([
             'pMa_Cty'   => \CatalogService::company()->id,
             'pNgay_Ct1' => \CatalogService::timerFrom(),
             'pNgay_Ct2' => \CatalogService::timerTo(),

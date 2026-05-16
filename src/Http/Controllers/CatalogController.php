@@ -8,97 +8,39 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-04-02 07:47:46
+ * @lastupdate 2026-05-16 00:27:52
  */
 
 namespace Diepxuan\Catalog\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Diepxuan\Catalog\Models\Product;
-use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
 
 class CatalogController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index(Request $request)
+    public function index(): JsonResponse
     {
-        if ($request->wantsJson()) {
-            return response()->json(Product::withQuantity()->get());
-        }
-
-        return view('catalog::product/index', [
-            // 'products' => Product::all(),
-            // 'products' => Product::withQuantity()->get(),
-        ]);
+        return response()->json(['message' => 'Catalog API is not implemented.'], 501);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function store(Request $request): JsonResponse
     {
-        return view('catalog::product/create');
+        return response()->json(['message' => 'Catalog API is not implemented.'], 501);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request): RedirectResponse
+    public function show(string $id): JsonResponse
     {
-        return Redirect::route('catalog.index');
+        return response()->json(['message' => 'Catalog API is not implemented.'], 501);
     }
 
-    /**
-     * Show the specified resource.
-     *
-     * @param mixed $sanpham
-     */
-    public function show(Product $sanpham)
+    public function update(Request $request, string $id): JsonResponse
     {
-        return view('catalog::product/show', [
-            'product' => $sanpham,
-        ]);
+        return response()->json(['message' => 'Catalog API is not implemented.'], 501);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Product $sanpham)
+    public function destroy(string $id): JsonResponse
     {
-        return view('catalog::product/edit');
+        return response()->json(['message' => 'Catalog API is not implemented.'], 501);
     }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param mixed $request
-     * @param mixed $sanpham
-     */
-    public function update(Request $request, Product $sanpham): RedirectResponse
-    {
-        $sanpham->sku      = $request->get('sku', $sanpham->sku);
-        $sanpham->name     = $request->get('name', $sanpham->name);
-        $sanpham->price    = (float) str_replace(',', '', $request->get('price', $sanpham->price));
-        $sanpham->category = $request->get('category', $sanpham->category);
-        $sanpham->quantity = $request->get('quantity', (float) ($sanpham->quantity ?: 0));
-        $sanpham->status   = $request->boolean('status');
-        $sanpham->save();
-
-        if ($request->exists('productedit')) {
-            return Redirect::route('catalog.show', $sanpham->id);
-        }
-
-        return Redirect::route('catalog.index');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param mixed $id
-     */
-    public function destroy($id): void {}
 }

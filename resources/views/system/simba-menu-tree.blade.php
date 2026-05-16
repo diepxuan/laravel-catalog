@@ -75,7 +75,7 @@
         <div class="flex items-center justify-between">
             <div>
                 <h3 class="text-sm font-semibold text-gray-800">SimbaERP Menus</h3>
-                <p class="text-xs text-gray-500">Tham khảo sysMenu</p>
+                <p class="text-xs text-gray-500">{{ $this->portalRouteCount }} menu có Portal / {{ $this->unmappedContainerCount }} nhóm</p>
             </div>
             @if ($this->total > 0)
                 <span class="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">{{ $this->total }}</span>
@@ -92,7 +92,7 @@
                 </svg>
                 <input type="text"
                        wire:model.live.debounce.300ms="search"
-                       placeholder="Tìm menu..."
+                       placeholder="Tìm menu, DLL, route..."
                        class="w-full rounded-md border-gray-300 py-1.5 pl-8 pr-3 text-xs shadow-sm focus:border-blue-500 focus:ring-blue-500" />
             </div>
         </div>
@@ -119,6 +119,6 @@
 
     {{-- Footer stats --}}
     <div class="border-t border-gray-200 bg-gray-50 px-4 py-2 text-xs text-gray-500">
-        {{ $this->tree->count() }} menu / {{ $this->total }} total
+        {{ $this->tree->count() }} menu / {{ $this->total }} total · {{ $this->portalRouteCount }} menu đã map Portal
     </div>
 </div>

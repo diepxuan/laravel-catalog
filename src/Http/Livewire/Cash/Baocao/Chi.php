@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-06-20 11:07:51
+ * @lastupdate 2026-05-16 00:27:57
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Cash\Baocao;
@@ -29,9 +29,6 @@ class Chi extends Component
     {
         $this->pMa_Nt = \CatalogService::ma_Nt();
         $this->resultRender();
-        \Debugbar::info(
-            $this->glCts
-        );
     }
 
     public function updated($property): void

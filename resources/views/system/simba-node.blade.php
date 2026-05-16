@@ -54,9 +54,21 @@
     @endif
 
     {{-- Name --}}
-    <span class="min-w-0 flex-1 truncate text-gray-800" title="{{ $item->name ?: $item->menuid }}">
-        {{ $item->name ?: $item->menuid }}
-    </span>
+    @if ($item->portalUrl ?? false)
+        <a href="{{ $item->portalUrl }}"
+           class="min-w-0 flex-1 truncate text-blue-700 hover:text-blue-900 hover:underline"
+           title="{{ $item->portalRoute }}: {{ $item->name ?: $item->menuid }}">
+            {{ $item->name ?: $item->menuid }}
+        </a>
+        <span class="hidden flex-shrink-0 rounded bg-emerald-50 px-1.5 py-0.5 text-[10px] font-medium text-emerald-700 ring-1 ring-inset ring-emerald-200 sm:inline"
+              title="{{ $item->portalRoute }}">
+            {{ $item->portalLabel ?? 'Portal' }}
+        </span>
+    @else
+        <span class="min-w-0 flex-1 truncate text-gray-800" title="{{ $item->name ?: $item->menuid }}">
+            {{ $item->name ?: $item->menuid }}
+        </span>
+    @endif
 
     {{-- Menu ID (right-aligned, clickable in selection mode if available) --}}
     <span
