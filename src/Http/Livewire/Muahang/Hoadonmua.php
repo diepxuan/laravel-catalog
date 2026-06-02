@@ -27,6 +27,7 @@ class Hoadonmua extends Component
     public ?string $pMa_Kh = null;
     public int $pPageIndex = 1;
     public int $pPageSize  = 50;
+    public int $timerKey   = 0;
 
     protected $invoices;
 
@@ -60,8 +61,8 @@ class Hoadonmua extends Component
         $this->pMa_Kh     = null;
         $this->pPageIndex = 1;
 
-        // Reset timer to current month
         \CatalogService::timer(['id' => 't' . str_pad((string) now()->month, 2, '0', STR_PAD_LEFT)]);
+        $this->timerKey++;
 
         $this->loadData();
     }

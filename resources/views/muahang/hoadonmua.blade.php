@@ -29,7 +29,7 @@
                 <div>
                     <label class="block text-xs font-medium text-gray-700 mb-1">Kỳ báo cáo</label>
                     <div class="w-full">
-                        @livewire('catalog::component.timer')
+                        @livewire('catalog::component.timer', key('po3-timer-' . $timerKey))
                     </div>
                 </div>
             </div>
