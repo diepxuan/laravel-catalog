@@ -143,7 +143,7 @@ class Khachhang extends Component
     {
         $search = mb_strtolower($this->search);
 
-        return collect($results)->filter(static function ($item) use ($search): bool {
+        return new Collection(collect($results)->filter(static function ($item) use ($search): bool {
             $fields = [
                 $item->MA_KH ?? '',
                 $item->TEN_KH ?? '',
@@ -158,7 +158,7 @@ class Khachhang extends Component
             }
 
             return false;
-        })->values();
+        })->values());
     }
 
     /**
