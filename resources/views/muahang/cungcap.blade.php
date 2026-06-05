@@ -1,10 +1,20 @@
 <div class="phieuthu-container w-full">
     <x-head-title>{{ 'Nhà cung cấp - Mua hàng' }}</x-head-title>
     <x-slot name="header">
-        <h2 class="text-xl font-semibold leading-tight text-gray-800">
-            {{ 'Nhà cung cấp' }}
-        </h2>
-        <p>{{ 'Danh sách nhà cung cấp' }}</p>
+        <div class="flex items-center justify-between">
+            <div>
+                <h2 class="text-xl font-semibold leading-tight text-gray-800">
+                    {{ 'Nhà cung cấp' }}
+                </h2>
+                <p>{{ 'Danh sách nhà cung cấp' }}</p>
+            </div>
+            <a
+                href="{{ route('po.cungcap.create') }}"
+                class="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+            >
+                + Thêm nhà cung cấp
+            </a>
+        </div>
     </x-slot>
 
     <div class="mt-4 flex items-center gap-4">
@@ -30,6 +40,7 @@
                     <th class="border-b border-gray-200 px-3 py-2 text-left font-medium text-gray-500">Điện thoại</th>
                     <th class="border-b border-gray-200 px-3 py-2 text-left font-medium text-gray-500">Người GD</th>
                     <th class="border-b border-gray-200 px-3 py-2 text-left font-medium text-gray-500">Hình thức TT</th>
+                    <th class="border-b border-gray-200 px-3 py-2 text-right font-medium text-gray-500">Thao tác</th>
                 </tr>
             </thead>
             <tbody>
@@ -44,10 +55,16 @@
                         <td class="border-b border-gray-100 px-3 py-2 text-gray-600">{{ $arDmKh->tel }}</td>
                         <td class="border-b border-gray-100 px-3 py-2 text-gray-600">{{ $arDmKh->nguoi_gd }}</td>
                         <td class="border-b border-gray-100 px-3 py-2 text-gray-600">{{ $arDmKh->ma_httt_po }}</td>
+                        <td class="border-b border-gray-100 px-3 py-2 text-right">
+                            <div class="flex justify-end gap-2">
+                                <a href="{{ route('po.cungcap.edit', $arDmKh->ma_kh) }}" class="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-700 hover:bg-yellow-200">Sửa</a>
+                                <button wire:click="deleteDoiTuong('{{ $arDmKh->ma_kh }}')" wire:confirm="Bạn có chắc chắn muốn xóa nhà cung cấp {{ $arDmKh->ma_kh }}?" class="rounded bg-red-100 px-2 py-1 text-xs text-red-700 hover:bg-red-200">Xóa</button>
+                            </div>
+                        </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="px-3 py-8 text-center text-gray-500">
+                        <td colspan="8" class="px-3 py-8 text-center text-gray-500">
                             Không tìm thấy nhà cung cấp nào.
                         </td>
                     </tr>

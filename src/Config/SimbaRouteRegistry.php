@@ -771,6 +771,13 @@ final class SimbaRouteRegistry
                 'dictionary_key'  => 'MA_NCC',
                 'simba_code_name' => 'ARDMKH',
             ],
+            'ca.nhanvien' => [
+                'module'          => 'CA',
+                'menuid'          => '04.90.05',
+                'source_type'     => self::TYPE_DICTIONARY,
+                'dictionary_key'  => 'MA_KH',
+                'simba_code_name' => 'ARDMKH',
+            ],
             'po.dmcp' => [
                 'module'          => 'PO',
                 'menuid'          => '10.90.14',

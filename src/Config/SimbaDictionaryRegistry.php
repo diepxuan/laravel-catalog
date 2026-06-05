@@ -52,6 +52,13 @@ final class SimbaDictionaryRegistry
                 'pk'        => ['MA_CTY', 'MA_KH'],
                 'fields'    => ['ma_cty', 'ma_kh', 'loai', 'ten_kh', 'ma_so_thue', 'dia_chi', 'tel', 'fax', 'email', 'home_page', 'nguoi_gd', 'so_tk_nh', 'ten_nh', 'tinh_tp_nh', 'tk', 'ma_plkh1', 'ma_plkh2', 'ma_plkh3', 'ma_nhkh', 'ma_tt', 'ma_httt', 'ma_httt_po', 'gh_no', 'han_ck', 'tl_ck', 'han_tt', 'ls_qh', 'ghi_chu', 'tinh_dt_nb', 'iskh', 'isncc', 'isnv'],
             ],
+            'ca.nhanvien' => [
+                'code_name' => 'MA_KH',
+                'table'     => 'ARDMKH',
+                'menuid'    => '04.90.05',
+                'pk'        => ['MA_CTY', 'MA_KH'],
+                'fields'    => ['ma_cty', 'ma_kh', 'loai', 'ten_kh', 'ma_so_thue', 'dia_chi', 'tel', 'fax', 'email', 'home_page', 'nguoi_gd', 'so_tk_nh', 'ten_nh', 'tinh_tp_nh', 'tk', 'ma_plkh1', 'ma_plkh2', 'ma_plkh3', 'ma_nhkh', 'ma_tt', 'ma_httt', 'ma_httt_po', 'gh_no', 'han_ck', 'tl_ck', 'han_tt', 'ls_qh', 'ghi_chu', 'tinh_dt_nb', 'iskh', 'isncc', 'isnv'],
+            ],
             'po.dmcp' => [
                 'code_name' => 'MA_CP',
                 'table'     => 'PODMCP',

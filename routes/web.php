@@ -29,6 +29,8 @@ use Diepxuan\Catalog\Http\Livewire\Cash\Baocao\Chi;
 use Diepxuan\Catalog\Http\Livewire\Cash\Baocao\Nganhang;
 use Diepxuan\Catalog\Http\Livewire\Cash\Baocao\Thu;
 use Diepxuan\Catalog\Http\Livewire\Cash\Baocao\Tienmat;
+use Diepxuan\Catalog\Http\Livewire\Cash\Danhmuc\Nhanvien;
+use Diepxuan\Catalog\Http\Livewire\Cash\Danhmuc\NhanvienForm;
 use Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baoco;
 use Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baono;
 use Diepxuan\Catalog\Http\Livewire\Cash\Tienmat\Phieuchi;
@@ -51,6 +53,7 @@ use Diepxuan\Catalog\Http\Livewire\In\Dmvt;
 use Diepxuan\Catalog\Http\Livewire\In\InVoucherIndex;
 use Diepxuan\Catalog\Http\Livewire\Muahang\ApReportIndex;
 use Diepxuan\Catalog\Http\Livewire\Muahang\Cungcap;
+use Diepxuan\Catalog\Http\Livewire\Muahang\CungcapForm;
 use Diepxuan\Catalog\Http\Livewire\Muahang\Hoadonmua;
 use Diepxuan\Catalog\Http\Livewire\Muahang\HoadonmuaEdit;
 use Diepxuan\Catalog\Http\Livewire\Muahang\PoDmCpIndex;
@@ -136,6 +139,9 @@ Route::middleware(['auth'])->group(static function (): void {
     Route::get('/cash/thu', Thu::class)->name('ca.thu');
     Route::get('/cash/chi', Chi::class)->name('ca.chi');
     Route::get('/cash/quy', static fn () => view('catalog::dashboard'))->name('ca.quy');
+    Route::get('/cash/nhanvien', Nhanvien::class)->name('ca.nhanvien');
+    Route::get('/cash/nhanvien/create', NhanvienForm::class)->name('ca.nhanvien.create');
+    Route::get('/cash/nhanvien/edit/{id}', NhanvienForm::class)->name('ca.nhanvien.edit');
 
     Route::get('banhang/hoadonbanhang', Hoadonbanhang::class)->name('ar.ph.hdbh');
     Route::get('banhang/dondathang', SoVoucherIndex::class)->defaults('voucherCode', 'SO1')->name('banhang.so1');
@@ -367,6 +373,8 @@ Route::middleware(['auth'])->group(static function (): void {
 
     Route::get('/muahang/cungcap', Cungcap::class)->name('ar.cungcap');
     Route::get('/muahang/nhacungcap', Cungcap::class)->name('po.cungcap');
+    Route::get('/muahang/nhacungcap/create', CungcapForm::class)->name('po.cungcap.create');
+    Route::get('/muahang/nhacungcap/edit/{id}', CungcapForm::class)->name('po.cungcap.edit');
     Route::get('/muahang/chiphimuahang/danhmuc', PoDmCpIndex::class)->name('po.dmcp');
     Route::get('/po/danhmuc/dieu-khoan-thanh-toan', TaskShell::class)->defaults('title', 'Điều khoản thanh toán mua')->defaults('dll', 'PODMDKTT.dll')->defaults('task', 'Task 064')->name('po.dict.dktt');
     Route::get('/po/danhmuc/hinh-thuc-thanh-toan', TaskShell::class)->defaults('title', 'Hình thức thanh toán mua')->defaults('dll', 'PODMHTTT.dll')->defaults('task', 'Task 068')->name('po.dict.httt');
