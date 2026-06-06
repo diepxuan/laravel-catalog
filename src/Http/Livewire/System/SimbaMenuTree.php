@@ -14,8 +14,8 @@ declare(strict_types=1);
 namespace Diepxuan\Catalog\Http\Livewire\System;
 
 use Diepxuan\Catalog\Config\SimbaRouteRegistry;
-use Diepxuan\Catalog\Services\SimbaDocsMenuItem;
-use Diepxuan\Catalog\Services\SimbaDocsMenuRepository;
+use Diepxuan\Simba\Models\SysMenu;
+use Diepxuan\Catalog\Services\SimbaMenuRepository;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Route;
 use Illuminate\View\View;
@@ -36,9 +36,9 @@ class SimbaMenuTree extends Component
      */
     public array $mappedSimbaIds = [];
 
-    protected SimbaDocsMenuRepository $menus;
+    protected SimbaMenuRepository $menus;
 
-    public function boot(SimbaDocsMenuRepository $menus): void
+    public function boot(SimbaMenuRepository $menus): void
     {
         $this->menus = $menus;
     }
@@ -192,7 +192,7 @@ class SimbaMenuTree extends Component
                                 'dllName'       => null,
                                 'depth'         => 1,
                                 'parentId'      => $rootId,
-                                'type'          => SimbaDocsMenuItem::TYPE_GROUP,
+                                'type'          => SysMenu::TYPE_GROUP,
                                 'isRoot'        => false,
                                 'isGroup'       => true,
                                 'isVoucher'     => false,

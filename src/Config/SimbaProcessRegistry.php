@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Config;
 
-use Diepxuan\Catalog\Services\SimbaDocsMenuRepository;
+use Diepxuan\Catalog\Services\SimbaMenuRepository;
 
 final class SimbaProcessRegistry
 {
@@ -28,7 +28,7 @@ final class SimbaProcessRegistry
         }
 
         $processes = [];
-        foreach ((new SimbaDocsMenuRepository())->activeMenus() as $menu) {
+        foreach ((new SimbaMenuRepository())->activeMenus() as $menu) {
             if (isset($existingMenuIds[$menu->menuid])) {
                 continue;
             }

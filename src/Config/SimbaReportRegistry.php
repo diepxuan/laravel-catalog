@@ -13,8 +13,11 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Config;
 
-use Diepxuan\Catalog\Services\SimbaDocsDataRepository;
-use Diepxuan\Catalog\Services\SimbaDocsMenuRepository;
+use Diepxuan\Catalog\Services\SimbaMenuRepository;
+use Diepxuan\Simba\Models\SysDictionaryInfo;
+use Diepxuan\Simba\Models\SysReportDrillDownInfo;
+use Diepxuan\Simba\Models\SysReportInfo;
+use Diepxuan\Simba\Models\ZSysReportInfo;
 
 final class SimbaReportRegistry
 {
@@ -907,8 +910,7 @@ final class SimbaReportRegistry
      */
     private static function documentedReports(array $existing): array
     {
-        $data  = new SimbaDocsDataRepository();
-        $menus = (new SimbaDocsMenuRepository(null, $data))->activeMenus()
+        $menus = (new SimbaMenuRepository())->activeMenus()
             ->mapWithKeys(static fn ($menu): array => [$menu->menuid => $menu])
         ;
 
@@ -916,21 +918,22 @@ final class SimbaReportRegistry
         foreach ($existing as $metadata) {
             $knownMenuIds[$metadata['menuid']] = true;
         }
-        $dictionaryMenuIds = $data->table('sysDictionaryInfo.md')
+        $dictionaries = SysDictionaryInfo::query()->get();
+        $dictionaryMenuIds = $dictionaries
             ->pluck('menuid')
             ->filter()
             ->flip()
         ;
-        $dictionaryCodeNames = $data->table('sysDictionaryInfo.md')
+        $dictionaryCodeNames = $dictionaries
             ->pluck('code_name')
             ->filter()
             ->flip()
         ;
 
         $reports = [];
-        foreach (['sysReportInfo.md', 'zSysReportInfo.md'] as $fileName) {
-            foreach ($data->table($fileName) as $row) {
-                $menuid = trim((string) ($row['menuid'] ?? ''));
+        foreach ([SysReportInfo::query()->get(), ZSysReportInfo::query()->get()] as $reportRows) {
+            foreach ($reportRows as $row) {
+                $menuid = trim((string) $row->menuid);
                 if ('' === $menuid || isset($knownMenuIds[$menuid]) || !$menus->has($menuid)) {
                     continue;
                 }
@@ -946,7 +949,7 @@ final class SimbaReportRegistry
                     continue;
                 }
 
-                $route = self::generatedRouteName((string) $menu->moduleid, (string) ($menu->dllName ?: $row['spname'] ?: $menuid));
+                $route = self::generatedRouteName((string) $menu->moduleid, (string) ($menu->dllName ?: $row->spname ?: $menuid));
                 while (isset($existing[$route]) || isset($reports[$route])) {
                     $route .= '-' . str_replace('.', '-', $menuid);
                 }
@@ -954,9 +957,9 @@ final class SimbaReportRegistry
                 $reports[$route] = [
                     'module'  => (string) $menu->moduleid,
                     'menuid'  => $menuid,
-                    'ma_mau'  => (string) ($row['ma_mau'] ?? ''),
-                    'spname'  => (string) ($row['spname'] ?? ''),
-                    'rptname' => (string) ($row['rptname'] ?? ''),
+                    'ma_mau'  => (string) $row->ma_mau,
+                    'spname'  => (string) $row->spname,
+                    'rptname' => (string) $row->rptname,
                 ];
                 $knownMenuIds[$menuid] = true;
             }
@@ -972,8 +975,7 @@ final class SimbaReportRegistry
      */
     private static function documentedDrilldownReports(array $existing): array
     {
-        $data  = new SimbaDocsDataRepository();
-        $menus = (new SimbaDocsMenuRepository(null, $data))->activeMenus()
+        $menus = (new SimbaMenuRepository())->activeMenus()
             ->mapWithKeys(static fn ($menu): array => [$menu->menuid => $menu])
         ;
 
@@ -983,15 +985,15 @@ final class SimbaReportRegistry
         }
 
         $reports = [];
-        foreach ($data->table('sysReportDrillDownInfo.md') as $row) {
+        foreach (SysReportDrillDownInfo::query()->get() as $row) {
             foreach (['drilldown_menuid', 'drilldown_menuid1', 'drilldown_menuid2', 'drilldown_menuid3', 'drilldown_menuid4'] as $field) {
-                $menuid = trim((string) ($row[$field] ?? ''));
+                $menuid = trim((string) ($row->{$field}));
                 if ('' === $menuid || isset($knownMenuIds[$menuid]) || !$menus->has($menuid)) {
                     continue;
                 }
 
                 $menu  = $menus->get($menuid);
-                $route = self::generatedRouteName((string) $menu->moduleid, (string) ($menu->dllName ?: $row['dllName'] ?: $menuid));
+                $route = self::generatedRouteName((string) $menu->moduleid, (string) ($menu->dllName ?: $row->dllName ?: $menuid));
                 while (isset($existing[$route]) || isset($reports[$route])) {
                     $route .= '-' . str_replace('.', '-', $menuid);
                 }
@@ -999,14 +1001,14 @@ final class SimbaReportRegistry
                 $reports[$route] = [
                     'module'         => (string) $menu->moduleid,
                     'menuid'         => $menuid,
-                    'ma_mau'         => (string) ($row['ma_mau'] ?? ''),
+                    'ma_mau'         => (string) $row->ma_mau,
                     'spname'         => '',
                     'rptname'        => '',
-                    'dll_name'       => (string) ($menu->dllName ?: $row['dllName'] ?? ''),
-                    'command'        => (string) ($menu->command ?: $row['command'] ?? ''),
-                    'source_menuid'  => (string) ($row['menuid'] ?? ''),
-                    'press_key_name' => (string) ($row['press_key_name'] ?? ''),
-                    'description'    => (string) ($row['description'] ?? ''),
+                    'dll_name'       => (string) ($menu->dllName ?: $row->dllName),
+                    'command'        => (string) ($menu->command ?: $row->command),
+                    'source_menuid'  => (string) $row->menuid,
+                    'press_key_name' => (string) $row->press_key_name,
+                    'description'    => (string) $row->description,
                     'source_table'   => 'sysReportDrillDownInfo',
                 ];
                 $knownMenuIds[$menuid] = true;

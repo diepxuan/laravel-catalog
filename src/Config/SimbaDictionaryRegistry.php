@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Config;
 
-use Diepxuan\Catalog\Services\SimbaDocsDataRepository;
-use Diepxuan\Catalog\Services\SimbaDocsMenuRepository;
+use Diepxuan\Catalog\Services\SimbaMenuRepository;
+use Diepxuan\Simba\Models\SysDictionaryInfo;
 
 final class SimbaDictionaryRegistry
 {
@@ -165,8 +165,8 @@ final class SimbaDictionaryRegistry
      */
     private static function documentedDictionaries(array $existing): array
     {
-        $data  = new SimbaDocsDataRepository();
-        $menus = (new SimbaDocsMenuRepository(null, $data))->activeMenus()
+        $data  = SysDictionaryInfo::query()->get();
+        $menus = (new SimbaMenuRepository())->activeMenus()
             ->mapWithKeys(static fn ($menu): array => [$menu->menuid => $menu])
         ;
 
@@ -176,13 +176,13 @@ final class SimbaDictionaryRegistry
         }
 
         $dictionaries = [];
-        foreach ($data->table('sysDictionaryInfo.md') as $row) {
-            $menuid = trim((string) ($row['menuid'] ?? ''));
+        foreach ($data as $row) {
+            $menuid = trim((string) $row->menuid);
             if ('' === $menuid || isset($knownMenuIds[$menuid]) || !$menus->has($menuid)) {
                 continue;
             }
 
-            $codeName = trim((string) ($row['code_name'] ?? ''));
+            $codeName = trim((string) $row->code_name);
             if ('' === $codeName) {
                 continue;
             }
@@ -195,10 +195,10 @@ final class SimbaDictionaryRegistry
 
             $dictionaries[$route] = [
                 'code_name' => $codeName,
-                'table'     => (string) ($row['table_name'] ?? ''),
+                'table'     => (string) $row->table_name,
                 'menuid'    => $menuid,
-                'pk'        => self::splitCsv((string) ($row['PK'] ?? '')),
-                'fields'    => self::splitCsv(strtolower((string) ($row['carry_field_list'] ?? ''))),
+                'pk'        => self::splitCsv((string) $row->PK),
+                'fields'    => self::splitCsv(strtolower((string) $row->carry_field_list)),
             ];
             $knownMenuIds[$menuid] = true;
         }
@@ -217,13 +217,13 @@ final class SimbaDictionaryRegistry
      */
     private static function documentedMenuCodeNameDictionaries(array $existing): array
     {
-        $data = new SimbaDocsDataRepository();
-        $rows = $data->table('sysDictionaryInfo.md')
-            ->filter(static fn ($row): bool => '' !== trim((string) ($row['code_name'] ?? '')))
+        $data = SysDictionaryInfo::query()->get();
+        $rows = $data
+            ->filter(static fn ($row): bool => '' !== trim((string) $row->code_name))
             ->keyBy('code_name')
         ;
-        $rowsByTable = $data->table('sysDictionaryInfo.md')
-            ->filter(static fn ($row): bool => '' !== trim((string) ($row['table_name'] ?? '')))
+        $rowsByTable = $data
+            ->filter(static fn ($row): bool => '' !== trim((string) $row->table_name))
             ->groupBy('table_name')
         ;
 
@@ -233,7 +233,7 @@ final class SimbaDictionaryRegistry
         }
 
         $dictionaries = [];
-        foreach ((new SimbaDocsMenuRepository(null, $data))->activeMenus() as $menu) {
+        foreach ((new SimbaMenuRepository())->activeMenus() as $menu) {
             if (!$menu->isMasterData()) {
                 continue;
             }
@@ -252,7 +252,7 @@ final class SimbaDictionaryRegistry
                     }
 
                     $row      = $rowsByTable->get($tableName)->first();
-                    $codeName = (string) ($row['code_name'] ?? '');
+                    $codeName = (string) $row->code_name;
 
                     break;
                 }
@@ -269,11 +269,11 @@ final class SimbaDictionaryRegistry
 
             $dictionaries[$route] = [
                 'code_name'     => $codeName,
-                'table'         => (string) ($row['table_name'] ?? ''),
+                'table'         => (string) $row->table_name,
                 'menuid'        => (string) $menu->menuid,
-                'source_menuid' => (string) ($row['menuid'] ?? ''),
-                'pk'            => self::splitCsv((string) ($row['PK'] ?? '')),
-                'fields'        => self::splitCsv(strtolower((string) ($row['carry_field_list'] ?? ''))),
+                'source_menuid' => (string) $row->menuid,
+                'pk'            => self::splitCsv((string) $row->PK),
+                'fields'        => self::splitCsv(strtolower((string) $row->carry_field_list)),
             ];
             $knownMenuIds[$menu->menuid] = true;
         }
