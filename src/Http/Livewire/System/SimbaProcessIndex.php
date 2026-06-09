@@ -13,7 +13,8 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Http\Livewire\System;
 
-use Diepxuan\Catalog\Config\SimbaProcessRegistry;
+use Diepxuan\Catalog\Config\SimbaRouteRegistry;
+use Diepxuan\Catalog\Services\SimbaProcessMetadata;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -25,7 +26,7 @@ class SimbaProcessIndex extends Component
     public function mount(string $routeName): void
     {
         $this->routeName = $routeName;
-        $this->metadata  = SimbaProcessRegistry::get($routeName) ?? abort(404);
+        $this->metadata  = SimbaProcessMetadata::get($routeName, SimbaRouteRegistry::routesWithoutProcesses()) ?? abort(404);
     }
 
     public function render(): View

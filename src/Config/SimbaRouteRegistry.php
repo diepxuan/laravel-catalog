@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Config;
 
+use Diepxuan\Catalog\Services\SimbaProcessMetadata;
+
 final class SimbaRouteRegistry
 {
     public const TYPE_DICTIONARY = 'dictionary';
@@ -1066,7 +1068,7 @@ final class SimbaRouteRegistry
     private static function documentedProcessRoutes(): array
     {
         $routes = [];
-        foreach (SimbaProcessRegistry::processes() as $route => $metadata) {
+        foreach (SimbaProcessMetadata::processes(self::routesWithoutProcesses()) as $route => $metadata) {
             $routes[$route] = [
                 'module'      => $metadata['module'],
                 'menuid'      => $metadata['menuid'],
