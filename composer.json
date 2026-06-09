@@ -23,6 +23,7 @@
     "diepxuan/laravel-magento": "*",
     "diepxuan/laravel-ronaldjack": "*",
     "diepxuan/laravel-simba": "*",
+    "diepxuan/laravel-support": "*",
     "diepxuan/php-charset": "*",
     "laravel/jetstream": "*"
   },

@@ -78,6 +78,7 @@ use Diepxuan\Catalog\Http\Livewire\System\SimbaProcessIndex;
 use Diepxuan\Catalog\Http\Livewire\System\SimbaReportIndex;
 use Diepxuan\Catalog\Http\Livewire\System\TaskShell;
 use Diepxuan\Catalog\Http\Livewire\System\YearSelector;
+use Diepxuan\Support\Http\Middleware\CorpAutoLogin;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -91,7 +92,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 // Route::domain(env('APP_URL','portal.diepxuan.io.vn'))->middleware(['clearcache', 'auth'])->group(static function (): void {
-Route::middleware(['auth'])->group(static function (): void {
+Route::middleware([CorpAutoLogin::class])->group(static function (): void {
     Route::get('/gl/taikhoan', Taikhoan::class)->name('gl.taikhoan');
     Route::get('/gl/phieu-ke-toan', FinanceVoucherIndex::class)->defaults('voucherCode', 'GL1')->name('gl.vch.gl1');
     Route::get('/gl/chung-tu-ngoai-bang', FinanceVoucherIndex::class)->defaults('voucherCode', 'NB1')->name('gl.vch.nb1');
