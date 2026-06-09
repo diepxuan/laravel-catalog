@@ -47,38 +47,44 @@
                 </div>
 
                 <div class="hidden min-h-16 md:ms-6 md:flex" :class="{ 'block': open, 'hidden': !open }">
-                    <!-- Settings Dropdown -->
-                    <div class="group relative md:flex" x-data="{ open: false }">
-                        <x-nav-link href="#" class="w-full shrink-0 whitespace-nowrap" @click="open = !open">
-                            {{ Auth::user()->name }}
-                        </x-nav-link>
-                        <div x-cloak x-show="open" @click.outside="open = false" x-transition
-                            class="mt-0 bg-white md:absolute md:right-0 md:top-full md:w-48 md:space-y-2 md:rounded-lg md:border md:shadow-lg md:group-hover:block">
-                            <div class="block ps-4 pt-2 text-xs text-gray-400 md:px-2">
-                                {{ __('Manage Account') }}
-                            </div>
-                            <x-nav-link :href="route('profile.show')" :active="$this->isActive('profile.show')"
-                                class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-2">
-                                {{ __('Profile') }}
+                    @auth
+                        <!-- Settings Dropdown -->
+                        <div class="group relative md:flex" x-data="{ open: false }">
+                            <x-nav-link href="#" class="w-full shrink-0 whitespace-nowrap" @click="open = !open">
+                                {{ Auth::user()->name }}
                             </x-nav-link>
-                            @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
-                                <x-nav-link href="{{ route('api-tokens.index') }}" :active="$this->isActive('api-tokens.index')"
+                            <div x-cloak x-show="open" @click.outside="open = false" x-transition
+                                class="mt-0 bg-white md:absolute md:right-0 md:top-full md:w-48 md:space-y-2 md:rounded-lg md:border md:shadow-lg md:group-hover:block">
+                                <div class="block ps-4 pt-2 text-xs text-gray-400 md:px-2">
+                                    {{ __('Manage Account') }}
+                                </div>
+                                <x-nav-link :href="route('profile.show')" :active="$this->isActive('profile.show')"
                                     class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-2">
-                                    {{ __('API Tokens') }}
+                                    {{ __('Profile') }}
                                 </x-nav-link>
-                            @endif
-                            <div class="border-t border-gray-200"></div>
-                            <!-- Authentication -->
-                            <form method="POST" action="{{ route('logout') }}" x-data>
-                                @csrf
+                                @if (Laravel\Jetstream\Jetstream::hasApiFeatures())
+                                    <x-nav-link href="{{ route('api-tokens.index') }}" :active="$this->isActive('api-tokens.index')"
+                                        class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-2">
+                                        {{ __('API Tokens') }}
+                                    </x-nav-link>
+                                @endif
+                                <div class="border-t border-gray-200"></div>
+                                <!-- Authentication -->
+                                <form method="POST" action="{{ route('logout') }}" x-data>
+                                    @csrf
 
-                                <x-nav-link href="{{ route('logout') }}" @click.prevent="$root.submit();"
-                                    class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-2">
-                                    {{ __('Log Out') }}
-                                </x-nav-link>
-                            </form>
+                                    <x-nav-link href="{{ route('logout') }}" @click.prevent="$root.submit();"
+                                        class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-2">
+                                        {{ __('Log Out') }}
+                                    </x-nav-link>
+                                </form>
+                            </div>
                         </div>
-                    </div>
+                    @else
+                        <x-nav-link :href="route('login')" :active="$this->isActive('login')" class="w-full shrink-0 whitespace-nowrap">
+                            {{ __('Log in') }}
+                        </x-nav-link>
+                    @endauth
                 </div>
             </div>
 

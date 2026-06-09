@@ -58,7 +58,9 @@
             <div class="mx-auto max-w-7xl px-4 pb-6 sm:px-6 lg:px-8">
                 <div class="text-xs text-gray-500">
                     {{-- <x-catalog::sys-language /> --}}
-                    <x-sys-user-info />
+                    @auth
+                        <x-sys-user-info />
+                    @endauth
                     <x-sys-year />
                     <x-sys-company />
                     <x-sys-language />
