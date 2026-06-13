@@ -1078,4 +1078,21 @@ final class SimbaRouteRegistry
 
         return $routes;
     }
+
+    /**
+     * Reverse lookup: menuid → route name.
+     *
+     * @return array<string, string>   menuid => routeName
+     */
+    public static function menuidToRouteMap(): array
+    {
+        $map = [];
+        foreach (self::routes() as $routeName => $metadata) {
+            if (isset($metadata['menuid'])) {
+                $map[$metadata['menuid']] = $routeName;
+            }
+        }
+
+        return $map;
+    }
 }

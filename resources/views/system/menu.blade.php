@@ -217,7 +217,7 @@
         </div>
 
         {{-- SimbaERP Tree Panel (right) --}}
-        @livewire('catalog::system.simba-menu-tree', [
+        @livewire('catalog::system.simba-erp-menus', [
             'mappedSimbaIds' => $this->mappedSimbaIds,
         ])
     </div>

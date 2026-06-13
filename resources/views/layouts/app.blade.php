@@ -44,7 +44,12 @@
 
     <x-catalog::toast />
 
-    <div class="min-h-screen bg-gray-100">
+<div class="min-h-screen bg-gray-100">
+
+    {{-- Main content area --}}
+    <div>
+
+        {{-- Top navigation --}}
         @livewire('catalog::navigation-menu')
 
         <!-- Page Heading -->
@@ -82,7 +87,7 @@
             </div>
         </main>
     </div>
-
+</div>
     @stack('modals')
     <!-- Scripts Stack -->
     @stack('scripts')
