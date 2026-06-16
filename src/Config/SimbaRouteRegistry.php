@@ -869,21 +869,21 @@ final class SimbaRouteRegistry
                 'menuid'      => '10.20.32',
                 'source_type' => self::TYPE_REPORT,
             ],
-            'in.dmvt' => [
+            'in.dict.dmvt' => [
                 'module'          => 'IN',
                 'menuid'          => '14.90.02',
                 'source_type'     => self::TYPE_DICTIONARY,
                 'dictionary_key'  => 'MA_VT',
                 'simba_code_name' => 'INDMVT',
             ],
-            'in.dmnhvt' => [
+            'in.dict.dmnhvt' => [
                 'module'          => 'IN',
                 'menuid'          => '14.90.05',
                 'source_type'     => self::TYPE_DICTIONARY,
                 'dictionary_key'  => 'MA_NHVT',
                 'simba_code_name' => 'INDMNHVT',
             ],
-            'in.khohang' => [
+            'in.dict.dmkho' => [
                 'module'          => 'IN',
                 'menuid'          => '14.90.14',
                 'source_type'     => self::TYPE_DICTIONARY,

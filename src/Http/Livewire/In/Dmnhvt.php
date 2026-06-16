@@ -58,6 +58,6 @@ class Dmnhvt extends Component
         // diepxuan/laravel-catalog/resources/views/in/dmvt.blade.php
         return view('catalog::in.dmnhvt', [
             'inDmNhvts' => $this->inDmNhvts,
-        ])->layout('catalog::layouts.app');
+        ]);
     }
 }

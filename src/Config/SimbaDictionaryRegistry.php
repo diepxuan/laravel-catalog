@@ -122,21 +122,21 @@ final class SimbaDictionaryRegistry
                 'pk'        => ['MA_CTY', 'MA_NT'],
                 'fields'    => ['ma_cty', 'ma_nt', 'ten_nt'],
             ],
-            'in.dmvt' => [
+            'in.dict.dmvt' => [
                 'code_name' => 'MA_VT',
                 'table'     => 'INDMVT',
                 'menuid'    => '14.90.02',
                 'pk'        => ['MA_CTY', 'MA_VT'],
                 'fields'    => ['ma_vt', 'loai', 'ten_vt', 'part_no', 'dvt', 'dvt_ban', 'hs_dvtban', 'dvt_mua', 'hs_dvtmua', 'ton_kho', 'gia_ton', 'tk_vt', 'tk_dt', 'tk_dtnb', 'tk_gv', 'tk_tl', 'tk_ck', 'tk_km', 'tk_dd', 'tk_cpnvl', 'ma_thue', 'tinh_gt', 'ma_nhvt', 'ma_plvt1', 'ma_plvt2', 'ma_plvt3', 'ma_nhvat', 'sl_min', 'sl_max', 'ts_nk', 'ts_xk', 'ts_ttdb', 'ma_kho', 'ma_vitri'],
             ],
-            'in.dmnhvt' => [
+            'in.dict.dmnhvt' => [
                 'code_name' => 'MA_NHVT',
                 'table'     => 'INDMNHVT',
                 'menuid'    => '14.90.05',
                 'pk'        => ['MA_CTY', 'MA_NHVT'],
                 'fields'    => ['ma_cty', 'ma_nhvt', 'ten_nhvt', 'cap', 'stt_nhom', 'nhom_me', 'cong_sl', 'tk_vt', 'tk_dt', 'tk_dtnb', 'tk_gv', 'tk_tl', 'tk_ck'],
             ],
-            'in.khohang' => [
+            'in.dict.dmkho' => [
                 'code_name' => 'MA_KHO',
                 'table'     => 'INDMKHO',
                 'menuid'    => '14.90.14',

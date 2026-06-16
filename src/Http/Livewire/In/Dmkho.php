@@ -52,6 +52,6 @@ class Dmkho extends Component
         // diepxuan/laravel-catalog/resources/views/in/dmvt.blade.php
         return view('catalog::in.dmkho', [
             'inDmKhos' => $this->inDmKhos,
-        ])->layout('catalog::layouts.app');
+        ]);
     }
 }

@@ -109,6 +109,6 @@ class Dmvt extends Component
                 'luser'        => 'Người sửa',
             ], true),
             // 'inDmVts' => $this->inDmVts,
-        ])->layout('catalog::layouts.app');
+        ]);
     }
 }

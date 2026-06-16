@@ -127,7 +127,7 @@ class SimbaMenuTargetResolver
         $kind = self::SOURCE_TYPE_TO_SEGMENT[$sourceType] ?? ($parts[1] ?? 'proc');
         if (isset(self::SOURCE_TYPE_TO_SEGMENT[$sourceType])) {
             $slugParts = match ($sourceType) {
-                SimbaRouteRegistry::TYPE_DICTIONARY => array_slice($parts, 1),
+                SimbaRouteRegistry::TYPE_DICTIONARY => ($parts[1] ?? null) === 'dict' ? array_slice($parts, 2) : array_slice($parts, 1),
                 SimbaRouteRegistry::TYPE_VOUCHER, SimbaRouteRegistry::TYPE_REPORT => array_slice($parts, 2) ?: array_slice($parts, 1),
                 SimbaRouteRegistry::TYPE_CUSTOM => array_slice($parts, 1),
                 default => array_slice($parts, 1),
