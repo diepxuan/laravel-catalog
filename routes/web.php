@@ -73,9 +73,7 @@ use Diepxuan\Catalog\Http\Livewire\System\CompanySelector;
 use Diepxuan\Catalog\Http\Livewire\System\Dashboard;
 use Diepxuan\Catalog\Http\Livewire\System\Menu;
 use Diepxuan\Catalog\Http\Livewire\System\SiDictionaryIndex;
-use Diepxuan\Catalog\Http\Livewire\System\SimbaDictionaryIndex;
-use Diepxuan\Catalog\Http\Livewire\System\SimbaProcessIndex;
-use Diepxuan\Catalog\Http\Livewire\System\SimbaReportIndex;
+use Diepxuan\Catalog\Http\Livewire\System\SimbaPage;
 use Diepxuan\Catalog\Http\Livewire\System\TaskShell;
 use Diepxuan\Catalog\Http\Livewire\System\YearSelector;
 use Diepxuan\Support\Http\Middleware\CorpAutoLogin;
@@ -523,18 +521,18 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
     Route::resource('hethong/website', SystemWebsiteController::class)->names('system.website');
     Route::get('hethong/menu', Menu::class)->name('system.menu');
     Route::get('hethong/year', YearSelector::class)->name('system.year');
-    Route::get('simba/dictionaries/{routeName}', SimbaDictionaryIndex::class)
-        ->where('routeName', '[A-Za-z0-9_.-]+')
-        ->name('simba.dictionary')
-    ;
-    Route::get('simba/reports/{routeName}', SimbaReportIndex::class)
-        ->where('routeName', '[A-Za-z0-9_.-]+')
-        ->name('simba.report')
-    ;
-    Route::get('simba/processes/{routeName}', SimbaProcessIndex::class)
-        ->where('routeName', '[A-Za-z0-9_.-]+')
-        ->name('simba.process')
-    ;
+
+    Route::prefix('simba')->name('simba.')->group(static function (): void {
+        Route::get('/', SimbaPage::class)->name('index');
+        Route::get('/{module}/{kind}/{slug}', SimbaPage::class)
+            ->where([
+                'module' => '[a-z0-9-]+',
+                'kind'   => '[a-z0-9-]+',
+                'slug'   => '[a-z0-9_.-]+',
+            ])
+            ->name('show')
+        ;
+    });
 
     // Balance Management Routes - Livewire Components
     Route::prefix('hethong/balance')->name('system.balance.')->group(static function (): void {

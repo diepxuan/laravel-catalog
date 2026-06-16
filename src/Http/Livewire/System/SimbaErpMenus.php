@@ -16,8 +16,8 @@ namespace Diepxuan\Catalog\Http\Livewire\System;
 use Diepxuan\Catalog\Config\SimbaRouteRegistry;
 use Diepxuan\Simba\Models\SysMenu;
 use Diepxuan\Catalog\Services\SimbaMenuRepository;
+use Diepxuan\Catalog\Services\SimbaMenuTargetResolver;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Route;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -38,9 +38,12 @@ class SimbaErpMenus extends Component
 
     protected SimbaMenuRepository $menus;
 
-    public function boot(SimbaMenuRepository $menus): void
+    protected SimbaMenuTargetResolver $resolver;
+
+    public function boot(SimbaMenuRepository $menus, SimbaMenuTargetResolver $resolver): void
     {
-        $this->menus = $menus;
+        $this->menus    = $menus;
+        $this->resolver = $resolver;
     }
 
     /**
@@ -270,16 +273,7 @@ class SimbaErpMenus extends Component
 
     private function portalUrl(string $routeName, string $sourceType): ?string
     {
-        if (Route::has($routeName)) {
-            return route($routeName);
-        }
-
-        return match ($sourceType) {
-            SimbaRouteRegistry::TYPE_REPORT     => route('simba.report', ['routeName' => $routeName]),
-            SimbaRouteRegistry::TYPE_DICTIONARY => route('simba.dictionary', ['routeName' => $routeName]),
-            SimbaRouteRegistry::TYPE_CUSTOM     => route('simba.process', ['routeName' => $routeName]),
-            default                             => null,
-        };
+        return $this->resolver->urlForRouteName($routeName, ['source_type' => $sourceType]);
     }
 
     private function sourceTypeLabel(string $sourceType): string
