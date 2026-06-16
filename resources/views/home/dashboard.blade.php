@@ -6,52 +6,23 @@
 </x-slot>
 
 <div class="mx-4 my-2">
-    <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-        <table class="min-w-full divide-y divide-gray-200">
-            <thead class="bg-gray-50">
-                <tr>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        {{ 'STT' }}
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        {{ 'Chức năng' }}
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        {{ 'Mô tả' }}
-                    </th>
-                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                        {{ 'Thao tác' }}
-                    </th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-200 bg-white">
-                @foreach($menuTree as $index => $menu)
-                    @if($menu->children && count($menu->children) > 0)
-                        @foreach($menu->children as $childIndex => $child)
-                            @if($child->route !== 'space')
-                                <tr class="hover:bg-gray-50">
-                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-900">
-                                        {{ $loop->parent->iteration }}.{{ $loop->iteration }}
-                                    </td>
-                                    <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
-                                        {{ __($child->name) }}
-                                    </td>
-                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                        {{ __($menu->name) }}
-                                    </td>
-                                    <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                                        @if(!empty($child->route) && Route::has($child->route))
-                                            <a href="{{ route($child->route) }}" class="text-indigo-600 hover:text-indigo-900">
-                                                {{ 'Truy cập' }} →
-                                            </a>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @endif
-                        @endforeach
-                    @endif
-                @endforeach
-            </tbody>
-        </table>
+    <div class="overflow-hidden rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+        <h3 class="text-lg font-semibold text-gray-900">{{ __('Portal') }}</h3>
+        <p class="mt-2 text-sm text-gray-600">
+            {{ __('Menu điều hướng đã được cố định. Dùng thanh điều hướng để truy cập Simba ERP, Hệ thống và hồ sơ người dùng.') }}
+        </p>
+        <div class="mt-4 flex flex-wrap gap-3">
+            <a href="{{ route('simba.index') }}" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">
+                {{ __('Simba ERP') }}
+            </a>
+            <a href="{{ route('system.system') }}" class="rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700">
+                {{ __('Hệ thống') }}
+            </a>
+            @auth
+                <a href="{{ route('profile.show') }}" class="rounded-md border border-gray-300 px-4 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50">
+                    {{ __('Profile') }}
+                </a>
+            @endauth
+        </div>
     </div>
 </div>

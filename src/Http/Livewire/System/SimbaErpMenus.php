@@ -23,18 +23,11 @@ use Livewire\Component;
 
 /**
  * Reusable SimbaERP sysMenu tree component.
- * Supports reference/select usage from system menu screens.
  */
 class SimbaErpMenus extends Component
 {
     public string $search = '';
 
-    /**
-     * SimbaIDs already mapped in Portal menus (passed from parent).
-     *
-     * @var list<string>
-     */
-    public array $mappedSimbaIds = [];
 
     protected SimbaMenuRepository $menus;
 
@@ -73,9 +66,7 @@ class SimbaErpMenus extends Component
             ->map(static fn ($items) => $items->sortBy('stt')->values())
         ;
 
-        $mappedSet = array_flip($this->mappedSimbaIds);
-
-        return $this->buildRecursive($childrenMap, '', 0, $menuIds, $mappedSet, $routeMap);
+        return $this->buildRecursive($childrenMap, '', 0, $menuIds, $routeMap);
     }
 
     /**
@@ -108,10 +99,9 @@ class SimbaErpMenus extends Component
      * auto-create a synthetic "F5" group node under XX.00.00.
      *
      * @param Collection<string, Collection> $childrenMap
-     * @param Collection<string, mixed>      $menuIds     flip of all menuid values
-     * @param array<string, int>             $mappedSet   flip of mapped simbaid values
+     * @param Collection<string, mixed> $menuIds flip of all menuid values
      */
-    protected function buildRecursive(Collection $childrenMap, ?string $parentId, int $depth = 0, ?Collection $menuIds = null, array $mappedSet = [], array $routeMap = []): Collection
+    protected function buildRecursive(Collection $childrenMap, ?string $parentId, int $depth = 0, ?Collection $menuIds = null, array $routeMap = []): Collection
     {
         $result = collect();
 
@@ -131,13 +121,13 @@ class SimbaErpMenus extends Component
                 'isReport'      => $sm->isReport(),
                 'isSetup'       => $sm->isSetup(),
                 'hasChildren'   => $childrenMap->has($sm->menuid),
-                'isAlreadyUsed' => isset($mappedSet[$sm->menuid]),
+                'isAlreadyUsed' => false,
                 'portalUrl'     => $portalTarget['url'] ?? null,
                 'portalRoute'   => $portalTarget['route'] ?? null,
                 'portalType'    => $portalTarget['type'] ?? null,
                 'portalLabel'   => $portalTarget['label'] ?? null,
             ]);
-            $result = $result->merge($this->buildRecursive($childrenMap, $sm->menuid, $depth + 1, $menuIds, $mappedSet, $routeMap));
+            $result = $result->merge($this->buildRecursive($childrenMap, $sm->menuid, $depth + 1, $menuIds, $routeMap));
         }
 
         // Attach synthetic F5 group nodes under each root (only at top level)
@@ -203,7 +193,7 @@ class SimbaErpMenus extends Component
                                 'isReport'      => false,
                                 'isSetup'       => false,
                                 'hasChildren'   => true,
-                                'isAlreadyUsed' => isset($mappedSet[$f5Parent]),
+                                'isAlreadyUsed' => false,
                                 'portalUrl'     => null,
                                 'portalRoute'   => null,
                                 'portalType'    => null,
@@ -225,7 +215,7 @@ class SimbaErpMenus extends Component
                                     'isReport'      => $sm->isReport(),
                                     'isSetup'       => $sm->isSetup(),
                                     'hasChildren'   => $childrenMap->has($sm->menuid),
-                                    'isAlreadyUsed' => isset($mappedSet[$sm->menuid]),
+                                    'isAlreadyUsed' => false,
                                     'portalUrl'     => $portalTarget['url'] ?? null,
                                     'portalRoute'   => $portalTarget['route'] ?? null,
                                     'portalType'    => $portalTarget['type'] ?? null,

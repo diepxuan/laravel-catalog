@@ -8,20 +8,16 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-01-11 15:56:01
+ * @lastupdate 2026-06-16 10:00:00
  */
 
 namespace Diepxuan\Catalog\Http\Livewire;
 
-use Illuminate\Support\Facades\Route;
 use Illuminate\View\View;
 use Laravel\Jetstream\Http\Livewire\NavigationMenu as NavigationMenuComponent;
-use Livewire\Component;
 
 class NavigationMenu extends NavigationMenuComponent
 {
-    public $menus;
-
     /**
      * The component's listeners.
      *
@@ -32,19 +28,9 @@ class NavigationMenu extends NavigationMenuComponent
     ];
 
     /**
-     * Mount the component.
-     */
-    public function mount(): void
-    {
-        $this->menus = \CatalogService::menuTree();
-    }
-
-    /**
      * Render the component.
-     *
-     * @return View
      */
-    public function render()
+    public function render(): View
     {
         return view('catalog::navigation-menu');
     }
@@ -56,7 +42,7 @@ class NavigationMenu extends NavigationMenuComponent
      *
      * @return bool
      */
-    public function isActive(...$routes)
+    public function isActive(...$routes): bool
     {
         return collect($routes)
             ->flatten()

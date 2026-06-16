@@ -15,12 +15,10 @@ namespace Diepxuan\Catalog\Services;
 
 use Diepxuan\Catalog\Config\TimerConfig;
 use Diepxuan\Catalog\Models\GlDmTk;
-use Diepxuan\Catalog\Models\NavigationMenu;
 use Diepxuan\Catalog\Models\SysCompany;
 use Diepxuan\Catalog\Models\SysLanguage;
 use Diepxuan\Catalog\Models\SysUserInfo;
 use Diepxuan\Catalog\Models\User;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 
 class CatalogService
@@ -31,7 +29,6 @@ class CatalogService
     protected ?SysCompany $company = null;
     protected string $maNt;
     protected string $id;
-    protected $menus;
     protected $glDmTks;
 
     public function __construct()
@@ -80,49 +77,6 @@ class CatalogService
     public function companies()
     {
         return $this->simbaUser()->companies;
-    }
-
-    public function menus($forceReload = false)
-    {
-        if ($forceReload) {
-            $this->menus = NavigationMenu::withDefaultMenus();
-        }
-
-        $this->menus ??= NavigationMenu::withDefaultMenus();
-
-        return $this->menus;
-    }
-
-    public function menuTree(?int $parentId = null): Collection
-    {
-        return $this->menus()
-            ->where('parent_id', $parentId)
-            ->sortBy('order')
-            ->values()
-            ->map(function ($menu) {
-                // Set children property on the NavigationMenu object
-                $menu->children = $this->menuTree($menu->id);
-
-                return $menu;
-            })
-        ;
-    }
-
-    public function reorderChildren($parentId = null): void
-    {
-        $this->menus()
-            ->where('parent_id', $parentId)
-            ->orderBy('order')
-            ->values()
-            ->map(function ($menu, $index) {
-                $menu->order = $index;
-                $menu->save();
-
-                $menu->children = $this->reorderChildren($menu->id);
-
-                return $menu;
-            })
-        ;
     }
 
     public function year(?int $year = null): int

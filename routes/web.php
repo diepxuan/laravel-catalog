@@ -71,7 +71,6 @@ use Diepxuan\Catalog\Http\Livewire\System\Balance\Transfer;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\WorkInProgress;
 use Diepxuan\Catalog\Http\Livewire\System\CompanySelector;
 use Diepxuan\Catalog\Http\Livewire\System\Dashboard;
-use Diepxuan\Catalog\Http\Livewire\System\Menu;
 use Diepxuan\Catalog\Http\Livewire\System\SiDictionaryIndex;
 use Diepxuan\Catalog\Http\Livewire\System\SimbaPage;
 use Diepxuan\Catalog\Http\Livewire\System\TaskShell;
@@ -743,7 +742,6 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
     });
     Route::resource('hethong/user', SystemUserController::class)->names('system.user');
     Route::resource('hethong/website', SystemWebsiteController::class)->names('system.website');
-    Route::get('hethong/menu', Menu::class)->name('system.menu');
     Route::get('hethong/year', YearSelector::class)->name('system.year');
 
     // Balance Management Routes - Livewire Components

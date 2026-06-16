@@ -7,7 +7,6 @@
     <div class="mx-auto max-w-7xl px-4 md:px-6 lg:px-8">
         <div class="flex w-full items-start justify-between md:h-16">
             <div class="flex-1 md:flex md:items-center">
-                <!-- Logo -->
                 <div class="flex min-h-16 shrink-0 items-center">
                     <a href="{{ route('home') }}">
                         <x-images.logo class="block h-9 w-auto" />
@@ -16,39 +15,16 @@
 
                 <div class="hidden min-h-16 w-full md:-my-px md:ms-10 md:flex md:space-x-8"
                     :class="{ 'block': open, 'hidden': !open }" x-transition>
-                    @foreach ($menus as $menuId => $menu)
-                        <div class="group relative md:flex" x-data="{ open: false }">
-                            <x-nav-link href="#" :active="$this->isActive($menu->route)" class="w-full" @click="open = !open">
-                                {{ __($menu->name) }}
-                            </x-nav-link>
-                            @if ($menu->children && count($menu->children) > 0)
-                                <div x-cloak x-show="open" @click.outside="open = false" x-transition
-                                    class="mt-0 bg-white md:absolute md:left-0 md:top-full md:w-48 md:space-y-2 md:rounded-lg md:border md:shadow-lg md:group-hover:block">
-                                    @foreach ($menu->children as $children)
-                                        @if ($children->route == 'space')
-                                            @isset($children->name)
-                                                <div class="block ps-4 pt-2 text-xs text-gray-400 md:px-2">
-                                                    {{ __($children->name) }}
-                                                </div>
-                                            @else
-                                                <div class="w-full border-t border-gray-200"></div>
-                                            @endisset
-                                        @else
-                                            <x-nav-link :href="route($children->route)" :active="$this->isActive($children->route)"
-                                                class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-2">
-                                                {{ __($children->name) }}
-                                            </x-nav-link>
-                                        @endif
-                                    @endforeach
-                                </div>
-                            @endif
-                        </div>
-                    @endforeach
+                    <x-nav-link :href="route('simba.index')" :active="$this->isActive('simba.index', 'simba.show')" class="w-full md:w-auto">
+                        {{ __('Simba ERP') }}
+                    </x-nav-link>
+                    <x-nav-link :href="route('system.system')" :active="$this->isActive('system.system')" class="w-full md:w-auto">
+                        {{ __('Hệ thống') }}
+                    </x-nav-link>
                 </div>
 
                 <div class="hidden min-h-16 md:ms-6 md:flex" :class="{ 'block': open, 'hidden': !open }">
                     @auth
-                        <!-- Settings Dropdown -->
                         <div class="group relative md:flex" x-data="{ open: false }">
                             <x-nav-link href="#" class="w-full shrink-0 whitespace-nowrap" @click="open = !open">
                                 {{ Auth::user()->name }}
@@ -69,10 +45,8 @@
                                     </x-nav-link>
                                 @endif
                                 <div class="border-t border-gray-200"></div>
-                                <!-- Authentication -->
                                 <form method="POST" action="{{ route('logout') }}" x-data>
                                     @csrf
-
                                     <x-nav-link href="{{ route('logout') }}" @click.prevent="$root.submit();"
                                         class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-2">
                                         {{ __('Log Out') }}
@@ -88,7 +62,6 @@
                 </div>
             </div>
 
-            <!-- Hamburger -->
             <div class="flex h-16 items-center md:hidden">
                 <button @click="open = ! open"
                     class="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none">
