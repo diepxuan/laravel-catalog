@@ -137,6 +137,13 @@ class SimbaMenuTargetResolver
             $slug = implode('.', array_slice($parts, 1)) ?: $routeName;
         }
 
+        if ('' === $slug) {
+            return route('simba.show-short', [
+                'module' => $module,
+                'kind'   => $kind,
+            ]);
+        }
+
         return route('simba.show', [
             'module' => $module,
             'kind'   => $kind,
