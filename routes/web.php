@@ -721,8 +721,6 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
         Route::get('/nhom-cong-trinh', CoDictionaryIndex::class)->defaults('routeName', 'co.dmnhspct')->name('dmnhspct');
     });
 
-    Route::get('hethong/system', Dashboard::class)->name('system.system');
-    Route::get('hethong/company', CompanySelector::class)->name('system.company');
     Route::get('/si/congcu/dong-bo-he-thong', TaskShell::class)->defaults('title', 'Đồng bộ hệ thống')->defaults('dll', 'SIUtilities.dll')->defaults('task', 'Task 081')->name('si.tool.sync');
     Route::get('/si/danhmuc/tuy-chon-10', TaskShell::class)->defaults('title', 'Danh mục tùy chọn 10')->defaults('dll', 'SIDM10.dll')->defaults('task', 'Task 082')->name('si.dict.option10');
     Route::get('/si/thongtin/chuong-trinh', TaskShell::class)->defaults('title', 'Thông tin chương trình')->defaults('dll', 'SIAbout.dll')->defaults('task', 'Task 083')->name('si.info.program');
@@ -740,22 +738,27 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
         Route::get('/khoan-muc-phi', SiDictionaryIndex::class)->defaults('routeName', 'si.dmphi')->name('dmphi');
         Route::get('/ngoai-te', SiDictionaryIndex::class)->defaults('routeName', 'si.dmnt')->name('dmnt');
     });
-    Route::resource('hethong/user', SystemUserController::class)->names('system.user');
-    Route::resource('hethong/website', SystemWebsiteController::class)->names('system.website');
-    Route::get('hethong/year', YearSelector::class)->name('system.year');
 
-    // Balance Management Routes - Livewire Components
-    Route::prefix('hethong/balance')->name('system.balance.')->group(static function (): void {
-        Route::get('/', BalanceIndex::class)->name('index');
-        Route::get('/account-opening', AccountOpening::class)->name('account-opening');
-        Route::get('/transfer', Transfer::class)->name('transfer');
-        Route::get('/accounts-receivable', AccountsReceivable::class)->name('accounts-receivable');
-        Route::get('/accounts-payable', AccountsPayable::class)->name('accounts-payable');
-        Route::get('/inventory-opening', InventoryOpening::class)->name('inventory-opening');
-        Route::get('/inventory-opening-ntxt', InventoryOpeningNtxt::class)->name('inventory-opening-ntxt');
-        Route::get('/inventory-transfer', InventoryTransfer::class)->name('inventory-transfer');
-        Route::get('/work-in-progress', WorkInProgress::class)->name('work-in-progress');
-        Route::get('/cumulative-transactions', CumulativeTransactions::class)->name('cumulative-transactions');
+    Route::prefix('hethong')->name('system.')->group(static function (): void {
+        Route::get('system', Dashboard::class)->name('system');
+        Route::get('company', CompanySelector::class)->name('company');
+        Route::resource('user', SystemUserController::class)->names('user');
+        Route::resource('website', SystemWebsiteController::class)->names('website');
+        Route::get('year', YearSelector::class)->name('year');
+
+        // Balance Management Routes - Livewire Components
+        Route::prefix('balance')->name('balance.')->group(static function (): void {
+            Route::get('/', BalanceIndex::class)->name('index');
+            Route::get('/account-opening', AccountOpening::class)->name('account-opening');
+            Route::get('/transfer', Transfer::class)->name('transfer');
+            Route::get('/accounts-receivable', AccountsReceivable::class)->name('accounts-receivable');
+            Route::get('/accounts-payable', AccountsPayable::class)->name('accounts-payable');
+            Route::get('/inventory-opening', InventoryOpening::class)->name('inventory-opening');
+            Route::get('/inventory-opening-ntxt', InventoryOpeningNtxt::class)->name('inventory-opening-ntxt');
+            Route::get('/inventory-transfer', InventoryTransfer::class)->name('inventory-transfer');
+            Route::get('/work-in-progress', WorkInProgress::class)->name('work-in-progress');
+            Route::get('/cumulative-transactions', CumulativeTransactions::class)->name('cumulative-transactions');
+        });
     });
 
     // Route::get('/', [SystemController::class, 'index']);

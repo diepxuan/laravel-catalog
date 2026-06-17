@@ -18,9 +18,40 @@
                     <x-nav-link :href="route('simba.index')" :active="$this->isActive('simba.index', 'simba.show')" class="w-full md:w-auto">
                         {{ __('Simba ERP') }}
                     </x-nav-link>
-                    <x-nav-link :href="route('system.system')" :active="$this->isActive('system.system')" class="w-full md:w-auto">
-                        {{ __('Hệ thống') }}
-                    </x-nav-link>
+                    <div class="group relative w-full md:w-auto" x-data="{ openSystem: false }">
+                        <x-nav-link href="#" :active="$this->isActive('system', 'system.*')" class="min-h-16 w-full md:w-auto"
+                            @click.prevent="openSystem = !openSystem">
+                            {{ __('Hệ thống') }}
+                        </x-nav-link>
+                        <div x-cloak x-show="openSystem" @click.outside="openSystem = false" x-transition
+                            class="z-40 mt-0 bg-white md:absolute md:left-0 md:top-full md:w-64 md:space-y-1 md:rounded-lg md:border md:py-2 md:shadow-lg md:group-hover:block">
+                            <x-nav-link :href="route('system.system')" :active="$this->isActive('system.system')"
+                                class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-3">
+                                {{ __('Khoá số liệu') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('system.company')" :active="$this->isActive('system.company')"
+                                class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-3">
+                                {{ __('Đơn vị') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('system.year')" :active="$this->isActive('system.year')"
+                                class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-3">
+                                {{ __('Năm làm việc') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('system.balance.index')" :active="$this->isActive('system.balance')"
+                                class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-3">
+                                {{ __('Nhập/Chuyển số dư') }}
+                            </x-nav-link>
+                            <div class="border-t border-gray-200"></div>
+                            <x-nav-link :href="route('system.user.index')" :active="$this->isActive('system.user')"
+                                class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-3">
+                                {{ __('Người dùng') }}
+                            </x-nav-link>
+                            <x-nav-link :href="route('system.website.index')" :active="$this->isActive('system.website')"
+                                class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-3">
+                                {{ __('Website') }}
+                            </x-nav-link>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="hidden min-h-16 md:ms-6 md:flex" :class="{ 'block': open, 'hidden': !open }">
