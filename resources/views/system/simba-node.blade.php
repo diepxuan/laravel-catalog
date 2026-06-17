@@ -4,7 +4,9 @@
 
 <div class="group flex items-center gap-1.5 border-b border-gray-100 px-3 py-1.5 text-xs transition hover:bg-gray-50"
      style="padding-left: {{ $depth * 16 + 8 }}px;"
-     x-show="isVisible('{{ addslashes($item->menuid) }}')">
+     x-show="isVisible('{{ addslashes($item->menuid) }}')"
+     :class="{ 'bg-blue-50 ring-1 ring-inset ring-blue-100': isActiveNode('{{ addslashes($item->menuid) }}') }"
+     :data-active-menu="isActiveNode('{{ addslashes($item->menuid) }}')">
 
     {{-- Collapse chevron (only for nodes with children) --}}
     @if ($item->hasChildren)

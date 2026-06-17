@@ -1,29 +1,56 @@
 @php
-    /* Build collapse data for Alpine:
+    /* Build collapse/active data for Alpine:
      * - _ancestorMap: each node -> closest ancestor with children (the one that controls its visibility)
-     * - collapsedIds: nodes with depth >= 2 that have children → default collapsed (level 3+)
+     * - collapsedIds: nodes with depth >= 1 that have children → default collapsed
+     * - activeMenuId: current menu by portal URL first, route name fallback
+     * - activeAncestorIds: ancestors to auto-open temporarily so active menu is visible
      */
+    $tree = $this->tree;
     $ancestorMap = [];
     $collapsedIds = [];
+    $activeMenuId = null;
+    $normalizeMenuPath = static function (?string $path): string {
+        $path = '/' . ltrim((string) $path, '/');
+
+        return $path === '/' ? '/' : rtrim($path, '/');
+    };
+    $currentPath = $normalizeMenuPath(request()->path());
     $stack = []; // stack of [depth, menuid] for ancestors with children
 
-    foreach ($this->tree as $item) {
+    foreach ($tree as $item) {
         /* Pop ancestors deeper than current */
         while (!empty($stack) && end($stack)[0] >= $item->depth) {
             array_pop($stack);
         }
+
         /* Closest ancestor with children = last item in stack */
+        $menuId = (string) $item->menuid;
+
         if (!empty($stack) && $item->parentId) {
-            $ancestorMap[$item->menuid] = end($stack)[1];
+            $ancestorMap[$menuId] = (string) end($stack)[1];
         }
+
+        /* Active node: canonical /simba URL first, route-name fallback second */
+        $itemPath = $item->portalUrl ? $normalizeMenuPath(parse_url($item->portalUrl, PHP_URL_PATH)) : null;
+        if ($itemPath === $currentPath || (!$activeMenuId && $item->portalRoute && request()->routeIs($item->portalRoute))) {
+            $activeMenuId = $menuId;
+        }
+
         /* Push if this node has children */
         if ($item->hasChildren) {
-            $stack[] = [$item->depth, $item->menuid];
-            /* Default: collapse depth >= 1 with children (level 3+) */
+            $stack[] = [$item->depth, $menuId];
+            /* Default: collapse depth >= 1 with children */
             if ($item->depth >= 1) {
-                $collapsedIds[] = $item->menuid;
+                $collapsedIds[] = $menuId;
             }
         }
+    }
+
+    $activeAncestorIds = [];
+    $cursor = $activeMenuId;
+    while ($cursor && isset($ancestorMap[$cursor])) {
+        $cursor = $ancestorMap[$cursor];
+        $activeAncestorIds[] = $cursor;
     }
 @endphp
 
@@ -31,11 +58,44 @@
      x-data="{
          simbaSelectMode: false,
          simbaSelectNodeId: null,
+         searching: {{ Js::from(filled($search)) }},
+         activeMenuId: {{ Js::from($activeMenuId) }},
+         activeAncestorIds: {{ Js::from($activeAncestorIds) }},
+         defaultCollapsedIds: {{ Js::from($collapsedIds) }},
          /* ancestor lookup: childId -> closest ancestor with children */
          _ancestorMap: {{ Js::from($ancestorMap) }},
+         storageKey: 'portal:simba-erp-menus:collapsed:v1',
          /* collapsed Set */
-         collapsed: new Set({{ Js::from($collapsedIds) }}),
+         collapsed: new Set(),
          init() {
+             this.loadCollapsedState();
+             this.openActivePath();
+             this.bindSelectModeEvents();
+             this.scrollActiveNodeIntoView();
+         },
+         loadCollapsedState() {
+             try {
+                 const saved = localStorage.getItem(this.storageKey);
+                 const ids = saved ? JSON.parse(saved) : this.defaultCollapsedIds;
+                 this.collapsed = new Set(ids.map((id) => this.normalizeMenuId(id)));
+             } catch (e) {
+                 this.collapsed = new Set(this.defaultCollapsedIds.map((id) => this.normalizeMenuId(id)));
+             }
+         },
+         normalizeMenuId(menuId) {
+             return String(menuId);
+         },
+         persistCollapsedState() {
+             try {
+                 localStorage.setItem(this.storageKey, JSON.stringify([...this.collapsed]));
+             } catch (e) {
+                 // Ignore storage failures; keep the in-memory collapse state usable.
+             }
+         },
+         openActivePath() {
+             this.activeAncestorIds.map((id) => this.normalizeMenuId(id)).forEach((id) => this.collapsed.delete(id));
+         },
+         bindSelectModeEvents() {
              window.addEventListener('simba-select-mode-enter', (e) => {
                  this.simbaSelectMode = true;
                  this.simbaSelectNodeId = e.detail.nodeId;
@@ -45,24 +105,36 @@
                  this.simbaSelectNodeId = null;
              });
          },
+         scrollActiveNodeIntoView() {
+             this.$nextTick(() => {
+                 this.$root.querySelector('[data-active-menu=true]')?.scrollIntoView({ block: 'center' });
+             });
+         },
          selectMenuId(menuId) {
              if (!this.simbaSelectMode) return;
              window.dispatchEvent(new CustomEvent('simba-menu-selected', { detail: { menuId } }));
          },
          isCollapsed(menuId) {
-             return this.collapsed.has(menuId);
+             return this.collapsed.has(this.normalizeMenuId(menuId));
          },
          toggleCollapse(menuId) {
-             if (this.collapsed.has(menuId)) {
-                 this.collapsed.delete(menuId);
+             const id = this.normalizeMenuId(menuId);
+             if (this.collapsed.has(id)) {
+                 this.collapsed.delete(id);
              } else {
-                 this.collapsed.add(menuId);
+                 this.collapsed.add(id);
              }
+             this.persistCollapsedState();
+         },
+         isActiveNode(menuId) {
+             return this.activeMenuId !== null && this.normalizeMenuId(this.activeMenuId) === this.normalizeMenuId(menuId);
          },
          isVisible(menuId) {
+             if (this.searching) return true;
              /* Walk up ancestor chain; if any is collapsed -> hidden */
-             let aid = this._ancestorMap[menuId];
+             let aid = this._ancestorMap[this.normalizeMenuId(menuId)];
              while (aid) {
+                 aid = this.normalizeMenuId(aid);
                  if (this.collapsed.has(aid)) return false;
                  aid = this._ancestorMap[aid];
              }
@@ -101,8 +173,8 @@
     {{-- Tree --}}
     <div class="max-h-[calc(100vh-280px)] overflow-y-auto"
          :class="{ 'simba-select-active': simbaSelectMode }">
-        @forelse ($this->tree as $item)
-            @include('catalog::system.simba-node', ['item' => $item])
+        @forelse ($tree as $item)
+            @include('catalog::system.simba-node', ['item' => $item, 'activeMenuId' => $activeMenuId])
         @empty
             <div class="flex flex-col items-center justify-center py-12 text-gray-400">
                 <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -119,6 +191,6 @@
 
     {{-- Footer stats --}}
     <div class="border-t border-gray-200 bg-gray-50 px-4 py-2 text-xs text-gray-500">
-        {{ $this->tree->count() }} menu / {{ $this->total }} total · {{ $this->portalRouteCount }} menu đã map Portal
+        {{ $tree->count() }} menu / {{ $this->total }} total · {{ $this->portalRouteCount }} menu đã map Portal
     </div>
 </div>
