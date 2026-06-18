@@ -752,12 +752,26 @@ final class SimbaRouteRegistry
                 'menuid'      => '06.20.89',
                 'source_type' => self::TYPE_REPORT,
             ],
-            'ar.khachhang' => [
+            'so.dict.ardmkh' => [
                 'module'          => 'SO',
                 'menuid'          => '06.90.02',
                 'source_type'     => self::TYPE_DICTIONARY,
                 'dictionary_key'  => 'MA_KH',
                 'simba_code_name' => 'ARDMKH',
+            ],
+            'so.dict.ardmplkh' => [
+                'module'          => 'SO',
+                'menuid'          => '06.90.11',
+                'source_type'     => self::TYPE_DICTIONARY,
+                'dictionary_key'  => 'MA_PLKH',
+                'simba_code_name' => 'ARDMPLKH',
+            ],
+            'so.dict.ardmnhkh' => [
+                'module'          => 'SO',
+                'menuid'          => '06.90.14',
+                'source_type'     => self::TYPE_DICTIONARY,
+                'dictionary_key'  => 'MA_NHKH',
+                'simba_code_name' => 'ARDMNHKH',
             ],
             'po.cungcap' => [
                 'module'          => 'PO',

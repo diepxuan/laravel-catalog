@@ -5,7 +5,7 @@
             <div>
                 <h2 class="text-xl font-semibold text-gray-800">{{ 'create' === $mode ? 'Thêm phân loại khách hàng' : 'Sửa phân loại khách hàng' }}</h2>
             </div>
-            <a href="{{ route('ar.phanloaikhachhang') }}" class="rounded-md bg-gray-500 px-4 py-2 text-sm text-white hover:bg-gray-600">← Quay lại</a>
+            <a href="{{ route('so.dict.ardmplkh') }}" class="rounded-md bg-gray-500 px-4 py-2 text-sm text-white hover:bg-gray-600">← Quay lại</a>
         </div>
     </x-slot>
     <div class="mt-6 max-w-2xl">
@@ -40,7 +40,7 @@
                     <label for="pKsd" class="ml-2 text-sm text-gray-700">Khóa sử dụng</label>
                 </div>
                 <div class="flex justify-end gap-3 pt-4">
-                    <a href="{{ route('ar.phanloaikhachhang') }}" class="rounded-md bg-white px-4 py-2 text-sm text-gray-700 ring-1 ring-gray-300 hover:bg-gray-50">Hủy</a>
+                    <a href="{{ route('so.dict.ardmplkh') }}" class="rounded-md bg-white px-4 py-2 text-sm text-gray-700 ring-1 ring-gray-300 hover:bg-gray-50">Hủy</a>
                     <button type="submit" class="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500">{{ 'create' === $mode ? 'Thêm' : 'Lưu' }}</button>
                 </div>
             </form>

@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-06-17 15:21:16
+ * @lastupdate 2026-06-18 15:46:26
  */
 
 use Diepxuan\Catalog\Http\Controllers\SellController;
@@ -94,39 +94,43 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
     Route::get('/co/danhmuc/dinh-muc-bom', Dmbom::class)->name('co.dmbom');
     Route::get('/co/danhmuc/dinh-muc-chi-tiet', Dinhmucchitiet::class)->name('co.dinhmucchitiet');
 
-    Route::get('/banhang/khachhang', Khachhang::class)->name('ar.khachhang');
-    Route::get('/banhang/khachhang/create', KhachhangForm::class)->name('ar.khachhang.create');
-    Route::get('/banhang/khachhang/edit/{id}', KhachhangForm::class)->name('ar.khachhang.edit');
-    Route::get('/ar/danhmuc/nhom-khach-hang', Nhomkhachhang::class)->name('ar.nhomkhachhang');
-    Route::get('/ar/danhmuc/nhom-khach-hang/create', NhomkhachhangEdit::class)->name('ar.nhomkhachhang.create');
-    Route::get('/ar/danhmuc/nhom-khach-hang/edit/{id}', NhomkhachhangEdit::class)->name('ar.nhomkhachhang.edit');
-    Route::get('/ar/danhmuc/phan-loai-khach-hang', Phanloaikhachhang::class)->name('ar.phanloaikhachhang');
-    Route::get('/ar/danhmuc/phan-loai-khach-hang/create', PhanloaikhachhangEdit::class)->name('ar.phanloaikhachhang.create');
-    Route::get('/ar/danhmuc/phan-loai-khach-hang/edit/{id}', PhanloaikhachhangEdit::class)->name('ar.phanloaikhachhang.edit');
-
     Route::get('/muahang/cungcap', Cungcap::class)->name('ar.cungcap');
     Route::get('/muahang/nhacungcap', Cungcap::class)->name('po.cungcap');
     Route::get('/muahang/nhacungcap/create', CungcapForm::class)->name('po.cungcap.create');
     Route::get('/muahang/nhacungcap/edit/{id}', CungcapForm::class)->name('po.cungcap.edit');
     Route::get('/muahang/chiphimuahang/danhmuc', PoDmCpIndex::class)->name('po.dmcp');
 
-    Route::prefix('muahang')->name('muahang.')->group(static function (): void {
-        Route::get('/hoadonmua', Hoadonmua::class)->name('hoadonmua');
-        Route::get('/hoadonmua/create', HoadonmuaEdit::class)->name('hoadonmua.create');
-        Route::get('/hoadonmua/edit/{stt_rec}', HoadonmuaEdit::class)->name('hoadonmua.edit');
-        Route::get('/donhangmua', PoVoucherIndex::class)->defaults('voucherCode', 'PO1')->name('po1');
-        Route::get('/chiphimuahang', PoVoucherIndex::class)->defaults('voucherCode', 'PO4')->name('po4');
-        Route::get('/xuat-tralai-nhacungcap', PoVoucherIndex::class)->defaults('voucherCode', 'PO5')->name('po5');
-        Route::get('/hoadonmuadichvu', PoVoucherIndex::class)->defaults('voucherCode', 'PO6')->name('po6');
-        Route::get('/hoadonmuanhapkhau', PoVoucherIndex::class)->defaults('voucherCode', 'PO7')->name('po7');
-    });
+    // Route::prefix('muahang')->name('muahang.')->group(static function (): void {
+    //     Route::get('/hoadonmua', Hoadonmua::class)->name('hoadonmua');
+    //     Route::get('/hoadonmua/create', HoadonmuaEdit::class)->name('hoadonmua.create');
+    //     Route::get('/hoadonmua/edit/{stt_rec}', HoadonmuaEdit::class)->name('hoadonmua.edit');
+    //     Route::get('/donhangmua', PoVoucherIndex::class)->defaults('voucherCode', 'PO1')->name('po1');
+    //     Route::get('/chiphimuahang', PoVoucherIndex::class)->defaults('voucherCode', 'PO4')->name('po4');
+    //     Route::get('/xuat-tralai-nhacungcap', PoVoucherIndex::class)->defaults('voucherCode', 'PO5')->name('po5');
+    //     Route::get('/hoadonmuadichvu', PoVoucherIndex::class)->defaults('voucherCode', 'PO6')->name('po6');
+    //     Route::get('/hoadonmuanhapkhau', PoVoucherIndex::class)->defaults('voucherCode', 'PO7')->name('po7');
+    // });
 
     // Source routes for SimbaERP screens. Canonical /simba/... aliases render
     // through SimbaPage; these internal named routes preserve component/defaults.
     Route::prefix('_simba-source')->group(static function (): void {
+        // SO — Bán hàng (sysMenu 06.*)
+        Route::prefix('so')->group(static function (): void {
+            Route::prefix('dict')->group(static function (): void {
+                Route::get('/khachhang', Khachhang::class)->name('so.dict.ardmkh');
+                Route::get('/khachhang/create', KhachhangForm::class)->name('so.dict.ardmkh.create');
+                Route::get('/khachhang/edit/{id}', KhachhangForm::class)->name('so.dict.ardmkh.edit');
+                Route::get('/phanloai-khachhang', Phanloaikhachhang::class)->name('so.dict.ardmplkh');
+                Route::get('/phanloai-khachhang/create', PhanloaikhachhangEdit::class)->name('so.dict.ardmplkh.create');
+                Route::get('/phanloai-khachhang/edit/{id}', PhanloaikhachhangEdit::class)->name('so.dict.ardmplkh.edit');
+                Route::get('/nhom-khachhang', Nhomkhachhang::class)->name('so.dict.ardmnhkh');
+                Route::get('/nhom-khachhang/create', NhomkhachhangEdit::class)->name('so.dict.ardmnhkh.create');
+                Route::get('/nhom-khachhang/edit/{id}', NhomkhachhangEdit::class)->name('so.dict.ardmnhkh.edit');
+            });
+        });
+
         // IN — Hàng tồn kho (sysMenu 14.*)
         Route::prefix('in')->group(static function (): void {
-
             Route::prefix('rpt')->group(static function (): void {
                 Route::get('/tonkho', Tonkho::class)->name('in.tonkho');
             });

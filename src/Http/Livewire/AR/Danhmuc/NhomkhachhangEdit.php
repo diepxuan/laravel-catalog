@@ -49,7 +49,7 @@ class NhomkhachhangEdit extends Component
 
         if ($result->isEmpty()) {
             session()->flash('error', 'Không tìm thấy nhóm khách hàng.');
-            $this->redirectRoute('ar.nhomkhachhang');
+            $this->redirectRoute('so.dict.ardmnhkh');
 
             return;
         }
@@ -99,7 +99,7 @@ class NhomkhachhangEdit extends Component
                 session()->flash('success', 'Đã cập nhật nhóm khách hàng ' . $this->pMa_Nhkh);
             }
 
-            $this->redirectRoute('ar.nhomkhachhang');
+            $this->redirectRoute('so.dict.ardmnhkh');
         } catch (\Exception $e) {
             $msg = 'create' === $this->pMode ? 'thêm' : 'cập nhật';
             session()->flash('error', 'Lỗi khi ' . $msg . ' nhóm khách hàng: ' . $e->getMessage());

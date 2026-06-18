@@ -1,15 +1,15 @@
 <div class="nhomkhachhang-container w-full">
-    <x-head-title>{{ 'Nhóm khách hàng - AR' }}</x-head-title>
+    <x-head-title>{{ 'Nhóm khách hàng - SO' }}</x-head-title>
     <x-slot name="header">
         <div class="flex items-center justify-between">
             <div>
                 <h2 class="text-xl font-semibold leading-tight text-gray-800">
                     {{ 'Danh sách nhóm khách hàng' }}
                 </h2>
-                <p class="text-sm text-gray-500">Quản lý danh mục nhóm khách hàng (AR)</p>
+                <p class="text-sm text-gray-500">Quản lý danh mục nhóm khách hàng (SO)</p>
             </div>
             <a
-                href="{{ route('ar.nhomkhachhang.create') }}"
+                href="{{ route('so.dict.ardmnhkh.create') }}"
                 class="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
             >
                 + Thêm nhóm khách hàng
@@ -74,7 +74,7 @@
                         <td class="border-b border-gray-100 px-3 py-2 text-right">
                             <div class="flex justify-end gap-2">
                                 <a
-                                    href="{{ route('ar.nhomkhachhang.edit', $nh->ma_nhkh) }}"
+                                    href="{{ route('so.dict.ardmnhkh.edit', $nh->ma_nhkh) }}"
                                     class="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-700 hover:bg-yellow-200"
                                 >
                                     Sửa

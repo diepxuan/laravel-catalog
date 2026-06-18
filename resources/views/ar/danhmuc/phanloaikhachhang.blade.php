@@ -6,7 +6,7 @@
                 <h2 class="text-xl font-semibold text-gray-800">Danh sách phân loại khách hàng</h2>
                 <p class="text-sm text-gray-500">Phân loại 3 cấp (PL1, PL2, PL3)</p>
             </div>
-            <a href="{{ route('ar.phanloaikhachhang.create') }}" class="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">+ Thêm</a>
+            <a href="{{ route('so.dict.ardmplkh.create') }}" class="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">+ Thêm</a>
         </div>
     </x-slot>
     <div class="mt-4 flex items-center gap-4">
@@ -41,7 +41,7 @@
                         <td class="border-b px-3 py-2 text-gray-600">{{ Str::limit($it->ghi_chu, 60) }}</td>
                         <td class="border-b px-3 py-2 text-right">
                             <div class="flex justify-end gap-2">
-                                <a href="{{ route('ar.phanloaikhachhang.edit', $it->ma_plkh) }}" class="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-700 hover:bg-yellow-200">Sửa</a>
+                                <a href="{{ route('so.dict.ardmplkh.edit', $it->ma_plkh) }}" class="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-700 hover:bg-yellow-200">Sửa</a>
                                 <button wire:click="deleteItem('{{ $it->ma_plkh }}', {{ $it->loai }})" wire:confirm="Bạn có chắc chắn muốn xóa phân loại {{ $it->ma_plkh }}?" class="rounded bg-red-100 px-2 py-1 text-xs text-red-700 hover:bg-red-200">Xóa</button>
                             </div>
                         </td>

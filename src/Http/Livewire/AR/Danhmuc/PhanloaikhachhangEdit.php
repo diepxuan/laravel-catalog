@@ -46,7 +46,7 @@ class PhanloaikhachhangEdit extends Component
         ]);
         if ($result->isEmpty()) {
             session()->flash('error', 'Không tìm thấy.');
-            $this->redirectRoute('ar.phanloaikhachhang');
+            $this->redirectRoute('so.dict.ardmplkh');
 
             return;
         }
@@ -86,7 +86,7 @@ class PhanloaikhachhangEdit extends Component
                 AsARUpdDMPLKH::call($params);
                 session()->flash('success', 'Đã cập nhật ' . $this->pMa_Plkh);
             }
-            $this->redirectRoute('ar.phanloaikhachhang');
+            $this->redirectRoute('so.dict.ardmplkh');
         } catch (\Exception $e) {
             session()->flash('error', 'Lỗi: ' . $e->getMessage());
         }

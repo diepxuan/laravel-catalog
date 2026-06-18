@@ -9,7 +9,7 @@
                 <p class="text-sm text-gray-500">Quản lý danh mục khách hàng</p>
             </div>
             <a
-                href="{{ route('ar.khachhang.create') }}"
+                href="{{ route('so.dict.ardmkh.create') }}"
                 class="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
             >
                 + Thêm khách hàng
@@ -82,7 +82,7 @@
                         <td class="border-b border-gray-100 px-3 py-2 text-right">
                             <div class="flex justify-end gap-2">
                                 <a
-                                    href="{{ route('ar.khachhang.edit', $kh->ma_kh) }}"
+                                    href="{{ route('so.dict.ardmkh.edit', $kh->ma_kh) }}"
                                     class="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-700 hover:bg-yellow-200"
                                 >
                                     Sửa

@@ -11,7 +11,7 @@
                 </p>
             </div>
             <a
-                href="{{ route('ar.nhomkhachhang') }}"
+                href="{{ route('so.dict.ardmnhkh') }}"
                 class="rounded-md bg-gray-500 px-4 py-2 text-sm text-white hover:bg-gray-600"
             >
                 ← Quay lại
@@ -89,7 +89,7 @@
                 {{-- Actions --}}
                 <div class="mt-6 flex justify-end gap-3">
                     <a
-                        href="{{ route('ar.nhomkhachhang') }}"
+                        href="{{ route('so.dict.ardmnhkh') }}"
                         class="rounded-md bg-white px-4 py-2 text-sm text-gray-700 ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
                     >
                         Hủy
