@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Tests\Unit\Services;
 
-use Diepxuan\Catalog\Config\SimbaRouteRegistry;
 use Diepxuan\Catalog\Services\SimbaMenuRouteMetadata;
 use Diepxuan\Simba\Models\SysMenu;
 use PHPUnit\Framework\TestCase;
@@ -32,10 +31,10 @@ final class SimbaMenuRouteMetadataTest extends TestCase
 
         $routes = $metadata->routes();
 
-        self::assertSame(SimbaRouteRegistry::TYPE_DICTIONARY, $routes['so.dict.ardmkh']['source_type']);
-        self::assertSame(SimbaRouteRegistry::TYPE_REPORT, $routes['gl.rpt.glrptctgs01']['source_type']);
-        self::assertSame(SimbaRouteRegistry::TYPE_VOUCHER, $routes['po.vch.povchpo3']['source_type']);
-        self::assertSame(SimbaRouteRegistry::TYPE_CUSTOM, $routes['ca.proc.sidmtgnt']['source_type']);
+        self::assertSame(SimbaMenuRouteMetadata::TYPE_DICTIONARY, $routes['so.dict.ardmkh']['source_type']);
+        self::assertSame(SimbaMenuRouteMetadata::TYPE_REPORT, $routes['gl.rpt.glrptctgs01']['source_type']);
+        self::assertSame(SimbaMenuRouteMetadata::TYPE_VOUCHER, $routes['po.vch.povchpo3']['source_type']);
+        self::assertSame(SimbaMenuRouteMetadata::TYPE_CUSTOM, $routes['ca.proc.sidmtgnt']['source_type']);
     }
 
     public function testReportFlagClassifiesAsReport(): void
@@ -44,7 +43,7 @@ final class SimbaMenuRouteMetadataTest extends TestCase
             $this->menu('02.20.11', SysMenu::TYPE_UTILITY, 'GL', 'GLRptCTGS01', report: true),
         ]);
 
-        self::assertSame(SimbaRouteRegistry::TYPE_REPORT, $metadata->routes()['gl.rpt.glrptctgs01']['source_type']);
+        self::assertSame(SimbaMenuRouteMetadata::TYPE_REPORT, $metadata->routes()['gl.rpt.glrptctgs01']['source_type']);
     }
 
     public function testRouteNameUsesMenuModuleNotDllPrefix(): void

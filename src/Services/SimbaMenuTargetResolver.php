@@ -13,17 +13,16 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Services;
 
-use Diepxuan\Catalog\Config\SimbaRouteRegistry;
 use Illuminate\Routing\Route as LaravelRoute;
 use Illuminate\Support\Facades\Route;
 
 class SimbaMenuTargetResolver
 {
     private const SOURCE_TYPE_TO_SEGMENT = [
-        SimbaRouteRegistry::TYPE_DICTIONARY => 'dict',
-        SimbaRouteRegistry::TYPE_VOUCHER    => 'vch',
-        SimbaRouteRegistry::TYPE_REPORT     => 'rpt',
-        SimbaRouteRegistry::TYPE_CUSTOM     => 'proc',
+        SimbaMenuRouteMetadata::TYPE_DICTIONARY => 'dict',
+        SimbaMenuRouteMetadata::TYPE_VOUCHER    => 'vch',
+        SimbaMenuRouteMetadata::TYPE_REPORT     => 'rpt',
+        SimbaMenuRouteMetadata::TYPE_CUSTOM     => 'proc',
     ];
 
     /**
@@ -50,7 +49,7 @@ class SimbaMenuTargetResolver
      */
     public function resolveRouteName(string $routeName): ?array
     {
-        $routes = SimbaRouteRegistry::routes();
+        $routes = app(SimbaMenuRouteMetadata::class)->routes();
         $metadata = $routes[$routeName] ?? null;
         if (null === $metadata) {
             return null;
@@ -66,22 +65,22 @@ class SimbaMenuTargetResolver
             'component'   => $this->componentForRoute($route),
             'params'      => $this->paramsForRoute($route),
             'title'       => $this->titleFor($routeName, $metadata, $route),
-            'sourceType'  => $metadata['source_type'] ?? SimbaRouteRegistry::TYPE_CUSTOM,
+            'sourceType'  => $metadata['source_type'] ?? SimbaMenuRouteMetadata::TYPE_CUSTOM,
         ];
     }
 
     public function urlForRouteName(string $routeName, ?array $metadata = null): string
     {
-        $metadata ??= SimbaRouteRegistry::routes()[$routeName] ?? [];
+        $metadata ??= app(SimbaMenuRouteMetadata::class)->routes()[$routeName] ?? [];
         $parts = explode('.', $routeName);
         $module = strtolower((string) ($metadata['module'] ?? $parts[0] ?? 'simba'));
         $sourceType = $metadata['source_type'] ?? null;
         $kind = self::SOURCE_TYPE_TO_SEGMENT[$sourceType] ?? ($parts[1] ?? 'proc');
         if (isset(self::SOURCE_TYPE_TO_SEGMENT[$sourceType])) {
             $slugParts = match ($sourceType) {
-                SimbaRouteRegistry::TYPE_DICTIONARY => ($parts[1] ?? null) === 'dict' ? array_slice($parts, 2) : array_slice($parts, 1),
-                SimbaRouteRegistry::TYPE_VOUCHER, SimbaRouteRegistry::TYPE_REPORT => array_slice($parts, 2) ?: array_slice($parts, 1),
-                SimbaRouteRegistry::TYPE_CUSTOM => array_slice($parts, 1),
+                SimbaMenuRouteMetadata::TYPE_DICTIONARY => ($parts[1] ?? null) === 'dict' ? array_slice($parts, 2) : array_slice($parts, 1),
+                SimbaMenuRouteMetadata::TYPE_VOUCHER, SimbaMenuRouteMetadata::TYPE_REPORT => array_slice($parts, 2) ?: array_slice($parts, 1),
+                SimbaMenuRouteMetadata::TYPE_CUSTOM => array_slice($parts, 1),
                 default => array_slice($parts, 1),
             };
             $slug = implode('.', $slugParts);

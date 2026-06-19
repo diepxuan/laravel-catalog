@@ -13,10 +13,10 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Http\Livewire\System;
 
-use Diepxuan\Catalog\Config\SimbaRouteRegistry;
-use Diepxuan\Simba\Models\SysMenu;
 use Diepxuan\Catalog\Services\SimbaMenuRepository;
+use Diepxuan\Catalog\Services\SimbaMenuRouteMetadata;
 use Diepxuan\Catalog\Services\SimbaMenuTargetResolver;
+use Diepxuan\Simba\Models\SysMenu;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -240,7 +240,7 @@ class SimbaErpMenus extends Component
     {
         $map = [];
 
-        foreach (SimbaRouteRegistry::routes() as $routeName => $metadata) {
+        foreach (app(SimbaMenuRouteMetadata::class)->routes() as $routeName => $metadata) {
             if (isset($map[$metadata['menuid']])) {
                 continue;
             }
@@ -269,10 +269,10 @@ class SimbaErpMenus extends Component
     private function sourceTypeLabel(string $sourceType): string
     {
         return match ($sourceType) {
-            SimbaRouteRegistry::TYPE_REPORT     => 'Report',
-            SimbaRouteRegistry::TYPE_DICTIONARY => 'Danh muc',
-            SimbaRouteRegistry::TYPE_VOUCHER    => 'Chung tu',
-            SimbaRouteRegistry::TYPE_CUSTOM     => 'Portal',
+            SimbaMenuRouteMetadata::TYPE_REPORT     => 'Report',
+            SimbaMenuRouteMetadata::TYPE_DICTIONARY => 'Danh muc',
+            SimbaMenuRouteMetadata::TYPE_VOUCHER    => 'Chung tu',
+            SimbaMenuRouteMetadata::TYPE_CUSTOM     => 'Portal',
             default                             => 'Portal',
         };
     }

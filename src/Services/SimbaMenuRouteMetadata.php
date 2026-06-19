@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Services;
 
-use Diepxuan\Catalog\Config\SimbaRouteRegistry;
 use Diepxuan\Simba\Models\SysDictionaryInfo;
 use Diepxuan\Simba\Models\SysMenu;
 use Diepxuan\Simba\Models\SysReportDrillDownInfo;
@@ -22,6 +21,11 @@ use Diepxuan\Simba\Models\ZSysReportInfo;
 
 final class SimbaMenuRouteMetadata
 {
+    public const TYPE_DICTIONARY = 'dictionary';
+    public const TYPE_VOUCHER    = 'voucher';
+    public const TYPE_REPORT     = 'report';
+    public const TYPE_CUSTOM     = 'custom';
+
     private ?array $routes = null;
     private ?array $dictionaries = null;
     private ?array $reports = null;
@@ -64,7 +68,7 @@ final class SimbaMenuRouteMetadata
     {
         return array_filter(
             $this->routes(),
-            static fn (array $metadata): bool => SimbaRouteRegistry::TYPE_CUSTOM !== ($metadata['source_type'] ?? null)
+            static fn (array $metadata): bool => SimbaMenuRouteMetadata::TYPE_CUSTOM !== ($metadata['source_type'] ?? null)
         );
     }
 
@@ -87,7 +91,7 @@ final class SimbaMenuRouteMetadata
 
         return $this->dictionaries = array_filter(
             $this->routes(),
-            static fn (array $metadata): bool => SimbaRouteRegistry::TYPE_DICTIONARY === ($metadata['source_type'] ?? null)
+            static fn (array $metadata): bool => SimbaMenuRouteMetadata::TYPE_DICTIONARY === ($metadata['source_type'] ?? null)
         );
     }
 
@@ -110,7 +114,7 @@ final class SimbaMenuRouteMetadata
 
         return $this->reports = array_filter(
             $this->routes(),
-            static fn (array $metadata): bool => SimbaRouteRegistry::TYPE_REPORT === ($metadata['source_type'] ?? null)
+            static fn (array $metadata): bool => SimbaMenuRouteMetadata::TYPE_REPORT === ($metadata['source_type'] ?? null)
         );
     }
 
@@ -133,7 +137,7 @@ final class SimbaMenuRouteMetadata
 
         return $this->processes = array_filter(
             $this->routes(),
-            static fn (array $metadata): bool => SimbaRouteRegistry::TYPE_CUSTOM === ($metadata['source_type'] ?? null)
+            static fn (array $metadata): bool => SimbaMenuRouteMetadata::TYPE_CUSTOM === ($metadata['source_type'] ?? null)
         );
     }
 
@@ -165,19 +169,19 @@ final class SimbaMenuRouteMetadata
         }
 
         if (SysMenu::TYPE_MASTER === $type) {
-            return SimbaRouteRegistry::TYPE_DICTIONARY;
+            return SimbaMenuRouteMetadata::TYPE_DICTIONARY;
         }
 
         if (SysMenu::TYPE_VOUCHER === $type) {
-            return SimbaRouteRegistry::TYPE_VOUCHER;
+            return SimbaMenuRouteMetadata::TYPE_VOUCHER;
         }
 
         if (SysMenu::TYPE_REPORT === $type || (bool) $menu->report) {
-            return SimbaRouteRegistry::TYPE_REPORT;
+            return SimbaMenuRouteMetadata::TYPE_REPORT;
         }
 
         if ($this->hasCallableMetadata($menu)) {
-            return SimbaRouteRegistry::TYPE_CUSTOM;
+            return SimbaMenuRouteMetadata::TYPE_CUSTOM;
         }
 
         return null;
@@ -190,9 +194,9 @@ final class SimbaMenuRouteMetadata
     {
         $module = strtolower((string) $menu->moduleid);
         $kind = match ($sourceType) {
-            SimbaRouteRegistry::TYPE_DICTIONARY => 'dict',
-            SimbaRouteRegistry::TYPE_VOUCHER => 'vch',
-            SimbaRouteRegistry::TYPE_REPORT => 'rpt',
+            SimbaMenuRouteMetadata::TYPE_DICTIONARY => 'dict',
+            SimbaMenuRouteMetadata::TYPE_VOUCHER => 'vch',
+            SimbaMenuRouteMetadata::TYPE_REPORT => 'rpt',
             default => 'proc',
         };
         $source = (string) ($menu->dllName ?: $menu->code_name ?: $menu->command ?: $menu->menuid);
@@ -214,10 +218,10 @@ final class SimbaMenuRouteMetadata
         $base = $this->baseMetadata($menu, $sourceType);
 
         return match ($sourceType) {
-            SimbaRouteRegistry::TYPE_DICTIONARY => array_merge($base, $this->dictionaryMetadata($menu)),
-            SimbaRouteRegistry::TYPE_REPORT => array_merge($base, $this->reportMetadata($menu)),
-            SimbaRouteRegistry::TYPE_VOUCHER => array_merge($base, $this->voucherMetadata($menu)),
-            SimbaRouteRegistry::TYPE_CUSTOM => array_merge($base, $this->processMetadata($menu)),
+            SimbaMenuRouteMetadata::TYPE_DICTIONARY => array_merge($base, $this->dictionaryMetadata($menu)),
+            SimbaMenuRouteMetadata::TYPE_REPORT => array_merge($base, $this->reportMetadata($menu)),
+            SimbaMenuRouteMetadata::TYPE_VOUCHER => array_merge($base, $this->voucherMetadata($menu)),
+            SimbaMenuRouteMetadata::TYPE_CUSTOM => array_merge($base, $this->processMetadata($menu)),
             default => $base,
         };
     }
