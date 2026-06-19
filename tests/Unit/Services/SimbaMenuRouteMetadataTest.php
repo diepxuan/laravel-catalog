@@ -20,15 +20,6 @@ final class SimbaMenuRouteMetadataTest extends TestCase
         self::assertSame([], $metadata->routes());
     }
 
-    public function testGroupMenuWithReportFlagAndCallableMetadataGetsReportRoute(): void
-    {
-        $metadata = $this->metadata([
-            $this->menu('02.80.02', SysMenu::TYPE_GROUP, 'GL', 'F5GLRptTH01', report: true),
-        ]);
-
-        self::assertSame(SimbaMenuRouteMetadata::TYPE_REPORT, $metadata->routes()['gl.rpt.f5glrptth01']['source_type']);
-    }
-
     public function testReportHeaderWithoutCallableMetadataIsSkipped(): void
     {
         $metadata = $this->metadata([
@@ -44,7 +35,7 @@ final class SimbaMenuRouteMetadataTest extends TestCase
             $this->menu('06.90.02', SysMenu::TYPE_MASTER, 'SO', 'ARDMKH'),
             $this->menu('02.20.11', SysMenu::TYPE_REPORT, 'GL', 'GLRptCTGS01'),
             $this->menu('10.10.14', SysMenu::TYPE_VOUCHER, 'PO', 'POVchPO3', codeName: 'PO3'),
-            $this->menu('90.10.29', SysMenu::TYPE_UTILITY, 'CA', 'SIDMTGNT'),
+            $this->menu('90.10.29', SysMenu::TYPE_SETUP, 'CA', 'SIDMTGNT'),
         ]);
 
         $routes = $metadata->routes();
@@ -55,13 +46,13 @@ final class SimbaMenuRouteMetadataTest extends TestCase
         self::assertSame(SimbaMenuRouteMetadata::TYPE_CUSTOM, $routes['ca.proc.sidmtgnt']['source_type']);
     }
 
-    public function testReportFlagClassifiesAsReport(): void
+    public function testGroupMenuWithReportFlagIsSkippedBySourceRouteRules(): void
     {
         $metadata = $this->metadata([
-            $this->menu('02.20.11', SysMenu::TYPE_UTILITY, 'GL', 'GLRptCTGS01', report: true),
+            $this->menu('02.80.02', SysMenu::TYPE_GROUP, 'GL', 'F5GLRptTH01', report: true),
         ]);
 
-        self::assertSame(SimbaMenuRouteMetadata::TYPE_REPORT, $metadata->routes()['gl.rpt.glrptctgs01']['source_type']);
+        self::assertSame([], $metadata->routes());
     }
 
     public function testRouteNameUsesMenuModuleNotDllPrefix(): void
@@ -74,17 +65,21 @@ final class SimbaMenuRouteMetadataTest extends TestCase
         self::assertArrayNotHasKey('ar.dict.ardmkh', $metadata->routes());
     }
 
-    public function testDuplicateRouteNameAppendsMenuId(): void
+    public function testRouteNameFormatSlugAndNoDuplicates(): void
     {
         $metadata = $this->metadata([
-            $this->menu('02.20.11', SysMenu::TYPE_REPORT, 'GL', 'DynamicReport'),
-            $this->menu('02.20.14', SysMenu::TYPE_REPORT, 'GL', 'DynamicReport'),
+            $this->menu('02.90.02', SysMenu::TYPE_MASTER, 'GL', 'GLDMTK', codeName: 'TK'),
+            $this->menu('10.10.14', SysMenu::TYPE_VOUCHER, 'PO', '', codeName: 'PO3'),
+            $this->menu('02.20.11', SysMenu::TYPE_REPORT, 'GL', 'GLRptCTGS01'),
         ]);
 
         $routes = $metadata->routes();
 
-        self::assertArrayHasKey('gl.rpt.dynamicreport', $routes);
-        self::assertArrayHasKey('gl.rpt.dynamicreport-02-20-14', $routes);
+        self::assertSame(['gl.dict.gldmtk', 'po.vch.po3', 'gl.rpt.glrptctgs01'], array_keys($routes));
+        foreach (array_keys($routes) as $routeName) {
+            self::assertMatchesRegularExpression('/^[a-z0-9-]+\\.(vch|dict|rpt|proc)\\.[a-z0-9-]+$/', $routeName);
+        }
+        self::assertCount(count(array_unique(array_keys($routes))), $routes);
     }
 
     /**

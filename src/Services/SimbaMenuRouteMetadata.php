@@ -164,7 +164,11 @@ final class SimbaMenuRouteMetadata
     private function sourceTypeFor(SysMenu $menu): ?string
     {
         $type = (string) $menu->type;
-        if (SysMenu::TYPE_MODULE_ROOT === $type) {
+        if (SysMenu::TYPE_MODULE_ROOT === $type || SysMenu::TYPE_GROUP === $type) {
+            return null;
+        }
+
+        if (!$this->hasSourceSlugMetadata($menu)) {
             return null;
         }
 
@@ -176,7 +180,7 @@ final class SimbaMenuRouteMetadata
             return SimbaMenuRouteMetadata::TYPE_VOUCHER;
         }
 
-        if (SysMenu::TYPE_REPORT === $type || (bool) $menu->report) {
+        if (SysMenu::TYPE_REPORT === $type) {
             if ($this->hasCallableMetadata($menu) || null !== $this->reportRow($menu)) {
                 return SimbaMenuRouteMetadata::TYPE_REPORT;
             }
@@ -184,7 +188,7 @@ final class SimbaMenuRouteMetadata
             return null;
         }
 
-        if ($this->hasCallableMetadata($menu)) {
+        if (SysMenu::TYPE_SETUP === $type && $this->hasCallableMetadata($menu)) {
             return SimbaMenuRouteMetadata::TYPE_CUSTOM;
         }
 
@@ -203,8 +207,8 @@ final class SimbaMenuRouteMetadata
             SimbaMenuRouteMetadata::TYPE_REPORT => 'rpt',
             default => 'proc',
         };
-        $source = (string) ($menu->dllName ?: $menu->code_name ?: $menu->command ?: $menu->menuid);
-        $slug = $this->slug($source) ?: $this->slug((string) $menu->menuid);
+        $source = (string) ($menu->dllName ?: $menu->code_name);
+        $slug = $this->slug($source);
         $route = "{$module}.{$kind}.{$slug}";
 
         if (!isset($existing[$route])) {
@@ -368,6 +372,12 @@ final class SimbaMenuRouteMetadata
     {
         return '' !== trim((string) $menu->dllName)
             || '' !== trim((string) $menu->command)
+            || '' !== trim((string) $menu->code_name);
+    }
+
+    private function hasSourceSlugMetadata(SysMenu $menu): bool
+    {
+        return '' !== trim((string) $menu->dllName)
             || '' !== trim((string) $menu->code_name);
     }
 
