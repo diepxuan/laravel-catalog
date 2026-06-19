@@ -10,11 +10,29 @@ use PHPUnit\Framework\TestCase;
 
 final class SimbaMenuRouteMetadataTest extends TestCase
 {
-    public function testSkipsRootAndGroupMenus(): void
+    public function testSkipsRootAndEmptyGroupMenus(): void
     {
         $metadata = $this->metadata([
-            $this->menu('02.00.00', SysMenu::TYPE_MODULE_ROOT, 'GL', 'GL'),
-            $this->menu('02.10.00', SysMenu::TYPE_GROUP, 'GL', 'Data'),
+            $this->menu('02.00.00', SysMenu::TYPE_MODULE_ROOT, 'GL', ''),
+            $this->menu('02.10.00', SysMenu::TYPE_GROUP, 'GL', ''),
+        ]);
+
+        self::assertSame([], $metadata->routes());
+    }
+
+    public function testGroupMenuWithReportFlagAndCallableMetadataGetsReportRoute(): void
+    {
+        $metadata = $this->metadata([
+            $this->menu('02.80.02', SysMenu::TYPE_GROUP, 'GL', 'F5GLRptTH01', report: true),
+        ]);
+
+        self::assertSame(SimbaMenuRouteMetadata::TYPE_REPORT, $metadata->routes()['gl.rpt.f5glrptth01']['source_type']);
+    }
+
+    public function testReportHeaderWithoutCallableMetadataIsSkipped(): void
+    {
+        $metadata = $this->metadata([
+            $this->menu('02.25.00', SysMenu::TYPE_REPORT, 'GL', '', report: true),
         ]);
 
         self::assertSame([], $metadata->routes());

@@ -164,7 +164,7 @@ final class SimbaMenuRouteMetadata
     private function sourceTypeFor(SysMenu $menu): ?string
     {
         $type = (string) $menu->type;
-        if (SysMenu::TYPE_MODULE_ROOT === $type || SysMenu::TYPE_GROUP === $type) {
+        if (SysMenu::TYPE_MODULE_ROOT === $type) {
             return null;
         }
 
@@ -177,7 +177,11 @@ final class SimbaMenuRouteMetadata
         }
 
         if (SysMenu::TYPE_REPORT === $type || (bool) $menu->report) {
-            return SimbaMenuRouteMetadata::TYPE_REPORT;
+            if ($this->hasCallableMetadata($menu) || null !== $this->reportRow($menu)) {
+                return SimbaMenuRouteMetadata::TYPE_REPORT;
+            }
+
+            return null;
         }
 
         if ($this->hasCallableMetadata($menu)) {
