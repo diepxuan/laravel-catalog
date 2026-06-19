@@ -8,28 +8,28 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-06-07 21:44:00
+ * @lastupdate 2026-06-18 20:12:00
  */
 
 namespace Diepxuan\Catalog\Config;
 
-use Diepxuan\Catalog\Services\SimbaProcessMetadata;
+use Diepxuan\Catalog\Services\SimbaMenuRouteMetadata;
 
 final class SimbaProcessRegistry
 {
     /**
-     * @return array<string, array<string, string>>
+     * @return array<string, array<string, mixed>>
      */
     public static function processes(): array
     {
-        return SimbaProcessMetadata::processes(SimbaRouteRegistry::routesWithoutProcesses());
+        return app(SimbaMenuRouteMetadata::class)->processes();
     }
 
     /**
-     * @return null|array<string, string>
+     * @return null|array<string, mixed>
      */
     public static function get(string $routeName): ?array
     {
-        return SimbaProcessMetadata::get($routeName, SimbaRouteRegistry::routesWithoutProcesses());
+        return app(SimbaMenuRouteMetadata::class)->getProcess($routeName);
     }
 }

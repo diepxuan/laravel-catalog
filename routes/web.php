@@ -45,7 +45,6 @@ use Diepxuan\Catalog\Http\Livewire\Muahang\CungcapForm;
 use Diepxuan\Catalog\Http\Livewire\Muahang\Hoadonmua;
 use Diepxuan\Catalog\Http\Livewire\Muahang\HoadonmuaEdit;
 use Diepxuan\Catalog\Http\Livewire\Muahang\PoDmCpIndex;
-use Diepxuan\Catalog\Http\Livewire\Muahang\PoVoucherIndex;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountOpening;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountsPayable;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountsReceivable;
@@ -99,17 +98,6 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
     Route::get('/muahang/nhacungcap/create', CungcapForm::class)->name('po.cungcap.create');
     Route::get('/muahang/nhacungcap/edit/{id}', CungcapForm::class)->name('po.cungcap.edit');
     Route::get('/muahang/chiphimuahang/danhmuc', PoDmCpIndex::class)->name('po.dmcp');
-
-    // Route::prefix('muahang')->name('muahang.')->group(static function (): void {
-    //     Route::get('/hoadonmua', Hoadonmua::class)->name('hoadonmua');
-    //     Route::get('/hoadonmua/create', HoadonmuaEdit::class)->name('hoadonmua.create');
-    //     Route::get('/hoadonmua/edit/{stt_rec}', HoadonmuaEdit::class)->name('hoadonmua.edit');
-    //     Route::get('/donhangmua', PoVoucherIndex::class)->defaults('voucherCode', 'PO1')->name('po1');
-    //     Route::get('/chiphimuahang', PoVoucherIndex::class)->defaults('voucherCode', 'PO4')->name('po4');
-    //     Route::get('/xuat-tralai-nhacungcap', PoVoucherIndex::class)->defaults('voucherCode', 'PO5')->name('po5');
-    //     Route::get('/hoadonmuadichvu', PoVoucherIndex::class)->defaults('voucherCode', 'PO6')->name('po6');
-    //     Route::get('/hoadonmuanhapkhau', PoVoucherIndex::class)->defaults('voucherCode', 'PO7')->name('po7');
-    // });
 
     // Source routes for SimbaERP screens. Canonical /simba/... aliases render
     // through SimbaPage; these internal named routes preserve component/defaults.
