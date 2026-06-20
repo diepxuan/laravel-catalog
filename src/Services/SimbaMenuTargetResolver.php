@@ -15,6 +15,7 @@ namespace Diepxuan\Catalog\Services;
 
 use Illuminate\Routing\Route as LaravelRoute;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Str;
 
 class SimbaMenuTargetResolver
 {
@@ -102,6 +103,73 @@ class SimbaMenuTargetResolver
         ]);
     }
 
+    public function simbaUrl(string $routeName, mixed $parameters = [], bool $absolute = true): string
+    {
+        $parts = explode('.', $routeName);
+        $action = null;
+
+        if (in_array(end($parts), ['create', 'edit'], true)) {
+            $action = array_pop($parts);
+        }
+
+        $baseRouteName = implode('.', $parts);
+        $baseUrl = $this->urlForRouteName($baseRouteName);
+
+        if (!$absolute) {
+            $baseUrl = Str::after($baseUrl, url('/'));
+            $baseUrl = '/' . ltrim($baseUrl, '/');
+        }
+
+        return match ($action) {
+            'create' => rtrim($baseUrl, '/') . '/create',
+            'edit'   => rtrim($baseUrl, '/') . '/' . rawurlencode((string) $this->firstParameter($parameters)) . '/edit',
+            default  => $baseUrl,
+        };
+    }
+
+    /**
+     * @return array{routeName:string, metadata:array<string,string>, menuid:?string, url:string, component:?string, params:array<string,mixed>, title:string, sourceType:string}|null
+     */
+    public function resolveActionPath(string $module, string $kind, string $slug, string $action, mixed $id = null): ?array
+    {
+        if (!in_array($action, ['create', 'edit'], true)) {
+            return null;
+        }
+
+        $baseTarget = $this->resolvePath($module, $kind, $slug);
+        if (null === $baseTarget) {
+            return null;
+        }
+
+        $routeName = strtolower("{$module}.{$kind}.{$slug}.{$action}");
+        $route = Route::getRoutes()->getByName($routeName);
+
+        if (null === $route) {
+            return null;
+        }
+
+        $target = $baseTarget;
+        $target['routeName'] = $routeName;
+        $target['component'] = $this->componentForRoute($route);
+        $target['params'] = $this->paramsForRoute($route);
+        $target['url'] = $this->simbaUrl($routeName, $id);
+
+        if (null !== $id) {
+            $target['params']['id'] = $id;
+        }
+
+        return $target;
+    }
+
+    private function firstParameter(mixed $parameters): mixed
+    {
+        if (is_array($parameters)) {
+            return reset($parameters) ?: '';
+        }
+
+        return $parameters;
+    }
+
     /**
      * @return list<string>
      */
@@ -134,6 +202,11 @@ class SimbaMenuTargetResolver
             return null;
         }
 
+        $defaults = $route->defaults;
+        if (isset($defaults['component']) && class_exists((string) $defaults['component'])) {
+            return (string) $defaults['component'];
+        }
+
         $action = $route->getActionName();
         if (!str_contains($action, '@') && class_exists($action)) {
             return $action;
@@ -152,7 +225,7 @@ class SimbaMenuTargetResolver
         }
 
         $defaults = $route->defaults;
-        unset($defaults['controller'], $defaults['namespace'], $defaults['prefix'], $defaults['where'], $defaults['as']);
+        unset($defaults['component'], $defaults['controller'], $defaults['namespace'], $defaults['prefix'], $defaults['where'], $defaults['as']);
 
         return $defaults;
     }

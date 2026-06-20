@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 use Diepxuan\Catalog\Services\CatalogFunctions;
 use Diepxuan\Catalog\Services\CatalogService;
+use Diepxuan\Catalog\Services\SimbaMenuTargetResolver;
 
 if (!function_exists('catalog')) {
     /**
@@ -30,6 +31,16 @@ if (!function_exists('catalog_functions')) {
     function catalog_functions(): CatalogFunctions
     {
         return app('catalog-functions');
+    }
+}
+
+if (!function_exists('simbaroute')) {
+    /**
+     * Build canonical /simba URLs for Simba menu route names.
+     */
+    function simbaroute(string $name, mixed $parameters = [], bool $absolute = true): string
+    {
+        return app(SimbaMenuTargetResolver::class)->simbaUrl($name, $parameters, $absolute);
     }
 }
 

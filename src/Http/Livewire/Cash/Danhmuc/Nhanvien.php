@@ -13,12 +13,12 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Http\Livewire\Cash\Danhmuc;
 
-use Diepxuan\Catalog\Http\Livewire\Muahang\Cungcap;
+use Diepxuan\Catalog\Http\Livewire\Po\Dict\Ardmkh;
 use Diepxuan\Simba\SModel\SModel;
 use Diepxuan\Simba\StoredProcedures\AsARGetDMKH;
 use Illuminate\View\View;
 
-class Nhanvien extends Cungcap
+class Nhanvien extends Ardmkh
 {
     public function deleteDoiTuong(string $maKh): void
     {

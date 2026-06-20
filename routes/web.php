@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-06-19 14:14:20
+ * @lastupdate 2026-06-20 11:17:03
  */
 
 use Diepxuan\Catalog\Http\Controllers\SellController;
@@ -28,9 +28,9 @@ use Diepxuan\Catalog\Http\Livewire\Home\Dashboard as DashboardLivewire;
 use Diepxuan\Catalog\Http\Livewire\In\Dmkho;
 use Diepxuan\Catalog\Http\Livewire\In\Dmnhvt;
 use Diepxuan\Catalog\Http\Livewire\In\Dmvt;
-use Diepxuan\Catalog\Http\Livewire\Muahang\Cungcap;
-use Diepxuan\Catalog\Http\Livewire\Muahang\CungcapForm;
 use Diepxuan\Catalog\Http\Livewire\Muahang\PoDmCpIndex;
+use Diepxuan\Catalog\Http\Livewire\Po\Dict\Ardmkh;
+use Diepxuan\Catalog\Http\Livewire\Po\Dict\ArdmkhForm;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountOpening;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountsPayable;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountsReceivable;
@@ -65,12 +65,13 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
 
     Route::resource('banhang/bangkebanhang', SellController::class)->names('sell.list');
 
-    Route::get('/muahang/nhacungcap/create', CungcapForm::class)->name('po.cungcap.create');
-    Route::get('/muahang/nhacungcap/edit/{id}', CungcapForm::class)->name('po.cungcap.edit');
-
     // Source routes for SimbaERP screens generated from simba-docs/data/sysMenu.md + zsysmenu.md.
     // Menus with concrete Livewire screens point to the component; the rest render the metadata shell.
     Route::prefix('_simba-source')->group(static function (): void {
+        Route::redirect('{path}', '/simba/{path}')
+            ->where('path', '.*')
+        ;
+
         $sourceRoutes = [
             ['uri' => 'ca/dict/ardmkh', 'name' => 'ca.dict.ardmkh', 'module' => 'ca', 'kind' => 'dict', 'slug' => 'ardmkh', 'component' => Nhanvien::class],
             // ['uri' => 'ca/dict/sidmngh', 'name' => 'ca.dict.sidmngh', 'module' => 'ca', 'kind' => 'dict', 'slug' => 'sidmngh', 'component' => SimbaPage::class],
@@ -223,7 +224,9 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
             // ['uri' => 'in/vch/invchin3', 'name' => 'in.vch.invchin3', 'module' => 'in', 'kind' => 'vch', 'slug' => 'invchin3', 'component' => SimbaPage::class],
             // ['uri' => 'in/vch/invchin5', 'name' => 'in.vch.invchin5', 'module' => 'in', 'kind' => 'vch', 'slug' => 'invchin5', 'component' => SimbaPage::class],
             // ['uri' => 'in/vch/invchin6', 'name' => 'in.vch.invchin6', 'module' => 'in', 'kind' => 'vch', 'slug' => 'invchin6', 'component' => SimbaPage::class],
-            ['uri' => 'po/dict/ardmkh', 'name' => 'po.dict.ardmkh', 'module' => 'po', 'kind' => 'dict', 'slug' => 'ardmkh', 'component' => Cungcap::class],
+            ['uri' => 'po/dict/ardmkh', 'name' => 'po.dict.ardmkh', 'module' => 'po', 'kind' => 'dict', 'slug' => 'ardmkh', 'component' => Ardmkh::class],
+            ['uri' => 'po/dict/ardmkh/create', 'name' => 'po.dict.ardmkh.create', 'module' => 'po', 'kind' => 'dict', 'slug' => 'ardmkh', 'component' => ArdmkhForm::class],
+            ['uri' => 'po/dict/ardmkh/{id}/edit', 'name' => 'po.dict.ardmkh.edit', 'module' => 'po', 'kind' => 'dict', 'slug' => 'ardmkh', 'component' => ArdmkhForm::class],
             // ['uri' => 'po/dict/ardmplkh', 'name' => 'po.dict.ardmplkh', 'module' => 'po', 'kind' => 'dict', 'slug' => 'ardmplkh', 'component' => SimbaPage::class],
             ['uri' => 'po/dict/podmcp', 'name' => 'po.dict.podmcp', 'module' => 'po', 'kind' => 'dict', 'slug' => 'podmcp', 'component' => PoDmCpIndex::class],
             // ['uri' => 'po/dict/podmgiamua', 'name' => 'po.dict.podmgiamua', 'module' => 'po', 'kind' => 'dict', 'slug' => 'podmgiamua', 'component' => SimbaPage::class],
@@ -319,6 +322,25 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
                 'slug'   => '[a-z0-9_.-]+',
             ])
             ->name('show')
+        ;
+        Route::get('/{module}/{kind}/{slug}/create', SimbaPage::class)
+            ->defaults('action', 'create')
+            ->where([
+                'module' => '[a-z0-9-]+',
+                'kind'   => '[a-z0-9-]+',
+                'slug'   => '[a-z0-9_.-]+',
+            ])
+            ->name('create')
+        ;
+        Route::get('/{module}/{kind}/{slug}/{id}/edit', SimbaPage::class)
+            ->defaults('action', 'edit')
+            ->where([
+                'module' => '[a-z0-9-]+',
+                'kind'   => '[a-z0-9-]+',
+                'slug'   => '[a-z0-9_.-]+',
+                'id'     => '[^/]+',
+            ])
+            ->name('edit')
         ;
     });
 

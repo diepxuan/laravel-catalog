@@ -22,6 +22,8 @@ class SimbaPage extends Component
     public ?string $module = null;
     public ?string $kind   = null;
     public ?string $slug   = null;
+    public ?string $action = null;
+    public ?string $id     = null;
 
     /** @var array<string,mixed>|null */
     public ?array $target = null;
@@ -33,12 +35,16 @@ class SimbaPage extends Component
         $this->resolver = $resolver;
     }
 
-    public function mount(?string $module = null, ?string $kind = null, ?string $slug = null): void
+    public function mount(?string $module = null, ?string $kind = null, ?string $slug = null, ?string $action = null, ?string $id = null): void
     {
         $this->module = $module;
         $this->kind   = $kind;
         $this->slug   = $slug;
-        $this->target = $this->resolver->resolvePath($module, $kind, $slug);
+        $this->action = $action;
+        $this->id     = $id;
+        $this->target = null === $action
+            ? $this->resolver->resolvePath($module, $kind, $slug)
+            : $this->resolver->resolveActionPath((string) $module, (string) $kind, (string) $slug, $action, $id);
 
         if (null !== $module && null === $this->target) {
             abort(404);

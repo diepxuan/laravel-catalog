@@ -232,7 +232,7 @@ class KhachhangForm extends Component
 
             $this->dispatch('success', message: 'Đã thêm khách hàng ' . $maKh);
             $this->dispatch('khachhang-saved');
-            $this->redirect(route('so.dict.ardmkh'), navigate: true);
+            $this->redirect(simbaroute('so.dict.ardmkh'), navigate: true);
         } catch (\Exception $e) {
             $this->dispatch('error', message: 'Không thể thêm khách hàng: ' . $e->getMessage());
         }
@@ -269,7 +269,7 @@ class KhachhangForm extends Component
 
             $this->dispatch('success', message: 'Đã cập nhật khách hàng ' . $maKh);
             $this->dispatch('khachhang-saved');
-            $this->redirect(route('so.dict.ardmkh'), navigate: true);
+            $this->redirect(simbaroute('so.dict.ardmkh'), navigate: true);
         } catch (\Exception $e) {
             $this->dispatch('error', message: 'Không thể cập nhật khách hàng: ' . $e->getMessage());
         }

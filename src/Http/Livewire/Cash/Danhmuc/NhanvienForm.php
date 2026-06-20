@@ -13,14 +13,14 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Http\Livewire\Cash\Danhmuc;
 
-use Diepxuan\Catalog\Http\Livewire\Muahang\CungcapForm;
+use Diepxuan\Catalog\Http\Livewire\Po\Dict\ArdmkhForm;
 use Diepxuan\Simba\SModel\SModel;
 use Diepxuan\Simba\StoredProcedures\AsARGetDMKH;
 use Diepxuan\Simba\StoredProcedures\AsARInsDMKH;
 use Diepxuan\Simba\StoredProcedures\AsARUpdDMKH;
 use Illuminate\View\View;
 
-class NhanvienForm extends CungcapForm
+class NhanvienForm extends ArdmkhForm
 {
     public ?string $home_page = null;
     public ?string $ma_httt = null;

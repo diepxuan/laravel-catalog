@@ -3,7 +3,7 @@
     <x-slot name="header">
         <div class="flex items-center gap-4">
             <a
-                href="{{ route('so.dict.ardmkh') }}"
+                href="{{ simbaroute('so.dict.ardmkh') }}"
                 class="rounded-md bg-gray-200 px-3 py-1 text-sm text-gray-700 hover:bg-gray-300"
             >
                 ← Quay lại
@@ -280,7 +280,7 @@
             {{-- Action Buttons --}}
             <div class="flex justify-end gap-3 border-t border-gray-200 bg-gray-50 px-6 py-4">
                 <a
-                    href="{{ route('so.dict.ardmkh') }}"
+                    href="{{ simbaroute('so.dict.ardmkh') }}"
                     class="rounded-md bg-gray-200 px-4 py-2 text-sm text-gray-700 hover:bg-gray-300"
                 >
                     Hủy
