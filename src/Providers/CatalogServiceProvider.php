@@ -8,21 +8,17 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-02-26 15:12:31
+ * @lastupdate 2026-06-20 15:54:52
  */
 
 namespace Diepxuan\Catalog\Providers;
 
-use Diepxuan\Catalog\Connectors\SqlServerConnector;
 use Diepxuan\Catalog\Facades\CatalogFunctionsFacade;
 use Diepxuan\Catalog\Facades\CatalogServiceFacade;
-use Diepxuan\Catalog\Models\Product;
 use Diepxuan\Catalog\Models\User;
-use Diepxuan\Catalog\Observers\ProductObserver;
 use Diepxuan\Catalog\Services\CatalogFunctions;
 use Diepxuan\Catalog\Services\CatalogService;
-use Illuminate\Database\Connection;
-use Illuminate\Database\SqlServerConnection;
+use Diepxuan\Catalog\Services\SimbaMetadataService;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\ServiceProvider;
 
@@ -31,20 +27,7 @@ class CatalogServiceProvider extends ServiceProvider
     /**
      * Boot the application events.
      */
-    public function boot(): void
-    {
-        Product::observe(ProductObserver::class);
-
-        // Đăng ký connector tùy chỉnh của chúng ta
-        Connection::resolverFor('sqlsrv', static function ($connection, $database, $prefix, $config) {
-            $connector = new SqlServerConnector();
-
-            // \Debugbar::info($config);
-            $pdo = $connector->connect($config);
-
-            return new SqlServerConnection($pdo, $database, $prefix, $config);
-        });
-    }
+    public function boot(): void {}
 
     /**
      * Register the service provider.
@@ -57,6 +40,7 @@ class CatalogServiceProvider extends ServiceProvider
 
         $this->app->singleton('catalog-service', static fn ($app) => new CatalogService());
         $this->app->singleton('catalog-functions', static fn ($app) => new CatalogFunctions());
+        $this->app->singleton(SimbaMetadataService::class, static fn ($app) => new SimbaMetadataService());
         AliasLoader::getInstance()->alias('CatalogService', CatalogServiceFacade::class);
         AliasLoader::getInstance()->alias('CatalogFunctions', CatalogFunctionsFacade::class);
     }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Diepxuan\Catalog\Tests\Unit\Services;
 
 use Diepxuan\Catalog\Services\SimbaMenuRouteMetadata;
-use Diepxuan\Simba\Models\SysMenu;
+use Diepxuan\Catalog\Models\SysMenu;
 use PHPUnit\Framework\TestCase;
 
 final class SimbaMenuRouteMetadataTest extends TestCase
@@ -74,12 +74,41 @@ final class SimbaMenuRouteMetadataTest extends TestCase
         ]);
 
         $routes = $metadata->routes();
-
         self::assertSame(['gl.dict.gldmtk', 'po.vch.po3', 'gl.rpt.glrptctgs01'], array_keys($routes));
         foreach (array_keys($routes) as $routeName) {
             self::assertMatchesRegularExpression('/^[a-z0-9-]+\\.(vch|dict|rpt|proc)\\.[a-z0-9-]+$/', $routeName);
         }
         self::assertCount(count(array_unique(array_keys($routes))), $routes);
+    }
+
+    public function testCatalogZsysmenuUsesSysMenuContract(): void
+    {
+        self::assertTrue(is_subclass_of(
+            \Diepxuan\Catalog\Models\Zsysmenu::class,
+            SysMenu::class,
+        ));
+
+        self::assertTrue(method_exists(
+            \Diepxuan\Catalog\Models\Zsysmenu::class,
+            'getDisplayName',
+        ));
+    }
+
+    public function testCatalogZsysmenuCanPassSysMenuTypedClosures(): void
+    {
+        $zmenu = (new \ReflectionClass(\Diepxuan\Catalog\Models\Zsysmenu::class))->newInstanceWithoutConstructor();
+        $zmenu->setRawAttributes([
+            'menuid' => '99.99.99',
+            'bar' => 'Z Menu',
+            'short_name' => '',
+            'dllName' => 'ZDLL',
+            'code_name' => '',
+        ], true);
+
+        $filter = static fn (SysMenu $menu): bool => '' !== trim((string) $menu->menuid);
+
+        self::assertTrue($filter($zmenu));
+        self::assertSame('Z Menu', $zmenu->getDisplayName());
     }
 
     /**

@@ -13,8 +13,7 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Services;
 
-use Diepxuan\Simba\Models\SysMenu;
-use Diepxuan\Simba\Models\Zsysmenu;
+use Diepxuan\Catalog\Models\SysMenu;
 use Illuminate\Support\Collection;
 
 /**
@@ -53,12 +52,8 @@ final class SimbaMenuRepository
             return $this->cache;
         }
 
-        return $this->cache = SysMenu::query()
-            ->get()
-            ->merge(Zsysmenu::query()->get())
-            ->filter(static fn (SysMenu $menu): bool => '' !== trim((string) $menu->menuid))
-            ->unique(static fn (SysMenu $menu): string => (string) $menu->menuid)
-            ->values()
+        return $this->cache = app(SimbaMetadataService::class)
+            ->get(SimbaMetadataService::DATASET_SYS_MENU)
         ;
     }
 }

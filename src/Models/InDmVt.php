@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Models;
 
-use Diepxuan\Catalog\Observers\InDmVtObserver;
 use Diepxuan\Currency\Formatter;
 use Diepxuan\Simba\Models\InDmVt as Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -22,7 +21,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-#[ObservedBy([InDmVtObserver::class])]
 class InDmVt extends Model
 {
     /**

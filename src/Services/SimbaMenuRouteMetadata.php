@@ -13,11 +13,7 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Services;
 
-use Diepxuan\Simba\Models\SysDictionaryInfo;
-use Diepxuan\Simba\Models\SysMenu;
-use Diepxuan\Simba\Models\SysReportDrillDownInfo;
-use Diepxuan\Simba\Models\SysReportInfo;
-use Diepxuan\Simba\Models\ZSysReportInfo;
+use Diepxuan\Catalog\Models\SysMenu;
 
 final class SimbaMenuRouteMetadata
 {
@@ -280,21 +276,22 @@ final class SimbaMenuRouteMetadata
         $codeName = trim((string) $menu->code_name);
         $dllName = trim((string) $menu->dllName);
 
-        $query = SysDictionaryInfo::query();
-        $row = $query->where('menuid', $menuid)->first();
+        $dictionaryRows = app(SimbaMetadataService::class)->get(SimbaMetadataService::DATASET_SYS_DICTIONARY_INFO);
+
+        $row = $dictionaryRows->first(static fn ($row): bool => $menuid === trim((string) $row->menuid));
         if (null !== $row) {
             return $row;
         }
 
         if ('' !== $codeName) {
-            $row = SysDictionaryInfo::query()->where('code_name', $codeName)->first();
+            $row = $dictionaryRows->first(static fn ($row): bool => $codeName === trim((string) $row->code_name));
             if (null !== $row) {
                 return $row;
             }
         }
 
         if ('' !== $dllName) {
-            $row = SysDictionaryInfo::query()->where('table_name', $dllName)->first();
+            $row = $dictionaryRows->first(static fn ($row): bool => $dllName === trim((string) $row->table_name));
             if (null !== $row) {
                 return $row;
             }
@@ -319,9 +316,10 @@ final class SimbaMenuRouteMetadata
             'rptname' => (string) $row->rptname,
         ];
 
-        $drilldown = SysReportDrillDownInfo::query()
-            ->where('menuid', (string) $menu->menuid)
-            ->first()
+        $menuid = (string) $menu->menuid;
+        $drilldown = app(SimbaMetadataService::class)
+            ->get(SimbaMetadataService::DATASET_SYS_REPORT_DRILL_DOWN_INFO)
+            ->first(static fn ($row): bool => $menuid === (string) $row->menuid)
         ;
         if (null !== $drilldown) {
             $metadata['press_key_name'] = (string) $drilldown->press_key_name;
@@ -337,12 +335,18 @@ final class SimbaMenuRouteMetadata
         }
 
         $menuid = (string) $menu->menuid;
-        $row = SysReportInfo::query()->where('menuid', $menuid)->first();
+        $row = app(SimbaMetadataService::class)
+            ->get(SimbaMetadataService::DATASET_SYS_REPORT_INFO)
+            ->first(static fn ($row): bool => $menuid === (string) $row->menuid)
+        ;
         if (null !== $row) {
             return $row;
         }
 
-        return ZSysReportInfo::query()->where('menuid', $menuid)->first();
+        return app(SimbaMetadataService::class)
+            ->get(SimbaMetadataService::DATASET_ZSYS_REPORT_INFO)
+            ->first(static fn ($row): bool => $menuid === (string) $row->menuid)
+        ;
     }
 
     /**

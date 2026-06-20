@@ -13,10 +13,8 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Models;
 
-use Diepxuan\Catalog\Observers\ProductObserver;
 use Diepxuan\Simba\Models\Product as Model;
 
-#[ObservedBy([ProductObserver::class])]
 class Product extends Model
 {
     /**
