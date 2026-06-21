@@ -19,7 +19,6 @@ final class SimbaMetadataServiceTest extends TestCase
             SimbaMetadataService::DATASET_SYS_DICTIONARY_INFO,
             SimbaMetadataService::DATASET_SYS_REPORT_DRILL_DOWN_INFO,
             SimbaMetadataService::DATASET_SYS_REPORT_INFO,
-            SimbaMetadataService::DATASET_ZSYS_REPORT_INFO,
         ], $service->datasets());
     }
 

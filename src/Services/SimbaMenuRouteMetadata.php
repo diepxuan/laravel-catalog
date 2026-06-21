@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Services;
 
+use Diepxuan\Catalog\Models\SysDictionaryInfo;
 use Diepxuan\Catalog\Models\SysMenu;
 
 final class SimbaMenuRouteMetadata
@@ -335,16 +336,9 @@ final class SimbaMenuRouteMetadata
         }
 
         $menuid = (string) $menu->menuid;
-        $row = app(SimbaMetadataService::class)
-            ->get(SimbaMetadataService::DATASET_SYS_REPORT_INFO)
-            ->first(static fn ($row): bool => $menuid === (string) $row->menuid)
-        ;
-        if (null !== $row) {
-            return $row;
-        }
 
         return app(SimbaMetadataService::class)
-            ->get(SimbaMetadataService::DATASET_ZSYS_REPORT_INFO)
+            ->get(SimbaMetadataService::DATASET_SYS_REPORT_INFO)
             ->first(static fn ($row): bool => $menuid === (string) $row->menuid)
         ;
     }

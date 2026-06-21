@@ -13,10 +13,10 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Services;
 
+use Diepxuan\Catalog\Models\SysDictionaryInfo;
 use Diepxuan\Catalog\Models\SysMenu;
 use Diepxuan\Catalog\Models\Zsysmenu;
 use Diepxuan\Simba\Models\SiDmCt;
-use Diepxuan\Simba\Models\SysDictionaryInfo;
 use Diepxuan\Simba\Models\SysReportDrillDownInfo;
 use Diepxuan\Simba\Models\SysReportInfo;
 use Diepxuan\Simba\Models\ZSysReportInfo;
@@ -30,7 +30,6 @@ class SimbaMetadataService
     public const DATASET_SYS_DICTIONARY_INFO = 'sys_dictionary_info';
     public const DATASET_SYS_REPORT_DRILL_DOWN_INFO = 'sys_report_drill_down_info';
     public const DATASET_SYS_REPORT_INFO = 'sys_report_info';
-    public const DATASET_ZSYS_REPORT_INFO = 'zsys_report_info';
 
     /** @var array<string, Collection|EloquentCollection> */
     private array $loaded = [];
@@ -46,7 +45,6 @@ class SimbaMetadataService
             self::DATASET_SYS_DICTIONARY_INFO,
             self::DATASET_SYS_REPORT_DRILL_DOWN_INFO,
             self::DATASET_SYS_REPORT_INFO,
-            self::DATASET_ZSYS_REPORT_INFO,
         ];
     }
 
@@ -119,8 +117,7 @@ class SimbaMetadataService
             self::DATASET_SYS_MENU => $this->mergedMenus(),
             self::DATASET_SYS_DICTIONARY_INFO => SysDictionaryInfo::query()->get(),
             self::DATASET_SYS_REPORT_DRILL_DOWN_INFO => SysReportDrillDownInfo::query()->get(),
-            self::DATASET_SYS_REPORT_INFO => SysReportInfo::query()->get(),
-            self::DATASET_ZSYS_REPORT_INFO => ZSysReportInfo::query()->get(),
+            self::DATASET_SYS_REPORT_INFO => $this->mergedReportInfo(),
         };
     }
 
@@ -134,6 +131,19 @@ class SimbaMetadataService
             ->merge(Zsysmenu::query()->get())
             ->filter(static fn (SysMenu $menu): bool => '' !== trim((string) $menu->menuid))
             ->unique(static fn (SysMenu $menu): string => (string) $menu->menuid)
+            ->values()
+        ;
+    }
+
+    /**
+     * @return Collection<int, SysReportInfo>
+     */
+    protected function mergedReportInfo(): Collection
+    {
+        return SysReportInfo::query()
+            ->get()
+            ->merge(ZSysReportInfo::query()->get())
+            ->filter(static fn (SysReportInfo $report): bool => '' !== trim((string) $report->menuid))
             ->values()
         ;
     }
