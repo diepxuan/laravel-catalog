@@ -13,6 +13,13 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Models;
 
-use Diepxuan\Simba\SModel\CaCt2Model as Model;
+use Diepxuan\Simba\Models\CaCt2 as SimbaModel;
 
-class CaCt2 extends Model {}
+/**
+ * Model CaCt2 (Catalog layer).
+ *
+ * Extends `Diepxuan\Simba\Models\CaCt2` thay vì SModel trực tiếp để:
+ * - Đồng nhất pattern với các Catalog Model khác (đi qua lớp Simba).
+ * - Tận dụng `HasSimbaCompositeKey` cho primary key composite.
+ */
+class CaCt2 extends SimbaModel {}

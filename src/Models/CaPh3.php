@@ -13,8 +13,15 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Models;
 
-use Diepxuan\Simba\SModel\CaPh3Model as Model;
+use Diepxuan\Simba\Models\CaPh3 as SimbaModel;
 
-class CaPh3 extends Model
+/**
+ * Model CaPh3 (Catalog layer).
+ *
+ * Extends `Diepxuan\Simba\Models\CaPh3` thay vì SModel trực tiếp để:
+ * - Đồng nhất pattern với các Catalog Model khác (đi qua lớp Simba).
+ * - Tận dụng `HasSimbaCompositeKey` cho primary key composite.
+ */
+class CaPh3 extends SimbaModel
 {
 }
