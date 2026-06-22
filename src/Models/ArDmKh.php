@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Models;
 
+use Diepxuan\Catalog\Models\Concerns\HasArDmKhCategories;
 use Diepxuan\Simba\Models\ArDmKh as SimbaModel;
 use Diepxuan\Simba\SModel\SModel;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -21,10 +22,14 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 /**
  * Model ArDmKh - Danh mục khách hàng (catalog layer).
  *
- * Mở rộng từ Simba ArDmKh với relationships và helper methods.
+ * Mở rộng từ Simba ArDmKh với:
+ * - Quan hệ Portal: nhomKhachHang, phanLoaiKhachHang1/2/3.
+ * - Phân loại KH/NCC/NV nghiệp vụ (HasArDmKhCategories).
+ * - Helper getSoduKh, hasTransactions.
  */
 class ArDmKh extends SimbaModel
 {
+    use HasArDmKhCategories;
     /**
      * Company constant.
      */
