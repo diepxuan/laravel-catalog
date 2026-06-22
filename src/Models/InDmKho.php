@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Models;
 
+use Diepxuan\Catalog\Models\Concerns\HasInDmKhoInventoryOperations;
 use Diepxuan\Simba\Models\InDmKho as Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Carbon;
@@ -20,6 +21,8 @@ use Illuminate\Support\Collection;
 
 class InDmKho extends Model
 {
+    use HasInDmKhoInventoryOperations;
+
     /**
      * Gọi stored procedure asINGetDMKHO để lấy dữ liệu Danh sách kho.
      *

@@ -13,12 +13,15 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Models;
 
+use Diepxuan\Catalog\Models\Concerns\HasSysCompanyLocalizedResx;
 use Diepxuan\Simba\Models\SysCompany as Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class SysCompany extends Model
 {
+    use HasSysCompanyLocalizedResx;
+
     public function siSetup(): HasOne
     {
         return $this->hasOne(SiSetup::class, 'ma_cty', 'ma_cty');
