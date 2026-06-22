@@ -115,8 +115,6 @@ class ArDmKh extends SimbaModel
      */
     protected static function booted(): void
     {
-        parent::boot();
-
         static::addGlobalScope('orderByMaKh', static function ($query): void {
             $query->orderBy('ma_kh');
         });
