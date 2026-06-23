@@ -84,19 +84,19 @@ final class SimbaMenuRouteMetadataTest extends TestCase
     public function testCatalogZsysmenuUsesSysMenuContract(): void
     {
         self::assertTrue(is_subclass_of(
-            \Diepxuan\Catalog\Models\Zsysmenu::class,
+            \Diepxuan\Catalog\Models\Simba\Zsysmenu::class,
             SysMenu::class,
         ));
 
         self::assertTrue(method_exists(
-            \Diepxuan\Catalog\Models\Zsysmenu::class,
+            \Diepxuan\Catalog\Models\Simba\Zsysmenu::class,
             'getDisplayName',
         ));
     }
 
     public function testCatalogZsysmenuCanPassSysMenuTypedClosures(): void
     {
-        $zmenu = (new \ReflectionClass(\Diepxuan\Catalog\Models\Zsysmenu::class))->newInstanceWithoutConstructor();
+        $zmenu = (new \ReflectionClass(\Diepxuan\Catalog\Models\Simba\Zsysmenu::class))->newInstanceWithoutConstructor();
         $zmenu->setRawAttributes([
             'menuid' => '99.99.99',
             'bar' => 'Z Menu',

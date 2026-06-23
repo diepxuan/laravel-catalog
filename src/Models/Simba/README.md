@@ -1,12 +1,14 @@
 # Catalog Models — `Simba/` wrappers
 
-Thư mục `src/Models/Simba/` chứa **29 wrapper class** ở lớp 3 (Catalog) trong
+Thư mục `src/Models/Simba/` chứa **29 wrapper/merge class** ở lớp 3 (Catalog) trong
 pattern **3-layer Model** (`SModel` / `Simba\Models` / `Catalog\Models\Simba`).
 
 ## Vai trò
 
-Mỗi file trong thư mục này là một Catalog Model **mỏng**, kế thừa trực tiếp
-một class ở `Diepxuan\Simba\Models\*` (lớp 2). Wrapper giữ:
+Phần lớn file trong thư mục này là Catalog Model **mỏng**, kế thừa trực tiếp
+một class ở `Diepxuan\Simba\Models\*` (lớp 2). Riêng `Zsysmenu` kế thừa
+`Catalog\Models\Simba\SysMenu` vì `zsysmenu` và `sysmenu` cùng struct, cần dùng
+extend để dễ merge logic với `SysMenu`. Wrapper giữ:
 
 - Concern trait nghiệp vụ (`HasArDmKhCategories`, `HasInDmKhoInventoryOperations`,
   `HasPoCt1PurchaseMetrics`, `HasSoCt1SalesMetrics`, `HasSysCompanyLocalizedResx`).
@@ -52,7 +54,11 @@ Hai trường hợp đặc biệt (`InventoryTicket`, `InventoryTicketItem`) ext
 class cha tên khác (`PhieuChuyenKho`, `PhieuChuyenKhoCT`) nhưng vẫn dùng
 `as SimbaModel` để code đồng nhất trong cả thư mục.
 
-## Danh sách 29 wrapper
+`Zsysmenu` là trường hợp merge-wrapper: không alias `SimbaModel`, mà `extends SysMenu`
+trong cùng namespace `Catalog\Models\Simba` để dùng chung contract/logic với
+`SysMenu` và chỉ override `$table = 'zsysmenu'`.
+
+## Danh sách 29 wrapper/merge class
 
 | File | Class cha `Simba\Models\*` | Behavior |
 |---|---|---|
@@ -84,6 +90,7 @@ class cha tên khác (`PhieuChuyenKho`, `PhieuChuyenKhoCT`) nhưng vẫn dùng
 | `SysLanguage.php` | `SysLanguage` | 1 accessor |
 | `SysMenu.php` | `SysMenu` | rỗng |
 | `SysUserInfo.php` | `SysUserInfo` | 1 relation |
+| `Zsysmenu.php` | `Catalog\Models\Simba\SysMenu` | merge-wrapper, override `$table = 'zsysmenu'` |
 
 ## Quan hệ với `src/Models/` (top-level)
 
@@ -93,7 +100,6 @@ Một số class ở `src/Models/` (top-level) **extend** wrapper trong `Simba/`
 |---|---|
 | `System.php` | `Simba\SysCompany` |
 | `SystemConfig.php` | `Simba\SiSetup` |
-| `Zsysmenu.php` | `Simba\SysMenu` |
 
 Cập nhật `SimbaModelLayerResponsibilityTest::$CATALOG_EXTENDS_WHITELIST`
 tương ứng khi thêm wrapper mới hoặc thay đổi mối quan hệ.
@@ -115,12 +121,13 @@ tương ứng khi thêm wrapper mới hoặc thay đổi mối quan hệ.
 # php -l toàn bộ wrapper
 for f in diepxuan/laravel-catalog/src/Models/Simba/*.php; do php -l "$f"; done
 
-# Test gate 3-layer (assert whitelist System/SystemConfig/Zsysmenu trỏ đúng Simba\...)
+# Test gate 3-layer (assert whitelist System/SystemConfig trỏ đúng Simba\...)
 vendor/bin/phpunit tests/Unit/Packages/Simba/SimbaModelLayerResponsibilityTest.php
 ```
 
 ## Tóm tắt
 
-`Simba/` = 29 wrapper class ở lớp 3, extend `Diepxuan\Simba\Models\*` qua alias
-`SimbaModel`. Chứa business logic nghiệp vụ phục vụ Portal/Catalog UI.
+`Simba/` = 29 wrapper/merge class ở lớp 3. Hầu hết extend `Diepxuan\Simba\Models\*`
+qua alias `SimbaModel`; riêng `Zsysmenu` extend `SysMenu` cùng namespace để dùng
+chung logic vì cùng table struct. Chứa business logic nghiệp vụ phục vụ Portal/Catalog UI.
 Concern nghiệp vụ dùng chung tách vào `../Concerns/`.

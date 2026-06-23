@@ -15,7 +15,7 @@ namespace Diepxuan\Catalog\Services;
 
 use Diepxuan\Catalog\Models\Simba\SysDictionaryInfo;
 use Diepxuan\Catalog\Models\Simba\SysMenu;
-use Diepxuan\Catalog\Models\Zsysmenu;
+use Diepxuan\Catalog\Models\Simba\Zsysmenu;
 use Diepxuan\Simba\Models\SiDmCt;
 use Diepxuan\Simba\Models\SysReportDrillDownInfo;
 use Diepxuan\Simba\Models\SysReportInfo;

@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Diepxuan\Catalog\Models;
 
 use App\Models\User as Model;
+use Diepxuan\Catalog\Models\Simba\SysUserInfo;
 
 class User extends Model
 {

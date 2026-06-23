@@ -4,7 +4,7 @@ Thư mục `src/Models/` chứa các Catalog Model **không thuộc wrapper Simb
 
 Sau khi tách cấu trúc (xem `Simba/README.md`), wrapper extend
 `Diepxuan\Simba\Models\*` được dời hết sang `src/Models/Simba/`. Thư mục này
-chỉ còn **7 file PHP top-level** + `Casts/` + `Concerns/`.
+chỉ còn **6 file PHP top-level** + `Casts/` + `Concerns/`.
 
 ## Cấu trúc thư mục
 
@@ -13,10 +13,9 @@ src/Models/
 ├── AbstractModel.php              # Base class cho Catalog Model không map Simba
 ├── Params.php                     # Standalone Eloquent (không map Simba)
 ├── User.php                       # Extend App\Models\User (Laravel auth)
-├── UserLink.php                   # Extend AbstractModel, dùng Simma\Models\SysUserInfo cho relation
+├── UserLink.php                   # Extend AbstractModel, dùng Simba\Models\SysUserInfo cho relation
 ├── System.php                     # Extend Simba\SysCompany + thêm systemConfig relation
 ├── SystemConfig.php               # Extend Simba\SiSetup + thêm system relation
-├── Zsysmenu.php                   # Extend Simba\SysMenu, override $table = 'zsysmenu'
 ├── Casts/                         # Custom Eloquent cast
 │   └── CategoryMagento.php
 ├── Concerns/                      # Business concern trait (xem Concerns/README.md)
@@ -26,11 +25,11 @@ src/Models/
 │   ├── HasSoCt1SalesMetrics.php
 │   ├── HasSysCompanyLocalizedResx.php
 │   └── README.md
-└── Simba/                         # 29 wrapper extend Simba\Models\* (xem Simba/README.md)
+└── Simba/                         # 29 wrapper extend/merge Simba\Models\* (xem Simba/README.md)
     └── ...
 ```
 
-## 7 file top-level
+## 6 file top-level
 
 | File | Extend | Vai trò |
 |---|---|---|
@@ -40,7 +39,6 @@ src/Models/
 | `UserLink.php` | `AbstractModel` | Bridge user ↔ SysUserInfo (qua relation) |
 | `System.php` | `Simba\SysCompany` | Thêm `systemConfig` relation + `khoaSo` accessor |
 | `SystemConfig.php` | `Simba\SiSetup` | Thêm `system` relation |
-| `Zsysmenu.php` | `Simba\SysMenu` | Override `$table = 'zsysmenu'` (cùng schema, khác bảng) |
 
 ## `AbstractModel.php`
 
@@ -74,7 +72,7 @@ Xem chi tiết tại [`Concerns/README.md`](Concerns/README.md).
 
 ## `Simba/`
 
-29 wrapper class extend `Diepxuan\Simba\Models\*` qua alias `SimbaModel`.
+29 wrapper/merge class extend `Diepxuan\Simba\Models\*` hoặc wrapper Simba cùng schema.
 Xem chi tiết tại [`Simba/README.md`](Simba/README.md).
 
 ## Quy tắc cập nhật
@@ -100,7 +98,7 @@ vendor/bin/phpunit tests/Unit/Packages/Simba/SimbaModelLayerResponsibilityTest.p
 
 ## Tóm tắt
 
-`src/Models/` = 7 Catalog Model đặc biệt + `Casts/` + `Concerns/`. 29 wrapper
-extend `Simba\Models\*` đã chuyển sang `Simba/`. Pattern 3-layer
+`src/Models/` = 6 Catalog Model đặc biệt + `Casts/` + `Concerns/`. 29 wrapper/merge
+class đã chuyển sang `Simba/`. Pattern 3-layer
 (`SModel` / `Simba\Models` / `Catalog\Models`) vẫn giữ nguyên — chỉ tách
 vật lý cho dễ audit và phân quyền.
