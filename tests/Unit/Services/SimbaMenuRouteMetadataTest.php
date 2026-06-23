@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Diepxuan\Catalog\Tests\Unit\Services;
 
 use Diepxuan\Catalog\Services\SimbaMenuRouteMetadata;
-use Diepxuan\Catalog\Models\SysMenu;
+use Diepxuan\Catalog\Models\Simba\SysMenu;
 use PHPUnit\Framework\TestCase;
 
 final class SimbaMenuRouteMetadataTest extends TestCase

@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Http\Livewire\Banhang;
 
-use Diepxuan\Catalog\Models\ArDmKh;
+use Diepxuan\Catalog\Models\Simba\ArDmKh;
 use Diepxuan\Simba\SModel\SModel;
 use Diepxuan\Simba\StoredProcedures\AsARDelDMKH;
 use Diepxuan\Simba\StoredProcedures\AsARGetDMKH;

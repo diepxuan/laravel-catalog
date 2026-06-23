@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Http\Livewire\In\Baocao;
 
-use Diepxuan\Catalog\Models\InDmVt;
+use Diepxuan\Catalog\Models\Simba\InDmVt;
 use Diepxuan\Support\Collection;
 use Illuminate\View\View;
 use Livewire\Component;

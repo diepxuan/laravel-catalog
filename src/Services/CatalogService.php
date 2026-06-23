@@ -14,10 +14,10 @@ declare(strict_types=1);
 namespace Diepxuan\Catalog\Services;
 
 use Diepxuan\Catalog\Config\TimerConfig;
-use Diepxuan\Catalog\Models\GlDmTk;
-use Diepxuan\Catalog\Models\SysCompany;
-use Diepxuan\Catalog\Models\SysLanguage;
-use Diepxuan\Catalog\Models\SysUserInfo;
+use Diepxuan\Catalog\Models\Simba\GlDmTk;
+use Diepxuan\Catalog\Models\Simba\SysCompany;
+use Diepxuan\Catalog\Models\Simba\SysLanguage;
+use Diepxuan\Catalog\Models\Simba\SysUserInfo;
 use Diepxuan\Catalog\Models\User;
 use Illuminate\Support\Facades\Auth;
 

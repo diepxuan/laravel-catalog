@@ -32,7 +32,7 @@ trait HasSysCompanyLocalizedResx
      */
     public function resxByLanguage(SysLanguage $language)
     {
-        return $this->hasMany(\Diepxuan\Catalog\Models\SysCompanyResx::class, 'ma_cty', 'ma_cty')
+        return $this->hasMany(\Diepxuan\Catalog\Models\Simba\SysCompanyResx::class, 'ma_cty', 'ma_cty')
             ->where('language', $language->Name);
     }
 }

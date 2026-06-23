@@ -5,6 +5,7 @@ Package catalog cho DXPanel.
 ## 📚 Documentation
 
 - **Package Docs:** [`src/Models/README.md`](src/Models/README.md) - Catalog Models layer
+- **Package Docs:** [`src/Models/Simba/README.md`](src/Models/Simba/README.md) - 29 wrapper Simba
 - **Package Docs:** [`src/Models/Concerns/README.md`](src/Models/Concerns/README.md) - business concerns
 
 ## Mô tả
@@ -43,7 +44,8 @@ laravel-catalog/
 │   ├── Connectors/        # Connector SQL Server tùy chỉnh
 │   ├── Http/              # Controller, Livewire components và API
 │   ├── Models/            # Catalog Models layer (lớp 3 - xem src/Models/README.md)
-│   │   └── Concerns/      # Business concerns tách riêng (xem src/Models/Concerns/README.md)
+│   │   ├── Concerns/      # Business concerns tách riêng (xem src/Models/Concerns/README.md)
+│   │   └── Simba/         # 29 wrapper extend Simba\Models\* (xem src/Models/Simba/README.md)
 │   ├── Observers/         # Observer cho model
 │   ├── Providers/         # ServiceProvider
 │   ├── Services/          # Các service chính (CatalogService)

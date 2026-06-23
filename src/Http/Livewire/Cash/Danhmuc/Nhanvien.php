@@ -22,7 +22,7 @@ class Nhanvien extends Ardmkh
 {
     public function deleteDoiTuong(string $maKh): void
     {
-        $nhanVien = \Diepxuan\Catalog\Models\ArDmKh::withoutGlobalScopes()
+        $nhanVien = \Diepxuan\Catalog\Models\Simba\ArDmKh::withoutGlobalScopes()
             ->where('ma_kh', $maKh)
             ->first()
         ;

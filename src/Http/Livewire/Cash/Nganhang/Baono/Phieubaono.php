@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baono;
 
-use Diepxuan\Catalog\Models\ArDmKh;
-use Diepxuan\Catalog\Models\CaCt2;
+use Diepxuan\Catalog\Models\Simba\ArDmKh;
+use Diepxuan\Catalog\Models\Simba\CaCt2;
 use Diepxuan\Simba\Models\GlDmTk;
 use Diepxuan\Simba\StoredProcedures\AsCADelCT2;
 use Diepxuan\Simba\StoredProcedures\AsCAGetPH2;

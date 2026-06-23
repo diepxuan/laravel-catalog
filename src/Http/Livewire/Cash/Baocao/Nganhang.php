@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Http\Livewire\Cash\Baocao;
 
-use Diepxuan\Catalog\Models\GlCt;
+use Diepxuan\Catalog\Models\Simba\GlCt;
 use Illuminate\View\View;
 use Livewire\Component;
 

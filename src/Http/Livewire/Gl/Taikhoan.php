@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Http\Livewire\Gl;
 
-use Diepxuan\Catalog\Models\GlDmTk;
+use Diepxuan\Catalog\Models\Simba\GlDmTk;
 use Illuminate\View\View;
 use Livewire\Component;
 

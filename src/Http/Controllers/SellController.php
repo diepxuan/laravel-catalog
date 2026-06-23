@@ -16,7 +16,7 @@ namespace Diepxuan\Catalog\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Diepxuan\Catalog\Http\Requests\SimbaRequest;
 use Diepxuan\Catalog\Models\Category;
-use Diepxuan\Catalog\Models\InventoryTicket;
+use Diepxuan\Catalog\Models\Simba\InventoryTicket;
 use Diepxuan\Simba\Models\KhoHang;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

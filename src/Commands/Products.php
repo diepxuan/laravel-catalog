@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Commands;
 
-use Diepxuan\Catalog\Models\Product;
+use Diepxuan\Catalog\Models\Simba\Product;
 use Diepxuan\Catalog\Models\Simba\SProduct;
 use Diepxuan\Magento\Magento;
 use Diepxuan\Magento\Models\Product as MProduct;

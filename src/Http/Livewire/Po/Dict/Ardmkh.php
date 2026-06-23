@@ -42,7 +42,7 @@ class Ardmkh extends Component
 
     public function deleteDoiTuong(string $maKh): void
     {
-        $nhaCungCap = \Diepxuan\Catalog\Models\ArDmKh::withoutGlobalScopes()
+        $nhaCungCap = \Diepxuan\Catalog\Models\Simba\ArDmKh::withoutGlobalScopes()
             ->where('ma_kh', $maKh)
             ->first()
         ;

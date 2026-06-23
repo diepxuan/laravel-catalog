@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Models;
 
+use Diepxuan\Catalog\Models\Simba\SysMenu;
+
 /**
  * Model Zsysmenu - SimbaERP z menu metadata (catalog layer).
  *

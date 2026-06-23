@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Http\Livewire\Cash\Nganhang;
 
-use Diepxuan\Catalog\Models\GlCt;
+use Diepxuan\Catalog\Models\Simba\GlCt;
 use Diepxuan\Simba\StoredProcedures\AsCADelPH2;
 use Diepxuan\Simba\StoredProcedures\AsProcessCT;
 use Illuminate\View\View;

@@ -13,6 +13,7 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Models;
 
+use Diepxuan\Catalog\Models\Simba\SiSetup;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SystemConfig extends SiSetup

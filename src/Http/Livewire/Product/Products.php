@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Http\Livewire\Product;
 
-use Diepxuan\Catalog\Models\Product;
+use Diepxuan\Catalog\Models\Simba\Product;
 use Illuminate\View\View;
 use Livewire\Component;
 

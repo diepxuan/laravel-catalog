@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Services;
 
-use Diepxuan\Catalog\Models\GlCdTk;
-use Diepxuan\Catalog\Models\GlCt;
+use Diepxuan\Catalog\Models\Simba\GlCdTk;
+use Diepxuan\Catalog\Models\Simba\GlCt;
 use Diepxuan\Catalog\Models\Params;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;

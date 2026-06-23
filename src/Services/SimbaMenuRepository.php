@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Services;
 
-use Diepxuan\Catalog\Models\SysMenu;
+use Diepxuan\Catalog\Models\Simba\SysMenu;
 use Illuminate\Support\Collection;
 
 /**

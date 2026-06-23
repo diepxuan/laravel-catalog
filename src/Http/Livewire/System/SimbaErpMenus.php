@@ -16,7 +16,7 @@ namespace Diepxuan\Catalog\Http\Livewire\System;
 use Diepxuan\Catalog\Services\SimbaMenuRepository;
 use Diepxuan\Catalog\Services\SimbaMenuRouteMetadata;
 use Diepxuan\Catalog\Services\SimbaMenuTargetResolver;
-use Diepxuan\Catalog\Models\SysMenu;
+use Diepxuan\Catalog\Models\Simba\SysMenu;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Livewire\Component;

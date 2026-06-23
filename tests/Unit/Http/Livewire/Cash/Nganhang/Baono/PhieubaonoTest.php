@@ -13,9 +13,9 @@ declare(strict_types=1);
 namespace Diepxuan\Catalog\Tests\Unit\Http\Livewire\Cash\Nganhang\Baono;
 
 use Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baono\Phieubaono;
-use Diepxuan\Catalog\Models\ArDmKh;
-use Diepxuan\Catalog\Models\CaCt3;
-use Diepxuan\Catalog\Models\CaPh3;
+use Diepxuan\Catalog\Models\Simba\ArDmKh;
+use Diepxuan\Catalog\Models\Simba\CaCt3;
+use Diepxuan\Catalog\Models\Simba\CaPh3;
 use Diepxuan\Simba\Models\GlDmTk;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Collection;

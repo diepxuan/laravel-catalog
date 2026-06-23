@@ -14,6 +14,7 @@ declare(strict_types=1);
 namespace Diepxuan\Catalog\Models;
 
 use Carbon\Carbon;
+use Diepxuan\Catalog\Models\Simba\SysCompany;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 

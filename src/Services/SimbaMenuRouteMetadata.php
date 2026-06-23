@@ -13,8 +13,8 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Services;
 
-use Diepxuan\Catalog\Models\SysDictionaryInfo;
-use Diepxuan\Catalog\Models\SysMenu;
+use Diepxuan\Catalog\Models\Simba\SysDictionaryInfo;
+use Diepxuan\Catalog\Models\Simba\SysMenu;
 
 final class SimbaMenuRouteMetadata
 {

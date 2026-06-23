@@ -14,7 +14,7 @@ declare(strict_types=1);
 namespace Diepxuan\Catalog\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use Diepxuan\Catalog\Models\SysUserInfo;
+use Diepxuan\Catalog\Models\Simba\SysUserInfo;
 use Diepxuan\Catalog\Models\User;
 use Diepxuan\Simba\Models\System;
 use Illuminate\Contracts\View\View;
