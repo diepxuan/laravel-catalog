@@ -49,7 +49,7 @@ class Dmkho extends Component
      */
     public function render()
     {
-        // diepxuan/laravel-catalog/resources/views/in/dmvt.blade.php
+        // diepxuan/laravel-catalog/resources/views/in/dmkho.blade.php
         return view('catalog::in.dmkho', [
             'inDmKhos' => $this->inDmKhos,
         ]);

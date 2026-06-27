@@ -25,9 +25,9 @@ use Diepxuan\Catalog\Http\Livewire\Cash\Tienmat\Phieuchi;
 use Diepxuan\Catalog\Http\Livewire\Cash\Tienmat\Phieuthu;
 use Diepxuan\Catalog\Http\Livewire\Gl\Taikhoan;
 use Diepxuan\Catalog\Http\Livewire\Home\Dashboard as DashboardLivewire;
+use Diepxuan\Catalog\Http\Livewire\In\Dict\Indmvt;
 use Diepxuan\Catalog\Http\Livewire\In\Dmkho;
 use Diepxuan\Catalog\Http\Livewire\In\Dmnhvt;
-use Diepxuan\Catalog\Http\Livewire\In\Dmvt;
 use Diepxuan\Catalog\Http\Livewire\Muahang\PoDmCpIndex;
 use Diepxuan\Catalog\Http\Livewire\Po\Dict\Ardmkh;
 use Diepxuan\Catalog\Http\Livewire\Po\Dict\ArdmkhForm;
@@ -197,7 +197,7 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
             ['uri' => 'in/dict/indmkho', 'name' => 'in.dict.indmkho', 'module' => 'in', 'kind' => 'dict', 'slug' => 'indmkho', 'component' => Dmkho::class],
             // ['uri' => 'in/dict/indmlo', 'name' => 'in.dict.indmlo', 'module' => 'in', 'kind' => 'dict', 'slug' => 'indmlo', 'component' => SimbaPage::class],
             ['uri' => 'in/dict/indmnhvt', 'name' => 'in.dict.indmnhvt', 'module' => 'in', 'kind' => 'dict', 'slug' => 'indmnhvt', 'component' => Dmnhvt::class],
-            ['uri' => 'in/dict/indmvt', 'name' => 'in.dict.indmvt', 'module' => 'in', 'kind' => 'dict', 'slug' => 'indmvt', 'component' => Dmvt::class],
+            ['uri' => 'in/dict/indmvt', 'name' => 'in.dict.indmvt', 'module' => 'in', 'kind' => 'dict', 'slug' => 'indmvt', 'component' => Indmvt::class],
             // ['uri' => 'in/dict/sidmhd', 'name' => 'in.dict.sidmhd', 'module' => 'in', 'kind' => 'dict', 'slug' => 'sidmhd', 'component' => SimbaPage::class],
             // ['uri' => 'in/dict/sidmnhhd', 'name' => 'in.dict.sidmnhhd', 'module' => 'in', 'kind' => 'dict', 'slug' => 'sidmnhhd', 'component' => SimbaPage::class],
             // ['uri' => 'in/dict/sisysvars', 'name' => 'in.dict.sisysvars', 'module' => 'in', 'kind' => 'dict', 'slug' => 'sisysvars', 'component' => SimbaPage::class],
