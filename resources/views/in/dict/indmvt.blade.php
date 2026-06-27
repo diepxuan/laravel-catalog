@@ -44,114 +44,37 @@
         </div>
     @endif
 
-    <div class="order-2 flex flex-wrap items-center gap-3">
-        <div class="relative w-full max-w-xl">
-            <input
-                type="text"
-                wire:model.live.debounce.300ms="search"
-                placeholder="Tìm theo mã, tên, nhóm, ĐVT, tài khoản vật tư..."
-                class="w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
-            />
-            @if ($search)
-                <button
-                    type="button"
-                    wire:click="$set('search', '')"
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600"
-                >
-                    Xóa
-                </button>
-            @endif
-        </div>
-        <span class="text-xs text-gray-500">{{ count($displayRows) }} / {{ count($rows) }} vật tư</span>
-        @if ($selectedMaVt)
-            <button
-                type="button"
-                wire:click="openEdit"
-                class="rounded-md bg-yellow-100 px-3 py-2 text-sm text-yellow-800 hover:bg-yellow-200"
-            >
-                Sửa {{ $selectedMaVt }}
-            </button>
-            <button
-                type="button"
-                wire:click="openRename"
-                class="rounded-md bg-indigo-100 px-3 py-2 text-sm text-indigo-800 hover:bg-indigo-200"
-            >
-                Đổi mã {{ $selectedMaVt }}
-            </button>
-        @endif
-    </div>
 
-    <div class="order-3 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-        <div class="max-h-[560px] overflow-auto">
-            <table class="min-w-full text-left text-xs">
-                <thead class="sticky top-0 z-10 bg-gray-50 text-gray-500">
-                    <tr>
-                        <th class="border-b border-gray-200 px-2 py-2 font-medium">#</th>
-                        <th class="border-b border-gray-200 px-2 py-2 font-medium">Mã VT</th>
-                        <th class="border-b border-gray-200 px-2 py-2 font-medium">Tên vật tư</th>
-                        <th class="border-b border-gray-200 px-2 py-2 font-medium">ĐVT</th>
-                        <th class="border-b border-gray-200 px-2 py-2 font-medium">Nhóm</th>
-                        <th class="border-b border-gray-200 px-2 py-2 font-medium">Kho</th>
-                        <th class="border-b border-gray-200 px-2 py-2 font-medium">Vị trí</th>
-                        <th class="border-b border-gray-200 px-2 py-2 font-medium">TK VT</th>
-                        <th class="border-b border-gray-200 px-2 py-2 font-medium">TK DT</th>
-                        <th class="border-b border-gray-200 px-2 py-2 font-medium">TK GV</th>
-                        <th class="border-b border-gray-200 px-2 py-2 text-center font-medium">Tồn</th>
-                        <th class="border-b border-gray-200 px-2 py-2 font-medium">Loại</th>
-                        <th class="border-b border-gray-200 px-2 py-2 font-medium">Giá tồn</th>
-                        <th class="border-b border-gray-200 px-2 py-2 text-center font-medium">KSD</th>
-                        <th class="border-b border-gray-200 px-2 py-2 text-right font-medium">Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    @forelse ($displayRows as $row)
-                        @php($maVt = (string) ($row['ma_vt'] ?? ''))
-                        <tr
-                            wire:key="in-dict-indmvt-{{ $maVt }}"
-                            wire:click="selectItem(@js($maVt))"
-                            class="cursor-pointer hover:bg-sky-50 {{ $selectedMaVt === $maVt ? 'bg-blue-50' : '' }}"
-                        >
-                            <td class="px-2 py-2 text-right text-gray-400">{{ $loop->iteration }}</td>
-                            <td class="whitespace-nowrap px-2 py-2 font-mono font-semibold text-gray-900">{{ $maVt }}</td>
-                            <td class="min-w-64 px-2 py-2 text-gray-800">{{ $row['ten_vt'] ?? '' }}</td>
-                            <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['dvt'] ?? '' }}</td>
-                            <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['ma_nhvt'] ?? '' }}</td>
-                            <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['ma_kho'] ?? '' }}</td>
-                            <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['ma_vitri'] ?? '' }}</td>
-                            <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['tk_vt'] ?? '' }}</td>
-                            <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['tk_dt'] ?? '' }}</td>
-                            <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['tk_gv'] ?? '' }}</td>
-                            <td class="px-2 py-2 text-center">{{ (int) ($row['ton_kho'] ?? 0) ? 'Có' : 'Không' }}</td>
-                            <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['loai'] ?? '' }}</td>
-                            <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['gia_ton'] ?? '' }}</td>
-                            <td class="px-2 py-2 text-center">{{ (int) ($row['ksd'] ?? 0) ? 'Có' : '' }}</td>
-                            <td class="whitespace-nowrap px-2 py-2 text-right" wire:click.stop>
-                                @if ($deleteMaVt === $maVt)
-                                    <div class="flex items-center justify-end gap-2">
-                                        <button type="button" wire:click="deleteItem" class="rounded bg-red-600 px-2 py-1 text-xs text-white hover:bg-red-700">Xác nhận</button>
-                                        <button type="button" wire:click="cancelDelete" class="rounded bg-gray-100 px-2 py-1 text-xs text-gray-700 hover:bg-gray-200">Hủy</button>
-                                    </div>
-                                @else
-                                    <div class="flex items-center justify-end gap-2">
-                                        <button type="button" wire:click="openEdit(@js($maVt))" class="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-700 hover:bg-yellow-200">Sửa</button>
-                                        <button type="button" wire:click="openRename(@js($maVt))" class="rounded bg-indigo-100 px-2 py-1 text-xs text-indigo-700 hover:bg-indigo-200">Đổi mã</button>
-                                        <button type="button" wire:click="confirmDelete(@js($maVt))" class="rounded bg-red-100 px-2 py-1 text-xs text-red-700 hover:bg-red-200">Xóa</button>
-                                    </div>
-                                @endif
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="15" class="px-3 py-8 text-center text-sm text-gray-500">Không có vật tư phù hợp.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
+    @if ($showRenameForm)
+        <form id="indmvt-rename-form" wire:submit.prevent="renameItem" class="order-1 scroll-mt-4 space-y-4 rounded-lg border border-indigo-200 bg-white p-4 shadow-sm" style="order: 1">
+            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-3">
+                <div>
+                    <h3 class="text-base font-semibold text-gray-900">Đổi mã vật tư</h3>
+                    <p class="text-xs text-gray-500">Ghi qua asDoiMa theo dictionary INDMVT / MA_VT.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" wire:click="cancelRename" class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Hủy</button>
+                    <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm text-white hover:bg-indigo-700">Đổi mã</button>
+                </div>
+            </div>
+
+            <div class="grid gap-4 md:grid-cols-2">
+                <label class="block text-sm">
+                    <span class="text-gray-600">Mã hiện tại</span>
+                    <input type="text" wire:model="renameForm.old_ma_vt" disabled class="mt-1 w-full rounded-md border-gray-300 bg-gray-50 font-mono text-sm text-gray-700 shadow-sm" />
+                    @error('old_ma_vt') <span class="mt-1 block text-xs text-red-600">{{ $message }}</span> @enderror
+                </label>
+                <label class="block text-sm">
+                    <span class="text-gray-600">Mã mới</span>
+                    <input type="text" wire:model.blur="renameForm.new_ma_vt" class="mt-1 w-full rounded-md border-gray-300 font-mono text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                    @error('new_ma_vt') <span class="mt-1 block text-xs text-red-600">{{ $message }}</span> @enderror
+                </label>
+            </div>
+        </form>
+    @endif
 
     @if ($showForm)
-        <form id="indmvt-form" wire:submit.prevent="save" class="order-1 scroll-mt-4 space-y-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+        <form id="indmvt-form" wire:submit.prevent="save" class="order-1 scroll-mt-4 space-y-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm" style="order: 2">
             <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-3">
                 <div>
                     <h3 class="text-base font-semibold text-gray-900">{{ $isEditing ? 'Sửa vật tư' : 'Thêm vật tư' }}</h3>
@@ -369,33 +292,111 @@
         </form>
     @endif
 
-    @if ($showRenameForm)
-        <form id="indmvt-rename-form" wire:submit.prevent="renameItem" class="order-1 scroll-mt-4 space-y-4 rounded-lg border border-indigo-200 bg-white p-4 shadow-sm">
-            <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-3">
-                <div>
-                    <h3 class="text-base font-semibold text-gray-900">Đổi mã vật tư</h3>
-                    <p class="text-xs text-gray-500">Ghi qua asDoiMa theo dictionary INDMVT / MA_VT.</p>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button type="button" wire:click="cancelRename" class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Hủy</button>
-                    <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm text-white hover:bg-indigo-700">Đổi mã</button>
-                </div>
-            </div>
+    <div class="order-2 flex flex-wrap items-center gap-3" style="order: 3">
+        <div class="relative w-full max-w-xl">
+            <input
+                type="text"
+                wire:model.live.debounce.300ms="search"
+                placeholder="Tìm theo mã, tên, nhóm, ĐVT, tài khoản vật tư..."
+                class="w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
+            />
+            @if ($search)
+                <button
+                    type="button"
+                    wire:click="$set('search', '')"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600"
+                >
+                    Xóa
+                </button>
+            @endif
+        </div>
+        <span class="text-xs text-gray-500">{{ count($displayRows) }} / {{ count($rows) }} vật tư</span>
+        @if ($selectedMaVt)
+            <button
+                type="button"
+                wire:click="openEdit"
+                class="rounded-md bg-yellow-100 px-3 py-2 text-sm text-yellow-800 hover:bg-yellow-200"
+            >
+                Sửa {{ $selectedMaVt }}
+            </button>
+            <button
+                type="button"
+                wire:click="openRename"
+                class="rounded-md bg-indigo-100 px-3 py-2 text-sm text-indigo-800 hover:bg-indigo-200"
+            >
+                Đổi mã {{ $selectedMaVt }}
+            </button>
+        @endif
+    </div>
 
-            <div class="grid gap-4 md:grid-cols-2">
-                <label class="block text-sm">
-                    <span class="text-gray-600">Mã hiện tại</span>
-                    <input type="text" wire:model="renameForm.old_ma_vt" disabled class="mt-1 w-full rounded-md border-gray-300 bg-gray-50 font-mono text-sm text-gray-700 shadow-sm" />
-                    @error('old_ma_vt') <span class="mt-1 block text-xs text-red-600">{{ $message }}</span> @enderror
-                </label>
-                <label class="block text-sm">
-                    <span class="text-gray-600">Mã mới</span>
-                    <input type="text" wire:model.blur="renameForm.new_ma_vt" class="mt-1 w-full rounded-md border-gray-300 font-mono text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
-                    @error('new_ma_vt') <span class="mt-1 block text-xs text-red-600">{{ $message }}</span> @enderror
-                </label>
-            </div>
-        </form>
-    @endif
+    <div class="order-3 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm" style="order: 4">
+        <div class="max-h-[calc(100vh-280px)] overflow-y-auto">
+            <table class="min-w-full text-left text-xs">
+                <thead class="sticky top-0 z-10 bg-gray-50 text-gray-500">
+                    <tr>
+                        <th class="border-b border-gray-200 px-2 py-2 font-medium">#</th>
+                        <th class="border-b border-gray-200 px-2 py-2 font-medium">Mã VT</th>
+                        <th class="border-b border-gray-200 px-2 py-2 font-medium">Tên vật tư</th>
+                        <th class="border-b border-gray-200 px-2 py-2 font-medium">ĐVT</th>
+                        <th class="border-b border-gray-200 px-2 py-2 font-medium">Nhóm</th>
+                        <th class="border-b border-gray-200 px-2 py-2 font-medium">Kho</th>
+                        <th class="border-b border-gray-200 px-2 py-2 font-medium">Vị trí</th>
+                        <th class="border-b border-gray-200 px-2 py-2 font-medium">TK VT</th>
+                        <th class="border-b border-gray-200 px-2 py-2 font-medium">TK DT</th>
+                        <th class="border-b border-gray-200 px-2 py-2 font-medium">TK GV</th>
+                        <th class="border-b border-gray-200 px-2 py-2 text-center font-medium">Tồn</th>
+                        <th class="border-b border-gray-200 px-2 py-2 font-medium">Loại</th>
+                        <th class="border-b border-gray-200 px-2 py-2 font-medium">Giá tồn</th>
+                        <th class="border-b border-gray-200 px-2 py-2 text-center font-medium">KSD</th>
+                        <th class="border-b border-gray-200 px-2 py-2 text-right font-medium">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    @forelse ($displayRows as $row)
+                        @php($maVt = (string) ($row['ma_vt'] ?? ''))
+                        <tr
+                            wire:key="in-dict-indmvt-{{ $maVt }}"
+                            wire:click="selectItem(@js($maVt))"
+                            class="cursor-pointer hover:bg-sky-50 {{ $selectedMaVt === $maVt ? 'bg-blue-50' : '' }}"
+                        >
+                            <td class="px-2 py-2 text-right text-gray-400">{{ $loop->iteration }}</td>
+                            <td class="whitespace-nowrap px-2 py-2 font-mono font-semibold text-gray-900">{{ $maVt }}</td>
+                            <td class="min-w-64 px-2 py-2 text-gray-800">{{ $row['ten_vt'] ?? '' }}</td>
+                            <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['dvt'] ?? '' }}</td>
+                            <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['ma_nhvt'] ?? '' }}</td>
+                            <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['ma_kho'] ?? '' }}</td>
+                            <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['ma_vitri'] ?? '' }}</td>
+                            <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['tk_vt'] ?? '' }}</td>
+                            <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['tk_dt'] ?? '' }}</td>
+                            <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['tk_gv'] ?? '' }}</td>
+                            <td class="px-2 py-2 text-center">{{ (int) ($row['ton_kho'] ?? 0) ? 'Có' : 'Không' }}</td>
+                            <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['loai'] ?? '' }}</td>
+                            <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['gia_ton'] ?? '' }}</td>
+                            <td class="px-2 py-2 text-center">{{ (int) ($row['ksd'] ?? 0) ? 'Có' : '' }}</td>
+                            <td class="whitespace-nowrap px-2 py-2 text-right" wire:click.stop>
+                                @if ($deleteMaVt === $maVt)
+                                    <div class="flex items-center justify-end gap-2">
+                                        <button type="button" wire:click="deleteItem" class="rounded bg-red-600 px-2 py-1 text-xs text-white hover:bg-red-700">Xác nhận</button>
+                                        <button type="button" wire:click="cancelDelete" class="rounded bg-gray-100 px-2 py-1 text-xs text-gray-700 hover:bg-gray-200">Hủy</button>
+                                    </div>
+                                @else
+                                    <div class="flex items-center justify-end gap-2">
+                                        <button type="button" wire:click="openEdit(@js($maVt))" class="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-700 hover:bg-yellow-200">Sửa</button>
+                                        <button type="button" wire:click="openRename(@js($maVt))" class="rounded bg-indigo-100 px-2 py-1 text-xs text-indigo-700 hover:bg-indigo-200">Đổi mã</button>
+                                        <button type="button" wire:click="confirmDelete(@js($maVt))" class="rounded bg-red-100 px-2 py-1 text-xs text-red-700 hover:bg-red-200">Xóa</button>
+                                    </div>
+                                @endif
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="15" class="px-3 py-8 text-center text-sm text-gray-500">Không có vật tư phù hợp.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </div>
 
     <datalist id="indmvt-nhvt-options">
         @foreach ($nhvtOptions as $option)
@@ -414,18 +415,6 @@
             <option value="{{ $row['ma_vt'] ?? '' }}">{{ $row['ten_vt'] ?? '' }}</option>
         @endforeach
     </datalist>
-
-    <button
-        type="button"
-        x-data="{ visible: false }"
-        x-show="visible"
-        x-transition.opacity
-        x-on:scroll.window="visible = window.scrollY > 500"
-        onclick="window.scrollTo({ top: 0, behavior: 'smooth' })"
-        class="fixed bottom-6 right-6 z-40 rounded-full bg-gray-900 px-4 py-2 text-sm font-medium text-white shadow-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
-    >
-        Lên đầu
-    </button>
 
     <script>
         document.addEventListener('livewire:init', () => {
