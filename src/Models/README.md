@@ -25,7 +25,7 @@ src/Models/
 │   ├── HasSoCt1SalesMetrics.php
 │   ├── HasSysCompanyLocalizedResx.php
 │   └── README.md
-└── Simba/                         # 29 wrapper extend/merge Simba\Models\* (xem Simba/README.md)
+└── Simba/                         # wrapper extend/merge Simba\Models\* (xem Simba/README.md)
     └── ...
 ```
 
@@ -72,8 +72,9 @@ Xem chi tiết tại [`Concerns/README.md`](Concerns/README.md).
 
 ## `Simba/`
 
-29 wrapper/merge class extend `Diepxuan\Simba\Models\*` hoặc wrapper Simba cùng schema.
-Xem chi tiết tại [`Simba/README.md`](Simba/README.md).
+445 wrapper/merge class extend `Diepxuan\Simba\Models\*` hoặc wrapper Simba cùng schema.
+Phần lớn là passthrough mỏng; 29 file có behavior riêng được liệt kê tại
+[`Simba/README.md`](Simba/README.md).
 
 ## Quy tắc cập nhật
 
@@ -98,7 +99,7 @@ vendor/bin/phpunit tests/Unit/Packages/Simba/SimbaModelLayerResponsibilityTest.p
 
 ## Tóm tắt
 
-`src/Models/` = 6 Catalog Model đặc biệt + `Casts/` + `Concerns/`. 29 wrapper/merge
-class đã chuyển sang `Simba/`. Pattern 3-layer
+`src/Models/` = 6 Catalog Model đặc biệt + `Casts/` + `Concerns/`. Wrapper/merge
+class Simba nằm trong `Simba/`. Pattern 3-layer
 (`SModel` / `Simba\Models` / `Catalog\Models`) vẫn giữ nguyên — chỉ tách
 vật lý cho dễ audit và phân quyền.

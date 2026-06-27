@@ -1,7 +1,9 @@
-# Catalog Models — `Simba/` wrappers
+# Catalog Models - `Simba/` wrappers
 
-Thư mục `src/Models/Simba/` chứa **29 wrapper/merge class** ở lớp 3 (Catalog) trong
+Thư mục `src/Models/Simba/` chứa **445 wrapper/merge class** ở lớp 3 (Catalog) trong
 pattern **3-layer Model** (`SModel` / `Simba\Models` / `Catalog\Models\Simba`).
+Mỗi model ở `diepxuan/laravel-simba/src/Models` phải có một wrapper tương ứng ở
+Catalog, trừ các alias/merge-wrapper đặc biệt đã ghi rõ bên dưới.
 
 ## Vai trò
 
@@ -19,10 +21,12 @@ extend để dễ merge logic với `SysMenu`. Wrapper giữ:
 - Accessor/mutator mang ngữ nghĩa nghiệp vụ Portal.
 - Helper gọi stored procedure hoặc truy vấn phục vụ Livewire component.
 
-Wrapper **không** được phép khai báo `$table`, `$primaryKey`, `$fillable`,
-`$casts` trực tiếp — schema lấy từ SModel qua Simba Model cha.
+Wrapper passthrough **không** được phép khai báo `$table`, `$primaryKey`,
+`$fillable`, `$casts` trực tiếp — schema lấy từ SModel qua Simba Model cha.
+Wrapper có behavior riêng chỉ khai báo metadata khi đã có lý do Catalog rõ ràng
+như `Zsysmenu` merge table hoặc custom cast của `InDmNhvt`.
 
-## Quy tắt alias `SimbaModel`
+## Quy tắc alias `SimbaModel`
 
 Vì class trong `Catalog\Models\Simba\<X>` trùng tên với class cha
 `Simba\Models\<X>`, mọi wrapper đều **bắt buộc** alias `as SimbaModel`:
@@ -50,17 +54,31 @@ class ArDmKh extends SimbaModel
 Không alias → PHP resolve `extends ArDmKh` về chính class đang khai báo
 (`Catalog\Models\Simba\ArDmKh`) → **fatal error**.
 
-Hai trường hợp đặc biệt (`InventoryTicket`, `InventoryTicketItem`) extend
-class cha tên khác (`PhieuChuyenKho`, `PhieuChuyenKhoCT`) nhưng vẫn dùng
-`as SimbaModel` để code đồng nhất trong cả thư mục.
+Hai trường hợp đặc biệt (`InventoryTicket`, `InventoryTicketItem`) extend class
+cha tên khác (`PhieuChuyenKho`, `PhieuChuyenKhoCT`) nhưng vẫn dùng `as
+SimbaModel` để code đồng nhất trong cả thư mục.
 
 `Zsysmenu` là trường hợp merge-wrapper: không alias `SimbaModel`, mà `extends SysMenu`
 trong cùng namespace `Catalog\Models\Simba` để dùng chung contract/logic với
 `SysMenu` và chỉ override `$table = 'zsysmenu'`.
 
-## Danh sách 29 wrapper/merge class
+## Coverage
 
-| File | Class cha `Simba\Models\*` | Behavior |
+`Catalog\Models\Simba` phải cover toàn bộ model lớp 2 trong `Simba\Models`.
+Các wrapper passthrough chỉ chứa namespace, alias `SimbaModel`, và `extends
+SimbaModel`; không khai báo lại schema.
+
+Alias/merge-wrapper:
+
+| Simba model | Catalog wrapper | Ghi chú |
+|---|---|---|
+| `PhieuChuyenKho` | `InventoryTicket` | Tên Catalog theo domain phiếu kho |
+| `PhieuChuyenKhoCT` | `InventoryTicketItem` | Tên Catalog theo domain dòng phiếu kho |
+| `zsysmenu` | `Zsysmenu` | Merge-wrapper dùng logic chung với `SysMenu` |
+
+## Wrapper có behavior riêng
+
+| File | Class cha | Behavior |
 |---|---|---|
 | `ArDmKh.php` | `ArDmKh` | concern `HasArDmKhCategories`, nhiều relation |
 | `ArDmNhKh.php` | `ArDmNhKh` | wrapper const `CTY = SModel::CTY` |
@@ -127,7 +145,8 @@ vendor/bin/phpunit tests/Unit/Packages/Simba/SimbaModelLayerResponsibilityTest.p
 
 ## Tóm tắt
 
-`Simba/` = 29 wrapper/merge class ở lớp 3. Hầu hết extend `Diepxuan\Simba\Models\*`
-qua alias `SimbaModel`; riêng `Zsysmenu` extend `SysMenu` cùng namespace để dùng
-chung logic vì cùng table struct. Chứa business logic nghiệp vụ phục vụ Portal/Catalog UI.
-Concern nghiệp vụ dùng chung tách vào `../Concerns/`.
+`Simba/` = wrapper/merge class lớp 3 cover đủ model lớp 2. Hầu hết extend
+`Diepxuan\Simba\Models\*` qua alias `SimbaModel`; riêng `Zsysmenu` extend
+`SysMenu` cùng namespace để dùng chung logic vì cùng table struct. Chỉ các file
+có behavior riêng mới chứa business logic phục vụ Portal/Catalog UI. Concern
+nghiệp vụ dùng chung tách vào `../Concerns/`.
