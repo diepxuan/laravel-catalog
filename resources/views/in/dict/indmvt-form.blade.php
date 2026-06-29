@@ -1,0 +1,248 @@
+<div class="space-y-3">
+    @if ($errorMessage)
+        <div class="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+            {{ $errorMessage }}
+        </div>
+    @endif
+
+    @if ($statusMessage)
+        <div class="rounded-md border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+            {{ $statusMessage }}
+        </div>
+    @endif
+
+    @if ($showForm)
+    <form id="indmvt-form" wire:submit.prevent="save" class="order-1 scroll-mt-4 space-y-4 rounded-lg border border-gray-200 bg-white p-4 shadow-sm" style="order: 2">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 pb-3">
+            <div>
+                <h3 class="text-base font-semibold text-gray-900">{{ $isEditing ? 'Sửa vật tư' : 'Thêm vật tư' }}</h3>
+                <p class="text-xs text-gray-500">Ghi qua asIN{{ $isEditing ? 'Upd' : 'Ins' }}DMVT và đồng bộ BOM qua asIN*DMBOM.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <button type="button" wire:click="cancelForm" class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Hủy</button>
+                <button type="submit" class="rounded-md bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700">Lưu</button>
+            </div>
+        </div>
+
+        <div class="grid gap-4 lg:grid-cols-4">
+            <label class="block text-sm">
+                <span class="text-gray-600">Mã vật tư</span>
+                <input type="text" wire:model.blur="form.ma_vt" @disabled($isEditing) class="mt-1 w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                @error('ma_vt') <span class="mt-1 block text-xs text-red-600">{{ $message }}</span> @enderror
+            </label>
+            <label class="block text-sm lg:col-span-2">
+                <span class="text-gray-600">Tên vật tư</span>
+                <input type="text" wire:model.blur="form.ten_vt" class="mt-1 w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                @error('ten_vt') <span class="mt-1 block text-xs text-red-600">{{ $message }}</span> @enderror
+            </label>
+            <label class="block text-sm">
+                <span class="text-gray-600">Part no</span>
+                <input type="text" wire:model.blur="form.part_no" class="mt-1 w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                @error('part_no') <span class="mt-1 block text-xs text-red-600">{{ $message }}</span> @enderror
+            </label>
+
+            <label class="block text-sm">
+                <span class="text-gray-600">Loại</span>
+                <select wire:model="form.loai" class="mt-1 w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="1">1</option>
+                    @foreach ($loaiOptions as $option)
+                        <option value="{{ $option['loai'] ?? $option['ma_loai'] ?? $option['id'] ?? '' }}">
+                            {{ $option['loai'] ?? $option['ma_loai'] ?? $option['id'] ?? '' }} {{ $option['ten_loai'] ?? $option['ten'] ?? '' }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('loai') <span class="mt-1 block text-xs text-red-600">{{ $message }}</span> @enderror
+            </label>
+            <label class="block text-sm">
+                <span class="text-gray-600">ĐVT tồn</span>
+                <input type="text" wire:model.blur="form.dvt" class="mt-1 w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                @error('dvt') <span class="mt-1 block text-xs text-red-600">{{ $message }}</span> @enderror
+            </label>
+            <label class="block text-sm">
+                <span class="text-gray-600">ĐVT bán</span>
+                <input type="text" wire:model.blur="form.dvt_ban" class="mt-1 w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                @error('dvt_ban') <span class="mt-1 block text-xs text-red-600">{{ $message }}</span> @enderror
+            </label>
+            <label class="block text-sm">
+                <span class="text-gray-600">HS ĐVT bán</span>
+                <input type="number" step="0.0001" wire:model.blur="form.hs_dvtban" class="mt-1 w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+            </label>
+            <label class="block text-sm">
+                <span class="text-gray-600">ĐVT mua</span>
+                <input type="text" wire:model.blur="form.dvt_mua" class="mt-1 w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                @error('dvt_mua') <span class="mt-1 block text-xs text-red-600">{{ $message }}</span> @enderror
+            </label>
+            <label class="block text-sm">
+                <span class="text-gray-600">HS ĐVT mua</span>
+                <input type="number" step="0.0001" wire:model.blur="form.hs_dvtmua" class="mt-1 w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+            </label>
+            <label class="block text-sm">
+                <span class="text-gray-600">Giá tồn</span>
+                <select wire:model="form.gia_ton" class="mt-1 w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500">
+                    <option value="1">1</option>
+                    @foreach ($giaTonOptions as $option)
+                        <option value="{{ $option['gia_ton'] ?? $option['ma_gia_ton'] ?? $option['id'] ?? '' }}">
+                            {{ $option['gia_ton'] ?? $option['ma_gia_ton'] ?? $option['id'] ?? '' }} {{ $option['ten_gia_ton'] ?? $option['ten'] ?? '' }}
+                        </option>
+                    @endforeach
+                </select>
+            </label>
+            <label class="flex items-center gap-2 pt-7 text-sm text-gray-700">
+                <input type="checkbox" wire:model="form.ton_kho" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                Theo dõi tồn kho
+            </label>
+
+            <label class="block text-sm">
+                <span class="text-gray-600">Nhóm vật tư</span>
+                <input type="text" list="indmvt-nhvt-options" wire:model.blur="form.ma_nhvt" class="mt-1 w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                @error('ma_nhvt') <span class="mt-1 block text-xs text-red-600">{{ $message }}</span> @enderror
+            </label>
+            <label class="block text-sm">
+                <span class="text-gray-600">Kho ngầm định</span>
+                <input type="text" list="indmvt-kho-options" wire:model.blur="form.ma_kho" class="mt-1 w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                @error('ma_kho') <span class="mt-1 block text-xs text-red-600">{{ $message }}</span> @enderror
+            </label>
+            <label class="block text-sm">
+                <span class="text-gray-600">Vị trí</span>
+                <input type="text" wire:model.blur="form.ma_vitri" class="mt-1 w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                @error('ma_vitri') <span class="mt-1 block text-xs text-red-600">{{ $message }}</span> @enderror
+            </label>
+            <label class="block text-sm">
+                <span class="text-gray-600">Mã thuế</span>
+                <input type="text" wire:model.blur="form.ma_thue" class="mt-1 w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                @error('ma_thue') <span class="mt-1 block text-xs text-red-600">{{ $message }}</span> @enderror
+            </label>
+        </div>
+
+        <div class="grid gap-4 lg:grid-cols-6">
+            @foreach (['tk_vt' => 'TK vật tư', 'tk_dt' => 'TK doanh thu', 'tk_dtnb' => 'TK DT nội bộ', 'tk_gv' => 'TK giá vốn', 'tk_tl' => 'TK trả lại', 'tk_ck' => 'TK chiết khấu', 'tk_km' => 'TK khuyến mại', 'tk_dd' => 'TK dở dang', 'tk_cpnvl' => 'TK CPNVL'] as $field => $label)
+                <label class="block text-sm">
+                    <span class="text-gray-600">{{ $label }}</span>
+                    <input type="text" wire:model.blur="form.{{ $field }}" class="mt-1 w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                    @error($field) <span class="mt-1 block text-xs text-red-600">{{ $message }}</span> @enderror
+                </label>
+            @endforeach
+        </div>
+
+        <div class="grid gap-4 lg:grid-cols-6">
+            @foreach (['ma_plvt1' => 'PLVT 1', 'ma_plvt2' => 'PLVT 2', 'ma_plvt3' => 'PLVT 3', 'ma_nhvat' => 'Nhóm VAT'] as $field => $label)
+                <label class="block text-sm">
+                    <span class="text-gray-600">{{ $label }}</span>
+                    <input type="text" wire:model.blur="form.{{ $field }}" class="mt-1 w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                    @error($field) <span class="mt-1 block text-xs text-red-600">{{ $message }}</span> @enderror
+                </label>
+            @endforeach
+            <label class="flex items-center gap-2 pt-7 text-sm text-gray-700">
+                <input type="checkbox" wire:model="form.tinh_gt" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                Tính giá thành
+            </label>
+            <label class="flex items-center gap-2 pt-7 text-sm text-gray-700">
+                <input type="checkbox" wire:model="form.ksd" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                Không sử dụng
+            </label>
+        </div>
+
+        <div class="grid gap-4 lg:grid-cols-8">
+            @foreach (['sl_min' => 'SL min', 'sl_max' => 'SL max', 'gia_nt0' => 'Giá NT0', 'gia_nt2' => 'Giá NT2', 'ts_nk' => 'Thuế NK', 'ts_gtgt' => 'Thuế GTGT', 'ts_xk' => 'Thuế XK', 'ts_ttdb' => 'Thuế TTĐB'] as $field => $label)
+                <label class="block text-sm">
+                    <span class="text-gray-600">{{ $label }}</span>
+                    <input type="number" step="0.0001" wire:model.blur="form.{{ $field }}" class="mt-1 w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                    @error($field) <span class="mt-1 block text-xs text-red-600">{{ $message }}</span> @enderror
+                </label>
+            @endforeach
+        </div>
+
+        <div class="grid gap-4 lg:grid-cols-4">
+            @foreach (['nha_sx' => 'Nhà sản xuất', 'nha_pp' => 'Nhà phân phối', 'nuoc_sx' => 'Nước sản xuất'] as $field => $label)
+                <label class="block text-sm">
+                    <span class="text-gray-600">{{ $label }}</span>
+                    <input type="text" wire:model.blur="form.{{ $field }}" class="mt-1 w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                </label>
+            @endforeach
+            <label class="block text-sm">
+                <span class="text-gray-600">Ghi chú</span>
+                <input type="text" wire:model.blur="form.ghi_chu" class="mt-1 w-full rounded-md border-gray-300 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+            </label>
+        </div>
+
+        <div class="space-y-3 border-t border-gray-100 pt-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                    <h4 class="text-sm font-semibold text-gray-900">BOM / định mức linh kiện</h4>
+                    <p class="text-xs text-gray-500">Nguồn InDmBom, khóa ma_cty + ma_vt + ma_lk.</p>
+                </div>
+                <button type="button" wire:click="addBomRow" class="rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-700 hover:bg-gray-50">Thêm dòng BOM</button>
+            </div>
+
+            <div class="overflow-x-auto rounded-md border border-gray-200">
+                <table class="min-w-full text-xs">
+                    <thead class="bg-gray-50 text-left text-gray-500">
+                        <tr>
+                            <th class="px-2 py-2 font-medium">Mã LK</th>
+                            <th class="px-2 py-2 font-medium">Tên LK</th>
+                            <th class="px-2 py-2 font-medium">ĐVT</th>
+                            <th class="px-2 py-2 text-right font-medium">Số lượng</th>
+                            <th class="px-2 py-2 text-right font-medium">Hệ số</th>
+                            <th class="px-2 py-2 font-medium">Ghi chú</th>
+                            <th class="px-2 py-2 text-center font-medium">KSD</th>
+                            <th class="px-2 py-2 text-right font-medium">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @forelse ($bomRows as $index => $bomRow)
+                            <tr wire:key="indmvt-bom-{{ $index }}">
+                                <td class="px-2 py-2 align-top">
+                                    <input type="text" list="indmvt-item-options" wire:model.blur="bomRows.{{ $index }}.ma_lk" wire:change="fillBomItem({{ $index }})" class="w-36 rounded-md border-gray-300 text-xs shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                                    @error('bomRows.' . $index . '.ma_lk') <span class="mt-1 block text-xs text-red-600">{{ $message }}</span> @enderror
+                                </td>
+                                <td class="px-2 py-2 align-top">
+                                    <input type="text" wire:model.blur="bomRows.{{ $index }}.ten_lk" class="w-64 rounded-md border-gray-300 text-xs shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                                </td>
+                                <td class="px-2 py-2 align-top">
+                                    <input type="text" wire:model.blur="bomRows.{{ $index }}.dvt" class="w-24 rounded-md border-gray-300 text-xs shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                                </td>
+                                <td class="px-2 py-2 align-top text-right">
+                                    <input type="number" step="0.0001" wire:model.blur="bomRows.{{ $index }}.so_luong" class="w-28 rounded-md border-gray-300 text-right text-xs shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                                    @error('bomRows.' . $index . '.so_luong') <span class="mt-1 block text-xs text-red-600">{{ $message }}</span> @enderror
+                                </td>
+                                <td class="px-2 py-2 align-top text-right">
+                                    <input type="number" step="0.0001" wire:model.blur="bomRows.{{ $index }}.he_so" class="w-24 rounded-md border-gray-300 text-right text-xs shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                                </td>
+                                <td class="px-2 py-2 align-top">
+                                    <input type="text" wire:model.blur="bomRows.{{ $index }}.ghi_chu" class="w-52 rounded-md border-gray-300 text-xs shadow-sm focus:border-blue-500 focus:ring-blue-500" />
+                                </td>
+                                <td class="px-2 py-2 text-center align-top">
+                                    <input type="checkbox" wire:model="bomRows.{{ $index }}.ksd" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                                </td>
+                                <td class="px-2 py-2 text-right align-top">
+                                    <button type="button" wire:click="removeBomRow({{ $index }})" class="rounded bg-red-100 px-2 py-1 text-xs text-red-700 hover:bg-red-200">Xóa dòng</button>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="8" class="px-3 py-5 text-center text-gray-500">Chưa có dòng BOM.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </form>
+    @endif
+
+    <datalist id="indmvt-nhvt-options">
+        @foreach ($nhvtOptions as $option)
+            <option value="{{ $option['ma_nhvt'] ?? '' }}">{{ $option['ten_nhvt'] ?? '' }}</option>
+        @endforeach
+    </datalist>
+
+    <datalist id="indmvt-kho-options">
+        @foreach ($khoOptions as $option)
+            <option value="{{ $option['ma_kho'] ?? '' }}">{{ $option['ten_kho'] ?? '' }}</option>
+        @endforeach
+    </datalist>
+
+    <datalist id="indmvt-item-options">
+        {{-- Được fill bởi IndmvtList component khi danh sách VT load. --}}
+    </datalist>
+</div>
