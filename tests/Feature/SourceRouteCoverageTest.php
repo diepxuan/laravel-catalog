@@ -78,6 +78,25 @@ final class SourceRouteCoverageTest extends TestCase
         }
     }
 
+    public function testCanonicalSmksUrlResolvesThroughSimbaShell(): void
+    {
+        $resolved = Route::getRoutes()->match(request()->create('/simba/si/vch/smks', 'GET'));
+
+        self::assertSame('simba.show', $resolved->getName());
+        self::assertSame('si', $resolved->parameter('module'));
+        self::assertSame('vch', $resolved->parameter('kind'));
+        self::assertSame('smks', $resolved->parameter('slug'));
+    }
+
+    public function testLegacySystemLockUrlRedirectsToSmks(): void
+    {
+        $resolved = Route::getRoutes()->match(request()->create('/hethong/system', 'GET'));
+
+        self::assertSame('system.system', $resolved->getName());
+        self::assertStringContainsString('RedirectController', $resolved->getActionName());
+        self::assertSame('/simba/si/vch/smks', $resolved->defaults['destination'] ?? null);
+    }
+
     public function testLegacyPoSupplierCreateEditUrlsDoNotResolve(): void
     {
         foreach ([
@@ -127,6 +146,7 @@ final class SourceRouteCoverageTest extends TestCase
             ['module' => 'in', 'kind' => 'dict', 'slug' => 'indmvt', 'routeName' => 'in.dict.indmvt', 'url' => '/_simba-source/in/dict/indmvt', 'component' => \Diepxuan\Catalog\Http\Livewire\In\Dict\IndmvtPage::class],
             ['module' => 'po', 'kind' => 'dict', 'slug' => 'ardmkh', 'routeName' => 'po.dict.ardmkh', 'url' => '/_simba-source/po/dict/ardmkh', 'component' => \Diepxuan\Catalog\Http\Livewire\Po\Dict\Ardmkh::class],
             ['module' => 'po', 'kind' => 'dict', 'slug' => 'podmcp', 'routeName' => 'po.dict.podmcp', 'url' => '/_simba-source/po/dict/podmcp', 'component' => \Diepxuan\Catalog\Http\Livewire\Muahang\PoDmCpIndex::class],
+            ['module' => 'si', 'kind' => 'vch', 'slug' => 'smks', 'routeName' => 'si.vch.smks', 'url' => '/_simba-source/si/vch/smks', 'component' => \Diepxuan\Catalog\Http\Livewire\Si\Vch\Smks::class],
             ['module' => 'so', 'kind' => 'dict', 'slug' => 'ardmkh', 'routeName' => 'so.dict.ardmkh', 'url' => '/_simba-source/so/dict/ardmkh', 'component' => \Diepxuan\Catalog\Http\Livewire\Banhang\Khachhang::class],
             ['module' => 'so', 'kind' => 'dict', 'slug' => 'ardmplkh', 'routeName' => 'so.dict.ardmplkh', 'url' => '/_simba-source/so/dict/ardmplkh', 'component' => \Diepxuan\Catalog\Http\Livewire\AR\Danhmuc\Phanloaikhachhang::class],
             ['module' => 'so', 'kind' => 'vch', 'slug' => 'sovchso1', 'routeName' => 'so.vch.sovchso1', 'url' => '/_simba-source/so/vch/sovchso1', 'component' => \Diepxuan\Catalog\Http\Livewire\Banhang\Hoadonbanhang::class],

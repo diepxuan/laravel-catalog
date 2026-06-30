@@ -25,10 +25,6 @@
                         </x-nav-link>
                         <div x-cloak x-show="openSystem" @click.outside="openSystem = false" x-transition
                             class="z-40 mt-0 bg-white md:absolute md:left-0 md:top-full md:w-64 md:space-y-1 md:rounded-lg md:border md:py-2 md:shadow-lg md:group-hover:block">
-                            <x-nav-link :href="route('system.system')" :active="$this->isActive('system.system')"
-                                class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-3">
-                                {{ __('Khoá số liệu') }}
-                            </x-nav-link>
                             <x-nav-link :href="route('system.company')" :active="$this->isActive('system.company')"
                                 class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-3">
                                 {{ __('Đơn vị') }}

@@ -31,6 +31,7 @@ use Diepxuan\Catalog\Http\Livewire\In\Dmnhvt;
 use Diepxuan\Catalog\Http\Livewire\Muahang\PoDmCpIndex;
 use Diepxuan\Catalog\Http\Livewire\Po\Dict\Ardmkh;
 use Diepxuan\Catalog\Http\Livewire\Po\Dict\ArdmkhForm;
+use Diepxuan\Catalog\Http\Livewire\Si\Vch\Smks;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountOpening;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountsPayable;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountsReceivable;
@@ -42,7 +43,6 @@ use Diepxuan\Catalog\Http\Livewire\System\Balance\InventoryTransfer;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\Transfer;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\WorkInProgress;
 use Diepxuan\Catalog\Http\Livewire\System\CompanySelector;
-use Diepxuan\Catalog\Http\Livewire\System\Dashboard;
 use Diepxuan\Catalog\Http\Livewire\System\SimbaPage;
 use Diepxuan\Catalog\Http\Livewire\System\YearSelector;
 use Diepxuan\Support\Http\Middleware\CorpAutoLogin;
@@ -259,6 +259,7 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
             // ['uri' => 'po/vch/povchpo5', 'name' => 'po.vch.povchpo5', 'module' => 'po', 'kind' => 'vch', 'slug' => 'povchpo5', 'component' => SimbaPage::class],
             // ['uri' => 'po/vch/povchpo6', 'name' => 'po.vch.povchpo6', 'module' => 'po', 'kind' => 'vch', 'slug' => 'povchpo6', 'component' => SimbaPage::class],
             // ['uri' => 'po/vch/povchpo7', 'name' => 'po.vch.povchpo7', 'module' => 'po', 'kind' => 'vch', 'slug' => 'povchpo7', 'component' => SimbaPage::class],
+            ['uri' => 'si/vch/smks', 'name' => 'si.vch.smks', 'module' => 'si', 'kind' => 'vch', 'slug' => 'smks', 'component' => Smks::class],
             ['uri' => 'so/dict/ardmkh', 'name' => 'so.dict.ardmkh', 'module' => 'so', 'kind' => 'dict', 'slug' => 'ardmkh', 'component' => Khachhang::class],
             ['uri' => 'so/dict/ardmplkh', 'name' => 'so.dict.ardmplkh', 'module' => 'so', 'kind' => 'dict', 'slug' => 'ardmplkh', 'component' => Phanloaikhachhang::class],
             // ['uri' => 'so/dict/sidmbp', 'name' => 'so.dict.sidmbp', 'module' => 'so', 'kind' => 'dict', 'slug' => 'sidmbp', 'component' => SimbaPage::class],
@@ -345,7 +346,7 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
     });
 
     Route::prefix('hethong')->name('system.')->group(static function (): void {
-        Route::get('system', Dashboard::class)->name('system');
+        Route::redirect('system', '/simba/si/vch/smks')->name('system');
         Route::get('company', CompanySelector::class)->name('company');
         Route::resource('user', SystemUserController::class)->names('user');
         Route::resource('website', SystemWebsiteController::class)->names('website');

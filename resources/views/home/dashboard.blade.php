@@ -15,7 +15,7 @@
             <a href="{{ route('simba.index') }}" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500">
                 {{ __('Simba ERP') }}
             </a>
-            <a href="{{ route('system.system') }}" class="rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700">
+            <a href="{{ route('system.company') }}" class="rounded-md bg-gray-800 px-4 py-2 text-sm font-semibold text-white hover:bg-gray-700">
                 {{ __('Hệ thống') }}
             </a>
             @auth
