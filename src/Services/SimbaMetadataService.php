@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-06-20 16:10:00
+ * @lastupdate 2026-06-30 20:14:14
  */
 
 namespace Diepxuan\Catalog\Services;
@@ -25,14 +25,17 @@ use Illuminate\Support\Collection;
 
 class SimbaMetadataService
 {
-    public const DATASET_SI_DM_CT = 'si_dm_ct';
-    public const DATASET_SYS_MENU = 'sys_menu';
-    public const DATASET_SYS_DICTIONARY_INFO = 'sys_dictionary_info';
+    public const DATASET_SI_DM_CT                   = 'si_dm_ct';
+    public const DATASET_SYS_MENU                   = 'sys_menu';
+    public const DATASET_SYS_DICTIONARY_INFO        = 'sys_dictionary_info';
     public const DATASET_SYS_REPORT_DRILL_DOWN_INFO = 'sys_report_drill_down_info';
-    public const DATASET_SYS_REPORT_INFO = 'sys_report_info';
+    public const DATASET_SYS_REPORT_INFO            = 'sys_report_info';
 
     /** @var array<string, Collection|EloquentCollection> */
     private array $loaded = [];
+
+    /** @var array<string, array<string, mixed>> */
+    private array $indexes = [];
 
     /**
      * @return list<string>
@@ -74,9 +77,6 @@ class SimbaMetadataService
         return $this->warm();
     }
 
-    /**
-     * @return Collection|EloquentCollection
-     */
     public function get(string $dataset): Collection|EloquentCollection
     {
         $this->assertKnownDataset($dataset);
@@ -89,11 +89,40 @@ class SimbaMetadataService
         if (null !== $dataset) {
             $this->assertKnownDataset($dataset);
             unset($this->loaded[$dataset]);
+            foreach (array_keys($this->indexes) as $key) {
+                if (str_starts_with($key, $dataset . ':')) {
+                    unset($this->indexes[$key]);
+                }
+            }
 
             return;
         }
 
-        $this->loaded = [];
+        $this->loaded  = [];
+        $this->indexes = [];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function indexBy(string $dataset, string $field): array
+    {
+        $this->assertKnownDataset($dataset);
+        $key = $dataset . ':' . $field;
+
+        if (isset($this->indexes[$key])) {
+            return $this->indexes[$key];
+        }
+
+        $index = [];
+        foreach ($this->get($dataset) as $row) {
+            $value = trim((string) data_get($row, $field));
+            if ('' !== $value && !isset($index[$value])) {
+                $index[$value] = $row;
+            }
+        }
+
+        return $this->indexes[$key] = $index;
     }
 
     public function refresh(?string $dataset = null): array|Collection|EloquentCollection
@@ -107,16 +136,19 @@ class SimbaMetadataService
         return $this->warm();
     }
 
-    /**
-     * @return Collection|EloquentCollection
-     */
     protected function load(string $dataset): Collection|EloquentCollection
     {
         return match ($dataset) {
-            self::DATASET_SI_DM_CT => SiDmCt::query()->get(),
-            self::DATASET_SYS_MENU => $this->mergedMenus(),
-            self::DATASET_SYS_DICTIONARY_INFO => SysDictionaryInfo::query()->get(),
-            self::DATASET_SYS_REPORT_DRILL_DOWN_INFO => SysReportDrillDownInfo::query()->get(),
+            self::DATASET_SI_DM_CT            => SiDmCt::query()->get(),
+            self::DATASET_SYS_MENU            => $this->mergedMenus(),
+            self::DATASET_SYS_DICTIONARY_INFO => SysDictionaryInfo::query()
+                ->select(['menuid', 'code_name', 'table_name', 'PK', 'carry_field_list'])
+                ->toBase()
+                ->get(),
+            self::DATASET_SYS_REPORT_DRILL_DOWN_INFO => SysReportDrillDownInfo::query()
+                ->select(['menuid', 'press_key_name'])
+                ->toBase()
+                ->get(),
             self::DATASET_SYS_REPORT_INFO => $this->mergedReportInfo(),
         };
     }
@@ -127,8 +159,13 @@ class SimbaMetadataService
     protected function mergedMenus(): Collection
     {
         return SysMenu::query()
+            ->select($this->menuColumns())
+            // ->where('active', '1')
             ->get()
-            ->merge(Zsysmenu::query()->get())
+            ->merge(Zsysmenu::query()
+                ->select($this->menuColumns())
+                // ->where('active', '1')
+                ->get())
             ->filter(static fn (SysMenu $menu): bool => '' !== trim((string) $menu->menuid))
             ->unique(static fn (SysMenu $menu): string => (string) $menu->menuid)
             ->values()
@@ -136,22 +173,44 @@ class SimbaMetadataService
     }
 
     /**
-     * @return Collection<int, SysReportInfo>
+     * @return Collection<int, object>
      */
     protected function mergedReportInfo(): Collection
     {
         return SysReportInfo::query()
+            ->select(['menuid', 'ma_mau', 'spname', 'rptname'])
+            ->toBase()
             ->get()
-            ->merge(ZSysReportInfo::query()->get())
-            ->filter(static fn (SysReportInfo $report): bool => '' !== trim((string) $report->menuid))
+            ->merge(ZSysReportInfo::query()->select(['menuid', 'ma_mau', 'spname', 'rptname'])->toBase()->get())
+            ->filter(static fn (object $report): bool => '' !== trim((string) $report->menuid))
             ->values()
         ;
     }
 
     protected function assertKnownDataset(string $dataset): void
     {
-        if (!in_array($dataset, $this->datasets(), true)) {
+        if (!\in_array($dataset, $this->datasets(), true)) {
             throw new \InvalidArgumentException("Unknown Simba metadata dataset [{$dataset}].");
         }
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function menuColumns(): array
+    {
+        return [
+            'menuid',
+            'stt',
+            'type',
+            'moduleid',
+            'bar',
+            'short_name',
+            'dllName',
+            'command',
+            'code_name',
+            'report',
+            'active',
+        ];
     }
 }

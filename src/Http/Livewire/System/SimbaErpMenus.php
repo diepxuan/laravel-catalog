@@ -33,6 +33,9 @@ class SimbaErpMenus extends Component
 
     protected SimbaMenuTargetResolver $resolver;
 
+    /** @var null|array<string, array{route: string, url: string, type: string, label: string}> */
+    private ?array $routeMapByMenuId = null;
+
     public function boot(SimbaMenuRepository $menus, SimbaMenuTargetResolver $resolver): void
     {
         $this->menus    = $menus;
@@ -238,6 +241,10 @@ class SimbaErpMenus extends Component
      */
     private function routeMapByMenuId(): array
     {
+        if (null !== $this->routeMapByMenuId) {
+            return $this->routeMapByMenuId;
+        }
+
         $map = [];
 
         foreach (app(SimbaMenuRouteMetadata::class)->routes() as $routeName => $metadata) {
@@ -258,7 +265,7 @@ class SimbaErpMenus extends Component
             ];
         }
 
-        return $map;
+        return $this->routeMapByMenuId = $map;
     }
 
     private function portalUrl(string $routeName, string $sourceType): ?string

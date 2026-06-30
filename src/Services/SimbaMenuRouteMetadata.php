@@ -13,7 +13,6 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Services;
 
-use Diepxuan\Catalog\Models\Simba\SysDictionaryInfo;
 use Diepxuan\Catalog\Models\Simba\SysMenu;
 
 final class SimbaMenuRouteMetadata
@@ -27,6 +26,7 @@ final class SimbaMenuRouteMetadata
     private ?array $dictionaries = null;
     private ?array $reports = null;
     private ?array $processes = null;
+    private ?SimbaMetadataService $metadata = null;
 
     /**
      * @param null|iterable<int, SysMenu> $testMenus
@@ -267,7 +267,7 @@ final class SimbaMenuRouteMetadata
         ];
     }
 
-    private function dictionaryRow(SysMenu $menu): ?SysDictionaryInfo
+    private function dictionaryRow(SysMenu $menu): mixed
     {
         if (null !== $this->testMenus) {
             return null;
@@ -277,22 +277,20 @@ final class SimbaMenuRouteMetadata
         $codeName = trim((string) $menu->code_name);
         $dllName = trim((string) $menu->dllName);
 
-        $dictionaryRows = app(SimbaMetadataService::class)->get(SimbaMetadataService::DATASET_SYS_DICTIONARY_INFO);
-
-        $row = $dictionaryRows->first(static fn ($row): bool => $menuid === trim((string) $row->menuid));
+        $row = $this->metadata()->indexBy(SimbaMetadataService::DATASET_SYS_DICTIONARY_INFO, 'menuid')[$menuid] ?? null;
         if (null !== $row) {
             return $row;
         }
 
         if ('' !== $codeName) {
-            $row = $dictionaryRows->first(static fn ($row): bool => $codeName === trim((string) $row->code_name));
+            $row = $this->metadata()->indexBy(SimbaMetadataService::DATASET_SYS_DICTIONARY_INFO, 'code_name')[$codeName] ?? null;
             if (null !== $row) {
                 return $row;
             }
         }
 
         if ('' !== $dllName) {
-            $row = $dictionaryRows->first(static fn ($row): bool => $dllName === trim((string) $row->table_name));
+            $row = $this->metadata()->indexBy(SimbaMetadataService::DATASET_SYS_DICTIONARY_INFO, 'table_name')[$dllName] ?? null;
             if (null !== $row) {
                 return $row;
             }
@@ -318,10 +316,7 @@ final class SimbaMenuRouteMetadata
         ];
 
         $menuid = (string) $menu->menuid;
-        $drilldown = app(SimbaMetadataService::class)
-            ->get(SimbaMetadataService::DATASET_SYS_REPORT_DRILL_DOWN_INFO)
-            ->first(static fn ($row): bool => $menuid === (string) $row->menuid)
-        ;
+        $drilldown = $this->metadata()->indexBy(SimbaMetadataService::DATASET_SYS_REPORT_DRILL_DOWN_INFO, 'menuid')[$menuid] ?? null;
         if (null !== $drilldown) {
             $metadata['press_key_name'] = (string) $drilldown->press_key_name;
         }
@@ -337,10 +332,7 @@ final class SimbaMenuRouteMetadata
 
         $menuid = (string) $menu->menuid;
 
-        return app(SimbaMetadataService::class)
-            ->get(SimbaMetadataService::DATASET_SYS_REPORT_INFO)
-            ->first(static fn ($row): bool => $menuid === (string) $row->menuid)
-        ;
+        return $this->metadata()->indexBy(SimbaMetadataService::DATASET_SYS_REPORT_INFO, 'menuid')[$menuid] ?? null;
     }
 
     /**
@@ -392,5 +384,10 @@ final class SimbaMenuRouteMetadata
         $slug = strtolower((string) preg_replace('/[^A-Za-z0-9]+/', '-', $value));
 
         return trim($slug, '-');
+    }
+
+    private function metadata(): SimbaMetadataService
+    {
+        return $this->metadata ??= app(SimbaMetadataService::class);
     }
 }
