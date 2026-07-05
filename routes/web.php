@@ -32,6 +32,7 @@ use Diepxuan\Catalog\Http\Livewire\Muahang\PoDmCpIndex;
 use Diepxuan\Catalog\Http\Livewire\Po\Dict\Ardmkh;
 use Diepxuan\Catalog\Http\Livewire\Po\Dict\ArdmkhForm;
 use Diepxuan\Catalog\Http\Livewire\Si\Vch\Smks;
+use Diepxuan\Catalog\Http\Livewire\So\Rpt\Arrptbccn01;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountOpening;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountsPayable;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountsReceivable;
@@ -271,7 +272,7 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
             // ['uri' => 'so/dict/sodmnvkd', 'name' => 'so.dict.sodmnvkd', 'module' => 'so', 'kind' => 'dict', 'slug' => 'sodmnvkd', 'component' => SimbaPage::class],
             // ['uri' => 'so/dict/sodmts', 'name' => 'so.dict.sodmts', 'module' => 'so', 'kind' => 'dict', 'slug' => 'sodmts', 'component' => SimbaPage::class],
             // ['uri' => 'so/proc/arcdkh', 'name' => 'so.proc.arcdkh', 'module' => 'so', 'kind' => 'proc', 'slug' => 'arcdkh', 'component' => SimbaPage::class],
-            // ['uri' => 'so/rpt/arrptbccn01', 'name' => 'so.rpt.arrptbccn01', 'module' => 'so', 'kind' => 'rpt', 'slug' => 'arrptbccn01', 'component' => SimbaPage::class],
+            ['uri' => 'so/rpt/arrptbccn01', 'name' => 'so.rpt.arrptbccn01', 'module' => 'so', 'kind' => 'rpt', 'slug' => 'arrptbccn01', 'component' => Arrptbccn01::class],
             // ['uri' => 'so/rpt/arrptbccn01a', 'name' => 'so.rpt.arrptbccn01a', 'module' => 'so', 'kind' => 'rpt', 'slug' => 'arrptbccn01a', 'component' => SimbaPage::class],
             // ['uri' => 'so/rpt/arrptbccn02', 'name' => 'so.rpt.arrptbccn02', 'module' => 'so', 'kind' => 'rpt', 'slug' => 'arrptbccn02', 'component' => SimbaPage::class],
             // ['uri' => 'so/rpt/arrptbccn03', 'name' => 'so.rpt.arrptbccn03', 'module' => 'so', 'kind' => 'rpt', 'slug' => 'arrptbccn03', 'component' => SimbaPage::class],

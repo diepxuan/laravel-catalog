@@ -1,9 +1,21 @@
 <div>
-    <x-head-title>{{ 'SimbaERP' }}</x-head-title>
+    @php
+        $pageTitle = trim((string) ($target['title'] ?? '')) ?: 'SimbaERP';
+        $headTitle = $target ? "{$pageTitle} [SimbaERP]" : $pageTitle;
+    @endphp
+
+    <x-head-title>{{ $headTitle }}</x-head-title>
     <x-slot name="header">
-        <h2 class="text-xl font-semibold leading-tight text-gray-800">
-            {{ 'SimbaERP' }}
-        </h2>
+        <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
+            <h2 class="text-xl font-semibold leading-tight text-gray-800">
+                {{ $pageTitle }}
+            </h2>
+            @if ($target)
+                <span class="rounded bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-200">
+                    SimbaERP
+                </span>
+            @endif
+        </div>
         <p class="text-xs text-gray-500">
             @if ($target)
                 {{ $target['routeName'] }} · {{ $target['menuid'] ?? 'no-menuid' }} ·

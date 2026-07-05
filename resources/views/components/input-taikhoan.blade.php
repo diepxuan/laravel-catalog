@@ -1,13 +1,27 @@
-@props(['disabled' => false, 'class' => '', 'placeholder' => 'Nhập mã tài khoản...'])
+@props(['disabled' => false, 'class' => '', 'placeholder' => 'Nhập mã tài khoản...', 'filter' => ''])
 
-<div class="relative" x-data="tkInputComponent(@js($glDmTks), @js($pTk))" x-init="initComponent()"
+@php
+    // Parse "key=value" filter expressions from Simba's LookupWhereCondition (e.g. "tk_cn=1").
+    $parsedFilters = [];
+    foreach (explode(' ', trim((string) $filter)) as $part) {
+        if ('' === $part) {
+            continue;
+        }
+        if (str_contains($part, '=')) {
+            [$key, $value] = explode('=', $part, 2);
+            $parsedFilters[trim($key)] = trim($value);
+        }
+    }
+@endphp
+
+<div class="relative" x-data="tkInputComponent(@js($glDmTks), @js($pTk), @js($parsedFilters))" x-init="initComponent()"
     @click.outside="showDropdown = false" @keydown.escape.window="showDropdown = false">
 
     <!-- Input field -->
     <div class="relative">
         <input {{ $disabled ? 'disabled' : '' }} type="text" placeholder="{{ $placeholder }}" x-model="search"
             @focus="showDropdown = true" @click="showDropdown = true"
-            @keydown="handleKeydown($event)" wire:model.live.debounce.300ms="pTk"
+            @keydown="handleKeydown($event)" wire:model.live.debounce.500ms="pTk"
             class="{{ $class }} block w-full rounded-md border-gray-300 py-1 pr-8 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
             role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-autocomplete="list" />
 
@@ -81,22 +95,46 @@
             /**
              * Alpine.js component for account input with search
              *
-             * @param {Array} accounts - List of accounts [{tk, ten_tk}]
+             * @param {Array}  accounts       - List of accounts [{tk, ten_tk, ...}]
+             * @param {string} initialSearch  - Initial value for the input
+             * @param {Object} filters        - Client-side filters parsed from `key=value` (e.g. {tk_cn: '1'})
              * @returns {Object} Alpine component data
              */
-            window.tkInputComponent = function(accounts, initialSearch = '') {
+            window.tkInputComponent = function(accounts, initialSearch = '', filters = {}) {
                 return {
                     accounts: accounts,
+                    filters: filters || {},
                     search: initialSearch || '',
                     showDropdown: false,
                     filtered: [],
                     highlightedIndex: -1,
+                    filterTimer: null,
+
+                    /**
+                     * Apply the static filters (e.g. tk_cn=1) declared by the parent form.
+                     * Mirrors Simba's LookupWhereCondition so reports only show relevant accounts.
+                     */
+                    applyFilters(list) {
+                        const filters = this.filters || {};
+                        const keys = Object.keys(filters);
+                        if (0 === keys.length) {
+                            return list;
+                        }
+                        return list.filter((acc) => keys.every((k) => {
+                            const expected = String(filters[k]);
+                            const actual = String(acc[k] ?? '');
+                            return actual === expected;
+                        }));
+                    },
 
                     initComponent() {
-                        // Watch search and filter instantly (no delay, client-side)
+                        // Wait briefly after typing before filtering the client-side list.
                         this.$watch('search', (value) => {
-                            this.filtered = this.filterAccounts(value);
-                            this.highlightedIndex = -1; // Reset highlight khi filter thay đổi
+                            clearTimeout(this.filterTimer);
+                            this.filterTimer = setTimeout(() => {
+                                this.filtered = this.filterAccounts(value);
+                                this.highlightedIndex = -1; // Reset highlight khi filter thay đổi
+                            }, 500);
                         });
                     },
 
@@ -153,10 +191,11 @@
                     },
 
                     filterAccounts(query) {
-                        if (!query) return this.accounts.slice(0, 10);
+                        const base = this.applyFilters(this.accounts);
+                        if (!query) return base.slice(0, 10);
 
                         const q = query.toLowerCase();
-                        return this.accounts.filter(acc => {
+                        return base.filter(acc => {
                             const tk = acc.tk.toString().toLowerCase();
                             const ten = acc.ten_tk.toLowerCase();
                             return tk === q || ten === q || tk.includes(q) || ten.includes(q);

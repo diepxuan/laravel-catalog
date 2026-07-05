@@ -149,6 +149,7 @@ final class SourceRouteCoverageTest extends TestCase
             ['module' => 'si', 'kind' => 'vch', 'slug' => 'smks', 'routeName' => 'si.vch.smks', 'url' => '/_simba-source/si/vch/smks', 'component' => \Diepxuan\Catalog\Http\Livewire\Si\Vch\Smks::class],
             ['module' => 'so', 'kind' => 'dict', 'slug' => 'ardmkh', 'routeName' => 'so.dict.ardmkh', 'url' => '/_simba-source/so/dict/ardmkh', 'component' => \Diepxuan\Catalog\Http\Livewire\Banhang\Khachhang::class],
             ['module' => 'so', 'kind' => 'dict', 'slug' => 'ardmplkh', 'routeName' => 'so.dict.ardmplkh', 'url' => '/_simba-source/so/dict/ardmplkh', 'component' => \Diepxuan\Catalog\Http\Livewire\AR\Danhmuc\Phanloaikhachhang::class],
+            ['module' => 'so', 'kind' => 'rpt', 'slug' => 'arrptbccn01', 'routeName' => 'so.rpt.arrptbccn01', 'url' => '/_simba-source/so/rpt/arrptbccn01', 'component' => \Diepxuan\Catalog\Http\Livewire\So\Rpt\Arrptbccn01::class],
             ['module' => 'so', 'kind' => 'vch', 'slug' => 'sovchso1', 'routeName' => 'so.vch.sovchso1', 'url' => '/_simba-source/so/vch/sovchso1', 'component' => \Diepxuan\Catalog\Http\Livewire\Banhang\Hoadonbanhang::class],
         ];
     }

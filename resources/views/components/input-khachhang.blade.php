@@ -6,7 +6,7 @@
     <div class="relative">
         <input
             type="text"
-            wire:model.live.debounce.300ms="search"
+            wire:model.live.debounce.500ms="search"
             @focus="showDropdown = true"
             @blur="setTimeout(() => showDropdown = false, 200)"
             placeholder="{{ $placeholder }}"
