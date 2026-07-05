@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Http\Livewire\In\Dict;
 
-use Diepxuan\Catalog\Models\Simba\InDmVt as InDmVtModel;
 use Diepxuan\Simba\SModel\SModel;
 use Diepxuan\Simba\StoredProcedures\AsDoiMa;
+use Diepxuan\Simba\StoredProcedures\AsINGetDMVT;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -125,8 +125,8 @@ class IndmvtRename extends Component
     private function codeExists(string $maVt): bool
     {
         try {
-            $collection = InDmVtModel::getAsINGetDMVT([
-                'pMa_Cty'   => $this->companyId(),
+            $collection = AsINGetDMVT::call([
+                'pMa_cty'   => $this->companyId(),
                 'pMa_vt'    => trim($maVt),
                 'pStruct'   => null,
                 'pLanguage' => $this->languageName(),

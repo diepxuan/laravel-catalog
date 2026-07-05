@@ -17,25 +17,10 @@ use Diepxuan\Catalog\Models\Concerns\HasInDmKhoInventoryOperations;
 use Diepxuan\Simba\Models\InDmKho as SimbaModel;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 
 class InDmKho extends SimbaModel
 {
     use HasInDmKhoInventoryOperations;
-
-    /**
-     * Gọi stored procedure asINGetDMKHO để lấy dữ liệu Danh sách kho.
-     *
-     * @return array
-     */
-    public static function getAsINGetDMKHO(array $params = []): Collection
-    {
-        return self::hydrate(parent::getAsINGetDMKHO([
-            'pMa_Cty' => $params['pMa_Cty'] ??  \CatalogService::company()->id,
-            'pMa_kho' => $params['pMa_kho'] ?? null,
-            'pStruct' => $params['pStruct'] ?? null,
-        ])->toArray());
-    }
 
     protected function cdate(): Attribute
     {

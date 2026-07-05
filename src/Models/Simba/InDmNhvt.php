@@ -17,7 +17,6 @@ use Diepxuan\Catalog\Models\Casts\CategoryMagento;
 use Diepxuan\Simba\Models\InDmNhvt as SimbaModel;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
 
 class InDmNhvt extends SimbaModel
 {
@@ -29,16 +28,6 @@ class InDmNhvt extends SimbaModel
     protected $casts = [
         'magento' => CategoryMagento::class,
     ];
-
-    /**
-     * Gọi stored procedure asINGetDMNHVT để lấy dữ Danh sách nhóm vật tư - hàng hóa.
-     *
-     * @return array
-     */
-    public static function getAsINGetDMNHVT(array $params): Collection
-    {
-        return self::hydrate(parent::getAsINGetDMNHVT($params)->toArray());
-    }
 
     protected function cdate(): Attribute
     {

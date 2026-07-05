@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Http\Livewire\Component;
 
-use Diepxuan\Catalog\Models\Simba\InDmKho;
+use Diepxuan\Simba\StoredProcedures\AsINGetDMKHO;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Modelable;
 use Livewire\Component;
@@ -26,7 +26,11 @@ class InputIndmkho extends Component
 
     public function boot(): void
     {
-        $this->inDmKhos = InDmKho::getAsINGetDMKHO();
+        $this->inDmKhos = AsINGetDMKHO::call([
+            'pMa_Cty' => \CatalogService::company()->id,
+            'pMa_kho' => null,
+            'pStruct' => null,
+        ]);
     }
 
     public function mount(): void {}

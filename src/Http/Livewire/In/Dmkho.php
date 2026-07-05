@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Http\Livewire\In;
 
-use Diepxuan\Catalog\Models\Simba\InDmKho;
+use Diepxuan\Simba\StoredProcedures\AsINGetDMKHO;
 use Diepxuan\Support\Collection;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -26,7 +26,7 @@ class Dmkho extends Component
 
     public function mount(): void
     {
-        $collection = InDmKho::getAsINGetDMKHO([
+        $collection = AsINGetDMKHO::call([
             'pMa_Cty' => \CatalogService::company()->id,
             'pMa_kho' => $this->pMa_kho ?? null,
             'pStruct' => $this->pStruct ?? null,

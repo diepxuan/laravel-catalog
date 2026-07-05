@@ -8,12 +8,12 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-08-08 15:46:26
+ * @lastupdate 2026-07-06 01:40:50
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Component;
 
-use Diepxuan\Catalog\Models\Simba\InDmNhvt;
+use Diepxuan\Simba\StoredProcedures\AsINGetDMNHVT;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Modelable;
 use Livewire\Component;
@@ -26,7 +26,11 @@ class InputIndmnhvt extends Component
 
     public function boot(): void
     {
-        $this->inDmNhvts = InDmNhvt::select('ma_nhvt', 'ten_nhvt')->get();
+        $this->inDmNhvts = AsINGetDMNHVT::call([
+            'pMa_cty'  => \CatalogService::company()->id,
+            'pMa_nhvt' => null,
+            'pStruct'  => null,
+        ]);
     }
 
     public function mount(): void {}

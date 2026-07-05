@@ -144,6 +144,7 @@ final class SourceRouteCoverageTest extends TestCase
             ['module' => 'in', 'kind' => 'dict', 'slug' => 'indmkho', 'routeName' => 'in.dict.indmkho', 'url' => '/_simba-source/in/dict/indmkho', 'component' => \Diepxuan\Catalog\Http\Livewire\In\Dmkho::class],
             ['module' => 'in', 'kind' => 'dict', 'slug' => 'indmnhvt', 'routeName' => 'in.dict.indmnhvt', 'url' => '/_simba-source/in/dict/indmnhvt', 'component' => \Diepxuan\Catalog\Http\Livewire\In\Dmnhvt::class],
             ['module' => 'in', 'kind' => 'dict', 'slug' => 'indmvt', 'routeName' => 'in.dict.indmvt', 'url' => '/_simba-source/in/dict/indmvt', 'component' => \Diepxuan\Catalog\Http\Livewire\In\Dict\IndmvtPage::class],
+            ['module' => 'in', 'kind' => 'rpt', 'slug' => 'inrptcd02', 'routeName' => 'in.rpt.inrptcd02', 'url' => '/_simba-source/in/rpt/inrptcd02', 'component' => \Diepxuan\Catalog\Http\Livewire\In\Rpt\Inrptcd02::class],
             ['module' => 'po', 'kind' => 'dict', 'slug' => 'ardmkh', 'routeName' => 'po.dict.ardmkh', 'url' => '/_simba-source/po/dict/ardmkh', 'component' => \Diepxuan\Catalog\Http\Livewire\Po\Dict\Ardmkh::class],
             ['module' => 'po', 'kind' => 'dict', 'slug' => 'podmcp', 'routeName' => 'po.dict.podmcp', 'url' => '/_simba-source/po/dict/podmcp', 'component' => \Diepxuan\Catalog\Http\Livewire\Muahang\PoDmCpIndex::class],
             ['module' => 'si', 'kind' => 'vch', 'slug' => 'smks', 'routeName' => 'si.vch.smks', 'url' => '/_simba-source/si/vch/smks', 'component' => \Diepxuan\Catalog\Http\Livewire\Si\Vch\Smks::class],

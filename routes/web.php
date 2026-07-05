@@ -28,6 +28,7 @@ use Diepxuan\Catalog\Http\Livewire\Home\Dashboard as DashboardLivewire;
 use Diepxuan\Catalog\Http\Livewire\In\Dict\IndmvtPage;
 use Diepxuan\Catalog\Http\Livewire\In\Dmkho;
 use Diepxuan\Catalog\Http\Livewire\In\Dmnhvt;
+use Diepxuan\Catalog\Http\Livewire\In\Rpt\Inrptcd02;
 use Diepxuan\Catalog\Http\Livewire\Muahang\PoDmCpIndex;
 use Diepxuan\Catalog\Http\Livewire\Po\Dict\Ardmkh;
 use Diepxuan\Catalog\Http\Livewire\Po\Dict\ArdmkhForm;
@@ -210,7 +211,7 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
             // ['uri' => 'in/rpt/inrptbkn04', 'name' => 'in.rpt.inrptbkn04', 'module' => 'in', 'kind' => 'rpt', 'slug' => 'inrptbkn04', 'component' => SimbaPage::class],
             // ['uri' => 'in/rpt/inrptbkx04', 'name' => 'in.rpt.inrptbkx04', 'module' => 'in', 'kind' => 'rpt', 'slug' => 'inrptbkx04', 'component' => SimbaPage::class],
             // ['uri' => 'in/rpt/inrptcd01', 'name' => 'in.rpt.inrptcd01', 'module' => 'in', 'kind' => 'rpt', 'slug' => 'inrptcd01', 'component' => SimbaPage::class],
-            // ['uri' => 'in/rpt/inrptcd02', 'name' => 'in.rpt.inrptcd02', 'module' => 'in', 'kind' => 'rpt', 'slug' => 'inrptcd02', 'component' => SimbaPage::class],
+            ['uri' => 'in/rpt/inrptcd02', 'name' => 'in.rpt.inrptcd02', 'module' => 'in', 'kind' => 'rpt', 'slug' => 'inrptcd02', 'component' => Inrptcd02::class],
             // ['uri' => 'in/rpt/inrptctvt01', 'name' => 'in.rpt.inrptctvt01', 'module' => 'in', 'kind' => 'rpt', 'slug' => 'inrptctvt01', 'component' => SimbaPage::class],
             // ['uri' => 'in/rpt/inrptctvt02', 'name' => 'in.rpt.inrptctvt02', 'module' => 'in', 'kind' => 'rpt', 'slug' => 'inrptctvt02', 'component' => SimbaPage::class],
             // ['uri' => 'in/rpt/inrptthn01', 'name' => 'in.rpt.inrptthn01', 'module' => 'in', 'kind' => 'rpt', 'slug' => 'inrptthn01', 'component' => SimbaPage::class],

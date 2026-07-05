@@ -13,7 +13,7 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Http\Livewire\In;
 
-use Diepxuan\Catalog\Models\Simba\InDmNhvt;
+use Diepxuan\Simba\StoredProcedures\AsINGetDMNHVT;
 use Diepxuan\Support\Collection;
 use Illuminate\View\View;
 use Livewire\Component;
@@ -32,8 +32,8 @@ class Dmnhvt extends Component
         //     'pStruct'  => $this->pStruct ?? null,
         // ]);
 
-        $collection = InDmNhvt::getAsINGetDMNHVT([
-            'pMa_Cty'  => \CatalogService::company()->id,
+        $collection = AsINGetDMNHVT::call([
+            'pMa_cty'  => \CatalogService::company()->id,
             'pMa_nhvt' => $this->pMa_nhvt ?? null,
             'pStruct'  => $this->pStruct ?? null,
         ]);

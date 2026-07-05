@@ -4,10 +4,11 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Http\Livewire\In\Dict;
 
-use Diepxuan\Catalog\Models\Simba\InDmKho;
-use Diepxuan\Catalog\Models\Simba\InDmNhvt;
 use Diepxuan\Simba\SModel\SModel;
 use Diepxuan\Simba\StoredProcedures\AsINGetDMBOM;
+use Diepxuan\Simba\StoredProcedures\AsINGetDMKHO;
+use Diepxuan\Simba\StoredProcedures\AsINGetDMNHVT;
+use Diepxuan\Simba\StoredProcedures\AsINGetDMVT;
 use Diepxuan\Simba\StoredProcedures\AsInGetDmLoaiGiaTon;
 use Diepxuan\Simba\StoredProcedures\AsInGetDmLoaiVt;
 use Diepxuan\Simba\StoredProcedures\ProcedureCaller;
@@ -201,13 +202,13 @@ class IndmvtForm extends Component
 
     private function loadLookups(): void
     {
-        $this->nhvtOptions = $this->tryLookup(fn () => InDmNhvt::getAsINGetDMNHVT([
-            'pMa_Cty'  => $this->companyId(),
+        $this->nhvtOptions = $this->tryLookup(fn () => AsINGetDMNHVT::call([
+            'pMa_cty'  => $this->companyId(),
             'pMa_nhvt' => null,
             'pStruct'  => null,
         ])->all());
 
-        $this->khoOptions = $this->tryLookup(fn () => InDmKho::getAsINGetDMKHO([
+        $this->khoOptions = $this->tryLookup(fn () => AsINGetDMKHO::call([
             'pMa_Cty' => $this->companyId(),
             'pMa_kho' => null,
             'pStruct' => null,
@@ -268,13 +269,13 @@ class IndmvtForm extends Component
     }
 
     /**
-     * Lấy 1 dòng vật tư qua InDmVtModel cho cả edit form và fillBomItem.
+     * Lấy 1 dòng vật tư qua SP cho cả edit form và fillBomItem.
      */
     private function fetchRowForEdit(string $maVt): ?array
     {
         try {
-            $collection = \Diepxuan\Catalog\Models\Simba\InDmVt::getAsINGetDMVT([
-                'pMa_Cty'   => $this->companyId(),
+            $collection = AsINGetDMVT::call([
+                'pMa_cty'   => $this->companyId(),
                 'pMa_vt'    => $maVt,
                 'pStruct'   => null,
                 'pLanguage' => $this->languageName(),
