@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-03-15 22:49:13
+ * @lastupdate 2026-07-09
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Component;
@@ -25,6 +25,11 @@ use Livewire\Component;
  * - Hiển thị cả mã và tên tài khoản trong dropdown
  * - Dropdown styling đẹp
  * - Support keyboard navigation
+ *
+ * Nguồn dữ liệu: SP asGLGetDMTK (table GLDMTK, code MA_TK / TK).
+ *   - simba-docs/data/sysDictionaryInfo.md (MA_TK, TK -> GLDMTK)
+ *   - simba-docs/data/sysDAOInfo.md        (GLDMTK -> asGLGetDMTK)
+ *   - simba-docs/reference/CODE_REFERENCE.md (GetDmTk)
  */
 class InputTaikhoan extends Component
 {
@@ -34,6 +39,9 @@ class InputTaikhoan extends Component
 
     public function boot(): void
     {
+        // CatalogService::glDmTks() cache full list theo (ma_cty, pStruct),
+        // rồi input-taikhoan ưu tiên search/filter bằng Alpine local JS.
+        // Cách này tránh gọi SP lặp lại khi form có nhiều dòng chi tiết.
         $this->glDmTks = \CatalogService::glDmTks();
     }
 

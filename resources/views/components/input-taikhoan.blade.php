@@ -20,8 +20,8 @@
     <!-- Input field -->
     <div class="relative">
         <input {{ $disabled ? 'disabled' : '' }} type="text" placeholder="{{ $placeholder }}" x-model="search"
-            @focus="showDropdown = true" @click="showDropdown = true"
-            @keydown="handleKeydown($event)" wire:model.live.debounce.500ms="pTk"
+            @focus="openDropdown()" @click="openDropdown()" @change="commitSearch()"
+            @keydown="handleKeydown($event)"
             class="{{ $class }} block w-full rounded-md border-gray-300 py-1 pr-8 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
             role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-autocomplete="list" />
 
@@ -47,7 +47,7 @@
             <ul class="py-1">
                 <template x-for="(acc, index) in filtered">
                     <li>
-                        <a href="#" @click.prevent="selectAccount(acc)" @keydown.enter="selectAccount(acc)"
+                        <a href="#" @mousedown.prevent="selectAccount(acc)" @click.prevent @keydown.enter="selectAccount(acc)"
                             @mouseenter="highlightedIndex = index"
                             :class="{'bg-indigo-50': highlightedIndex === index, 'hover:bg-gray-50': highlightedIndex !== index}"
                             class="flex items-center justify-between px-4 py-2.5 text-sm cursor-pointer outline-none focus:bg-indigo-50"
@@ -128,6 +128,13 @@
                     },
 
                     initComponent() {
+                        this.accounts = this.accounts.map((acc) => ({
+                            ...acc,
+                            _search: this.normalizeText([acc.tk, acc.ten_tk].join(' ')),
+                        }));
+
+                        this.filtered = this.filterAccounts(this.search);
+
                         // Wait briefly after typing before filtering the client-side list.
                         this.$watch('search', (value) => {
                             clearTimeout(this.filterTimer);
@@ -136,6 +143,37 @@
                                 this.highlightedIndex = -1; // Reset highlight khi filter thay đổi
                             }, 500);
                         });
+                    },
+
+                    normalizeText(value) {
+                        return String(value || '')
+                            .normalize('NFD')
+                            .replace(/[\u0300-\u036f]/g, '')
+                            .replace(/[đĐ]/g, 'd')
+                            .toLowerCase()
+                            .trim()
+                            .replace(/\s+/g, ' ');
+                    },
+
+                    openDropdown() {
+                        this.filtered = this.filterAccounts(this.search);
+                        this.showDropdown = true;
+                    },
+
+                    commitSearch() {
+                        const exact = this.accounts.find((acc) => String(acc.tk).toLowerCase() === this.search.toLowerCase());
+                        if (exact) {
+                            this.selectAccount(exact);
+                            return;
+                        }
+
+                        const top = this.filterAccounts(this.search)[0];
+                        if (top) {
+                            this.selectAccount(top);
+                            return;
+                        }
+
+                        this.$wire.set('pTk', this.search || null);
                     },
 
                     handleKeydown(event) {
@@ -164,6 +202,9 @@
                                 event.preventDefault();
                                 if (this.highlightedIndex >= 0 && this.filtered[this.highlightedIndex]) {
                                     this.selectAccount(this.filtered[this.highlightedIndex]);
+                                } else {
+                                    this.commitSearch();
+                                    this.showDropdown = false;
                                 }
                                 break;
 
@@ -183,23 +224,17 @@
                     },
 
                     selectAccount(acc) {
-                        // Điền mã tài khoản vào input
                         this.search = acc.tk;
-                        // Đóng dropdown
                         this.showDropdown = false;
-                        // Không lưu ra param ngoài - chỉ hiển thị trong input
+                        this.$wire.set('pTk', acc.tk);
                     },
 
                     filterAccounts(query) {
                         const base = this.applyFilters(this.accounts);
                         if (!query) return base.slice(0, 10);
 
-                        const q = query.toLowerCase();
-                        return base.filter(acc => {
-                            const tk = acc.tk.toString().toLowerCase();
-                            const ten = acc.ten_tk.toLowerCase();
-                            return tk === q || ten === q || tk.includes(q) || ten.includes(q);
-                        }).slice(0, 10);
+                        const q = this.normalizeText(query);
+                        return base.filter(acc => acc._search.includes(q)).slice(0, 10);
                     }
                 }
             }

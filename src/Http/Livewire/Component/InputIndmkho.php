@@ -15,6 +15,7 @@ namespace Diepxuan\Catalog\Http\Livewire\Component;
 
 use Diepxuan\Simba\StoredProcedures\AsINGetDMKHO;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Collection;
 use Livewire\Attributes\Modelable;
 use Livewire\Component;
 
@@ -22,7 +23,7 @@ class InputIndmkho extends Component
 {
     #[Modelable]
     public $pMa_kho;
-    protected $inDmKhos;
+    protected Collection $inDmKhos;
 
     public function boot(): void
     {
@@ -41,7 +42,24 @@ class InputIndmkho extends Component
     public function render(): \Closure|string|View
     {
         return view('catalog::components.input-indmkho', [
-            'inDmKhos' => $this->inDmKhos,
+            'inDmKhos' => $this->warehouseOptions(),
         ]);
+    }
+
+    /**
+     * Danh sách rút gọn cho Alpine local search.
+     *
+     * @return array<int, array{ma_kho: string, ten_kho: string}>
+     */
+    protected function warehouseOptions(): array
+    {
+        return $this->inDmKhos
+            ->map(static fn ($item): array => [
+                'ma_kho'  => (string) ($item->ma_kho ?? $item->MA_KHO ?? ''),
+                'ten_kho' => (string) ($item->ten_kho ?? $item->TEN_KHO ?? ''),
+            ])
+            ->filter(static fn (array $item): bool => '' !== $item['ma_kho'])
+            ->values()
+            ->all();
     }
 }

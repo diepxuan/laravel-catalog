@@ -15,7 +15,6 @@ namespace Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baono;
 
 use Diepxuan\Catalog\Models\Simba\ArDmKh;
 use Diepxuan\Catalog\Models\Simba\CaCt2;
-use Diepxuan\Simba\Models\GlDmTk;
 use Diepxuan\Simba\StoredProcedures\AsCADelCT2;
 use Diepxuan\Simba\StoredProcedures\AsCAGetPH2;
 use Diepxuan\Simba\StoredProcedures\AsCAInsCT2;
@@ -71,9 +70,6 @@ class Phieubaono extends Component
 
     // Số dư cho từng dòng chi tiết
     public Collection $pSoDuCts;
-
-    // Danh sách tài khoản cho datalist
-    public $glDmTks = [];
 
     protected $rules = [
         'pMa_Kh'          => 'required',
@@ -143,13 +139,6 @@ class Phieubaono extends Component
         } elseif (!empty($this->pStt_Rec)) {
             $this->loadPhieu();
         }
-
-        // Load danh sách tài khoản cho datalist
-        $this->glDmTks = GlDmTk::select('tk', 'ten_tk')
-            ->orderBy('tk')
-            ->limit(100)
-            ->get()
-        ;
     }
 
     /**

@@ -8,13 +8,14 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2025-08-03 07:54:57
+ * @lastupdate 2026-07-09
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Component;
 
-use Diepxuan\Catalog\Models\Simba\InDmVt;
+use Diepxuan\Simba\StoredProcedures\AsINGetDMVT;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Collection;
 use Livewire\Attributes\Modelable;
 use Livewire\Component;
 
@@ -22,11 +23,16 @@ class InputIndmvt extends Component
 {
     #[Modelable]
     public $pMa_vt;
-    protected $inDmVts;
+    protected Collection $inDmVts;
 
     public function boot(): void
     {
-        $this->inDmVts = InDmVt::select('ma_vt', 'ten_vt')->get();
+        $this->inDmVts = AsINGetDMVT::call([
+            'pMa_cty'   => \CatalogService::company()->id,
+            'pMa_vt'    => null,
+            'pStruct'   => null,
+            'pLanguage' => null,
+        ]);
     }
 
     public function mount(): void {}
@@ -37,7 +43,24 @@ class InputIndmvt extends Component
     public function render(): \Closure|string|View
     {
         return view('catalog::components.input-indmvt', [
-            'inDmVts' => $this->inDmVts,
+            'inDmVts' => $this->itemOptions(),
         ]);
+    }
+
+    /**
+     * Danh sách rút gọn cho Alpine local search.
+     *
+     * @return array<int, array{ma_vt: string, ten_vt: string}>
+     */
+    protected function itemOptions(): array
+    {
+        return $this->inDmVts
+            ->map(static fn ($item): array => [
+                'ma_vt'  => (string) ($item->ma_vt ?? $item->MA_VT ?? ''),
+                'ten_vt' => (string) ($item->ten_vt ?? $item->TEN_VT ?? ''),
+            ])
+            ->filter(static fn (array $item): bool => '' !== $item['ma_vt'])
+            ->values()
+            ->all();
     }
 }

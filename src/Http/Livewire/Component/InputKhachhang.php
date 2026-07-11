@@ -8,14 +8,13 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-03-16 14:15:00
+ * @lastupdate 2026-07-09
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Component;
 
-use Diepxuan\Catalog\Models\Simba\ArDmKh;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\View\View;
+use Diepxuan\Simba\StoredProcedures\AsARGetDMKH;
+use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Modelable;
 use Livewire\Component;
 
@@ -23,63 +22,42 @@ use Livewire\Component;
  * Input autocomplete đối tượng (khách hàng, nhà cung cấp, nhân viên).
  *
  * Hỗ trợ nhiều mode (single hoặc multi-mode, OR logic):
- * - khachhang: Chỉ khách hàng (isKh = true)
- * - nhacungcap: Chỉ nhà cung cấp (isNcc = true)
- * - nhanvien: Chỉ nhân viên (isNv = true)
- * - all: Tất cả (không lọc)
- * - Multi-mode OR: khachhang,nhacungcap (isKh = true OR isNcc = true)
+ *   - khachhang  -> SP asARGetDMKH(pModuleId = 'AR')
+ *   - nhacungcap -> SP asARGetDMKH(pModuleId = 'AP')
+ *   - nhanvien   -> SP asARGetDMKH(pModuleId = 'CA')
+ *   - all        -> tổng hợp cả 3 module
  *
- * Lưu ý: Cả comma (,) và pipe (|) đều dùng OR logic
+ * Nguồn tra cứu:
+ *   - simba-docs/data/sysDictionaryInfo.md (MA_KH, MA_NCC -> ARDMKH)
+ *   - simba-docs/data/sysDAOInfo.md        (ARDMKH -> asARGetDMKH)
+ *   - simba-docs/procedures/AR/procedures.md (asARGetDMKH signature)
  *
- * Usage:
- * <livewire:catalog::component.input-khachhang mode="khachhang" wire:model="pMa_Kh" />
- * <livewire:catalog::component.input-khachhang mode="nhanvien" wire:model="pMa_Nv" />
- * <livewire:catalog::component.input-khachhang mode="khachhang,nhanvien" wire:model="pMa_KhachHoacNhanVien" />
- * <livewire:catalog::component.input-khachhang mode="khachhang|nhanvien" wire:model="pMa_KhachHoacNhanVien" />
+ * Lưu ý: Component này chỉ lookup/chọn; thêm/sửa/xóa thuộc task nghiệp vụ.
  */
 class InputKhachhang extends Component
 {
-    /**
-     * Mode lọc đối tượng.
-     */
+    /** Mode lọc đối tượng. */
     public string $mode = 'khachhang';
 
-    /**
-     * Giá trị selected (mã đối tượng).
-     */
+    /** Giá trị selected (mã đối tượng). */
     #[Modelable]
     public ?string $value = null;
 
-    /**
-     * Text hiển thị (tên đối tượng).
-     */
+    /** Text hiển thị (tên đối tượng). */
     public string $search = '';
 
-    /**
-     * Danh sách kết quả tìm kiếm.
-     */
-    public array $results = [];
-
-    /**
-     * Có đang tìm kiếm không.
-     */
-    public bool $searching = false;
-
-    /**
-     * Có đang hiển thị dropdown không.
-     */
-    public bool $showDropdown = false;
-
-    /**
-     * Placeholder text.
-     */
+    /** Placeholder text. */
     public string $placeholder = '';
 
     /**
-     * Mount component.
+     * Cache danh mục theo module trong lifecycle render hiện tại.
      *
-     * @param null|string $value Giá trị khởi tạo
-     * @param string      $mode  Mode lọc (khachhang|nhacungcap|nhanvien|khachhang-va-nhacungcap|all)
+     * @var array<string, array<int, array<string, mixed>>>
+     */
+    protected array $dmCache = [];
+
+    /**
+     * Mount component.
      */
     public function mount(?string $value = null, string $mode = 'khachhang'): void
     {
@@ -87,82 +65,12 @@ class InputKhachhang extends Component
         $this->mode        = $mode;
         $this->placeholder = $this->getPlaceholderByMode();
 
-        // Load tên đối tượng nếu có value
         if ($value) {
-            $kh = ArDmKh::find($value);
-            if ($kh) {
-                $this->search = $kh->ten_kh ?? '';
+            $row = $this->findOneByMaKh($value);
+            if ($row) {
+                $this->search = $row['ten_kh'] ?? '';
             }
         }
-    }
-
-    /**
-     * Xử lý khi search input thay đổi.
-     */
-    public function updatedSearch(): void
-    {
-        $this->searching = true;
-
-        $search = trim($this->search);
-
-        if ($this->value) {
-            $this->value = null;
-            $this->dispatch('value-updated', null);
-        }
-
-        if ('' === $search) {
-            $this->results   = [];
-            $this->searching = false;
-
-            return;
-        }
-
-        // Build query theo mode (OR logic - comma hoặc pipe)
-        // Mode: khachhang,nhacungcap,nhanvien (isKh = true OR isNcc = true OR isNv = true)
-        $query = ArDmKh::query();
-
-        // Parse mode (hỗ trợ cả comma và pipe, đều là OR logic)
-        $modes = array_map('trim', preg_split('/[,.|]/', $this->mode));
-
-        // Dùng nested closure cho OR logic với scopes
-        $query->where(static function (Builder $q) use ($modes): void {
-            foreach ($modes as $i => $m) {
-                if (0 === $i) {
-                    // Điều kiện đầu tiên dùng where
-                    match ($m) {
-                        'khachhang'  => $q->laKhachHang(),
-                        'nhacungcap' => $q->laNhaCungCap(),
-                        'nhanvien'   => $q->laNhanVien(),
-                        default      => null,
-                    };
-                } else {
-                    // Các điều kiện sau dùng orWhere với scope
-                    match ($m) {
-                        'khachhang'  => $q->orWhere(static fn ($sq) => $sq->laKhachHang()),
-                        'nhacungcap' => $q->orWhere(static fn ($sq) => $sq->laNhaCungCap()),
-                        'nhanvien'   => $q->orWhere(static fn ($sq) => $sq->laNhanVien()),
-                        default      => null,
-                    };
-                }
-            }
-        });
-
-        // Tìm kiếm theo mã, tên, địa chỉ, tel
-        $this->results = $query
-            ->search($search)
-            ->limit(20)
-            ->get()
-            ->map(static fn ($kh) => [
-                'ma_kh'   => $kh->ma_kh,
-                'ten_kh'  => $kh->ten_kh,
-                'dia_chi' => $kh->dia_chi ?? '',
-                'tel'     => $kh->tel ?? '',
-            ])
-            ->toArray()
-        ;
-
-        $this->searching    = false;
-        $this->showDropdown = true;
     }
 
     /**
@@ -170,13 +78,9 @@ class InputKhachhang extends Component
      */
     public function selectCustomer(string $ma_kh, string $ten_kh): void
     {
-        $this->value        = $ma_kh;
-        $this->search       = $ten_kh;
-        $this->showDropdown = false;
-        $this->results      = [];
+        $this->value  = $ma_kh;
+        $this->search = $ten_kh;
 
-        // Dispatch event để parent component biết value đã thay đổi
-        // Giúp trigger updated* hook trong parent khi dùng #[Modelable]
         $this->dispatch('value-updated', $ma_kh);
     }
 
@@ -185,7 +89,6 @@ class InputKhachhang extends Component
      */
     public function blur(): void
     {
-        // Delay đóng dropdown để click vào item hoạt động
         $this->dispatch('close-dropdown');
     }
 
@@ -194,10 +97,8 @@ class InputKhachhang extends Component
      */
     public function clear(): void
     {
-        $this->value        = null;
-        $this->search       = '';
-        $this->results      = [];
-        $this->showDropdown = false;
+        $this->value  = null;
+        $this->search = '';
         $this->dispatch('value-updated', null);
     }
 
@@ -206,7 +107,152 @@ class InputKhachhang extends Component
      */
     public function render(): View
     {
-        return view('catalog::components.input-khachhang');
+        return view('catalog::components.input-khachhang', [
+            'customers' => $this->customerOptions(),
+        ]);
+    }
+
+    /**
+     * Danh sách rút gọn cho Alpine local search.
+     *
+     * @return array<int, array{ma_kh: string, ten_kh: string, dia_chi: string, tel: string}>
+     */
+    protected function customerOptions(): array
+    {
+        $seen   = [];
+        $merged = [];
+
+        foreach ($this->resolveModules() as $moduleId) {
+            foreach ($this->fetchDmKhByModule($moduleId) as $row) {
+                $maKh = $row['ma_kh'] ?? null;
+                if (null === $maKh || isset($seen[$maKh])) {
+                    continue;
+                }
+
+                $seen[$maKh] = true;
+                $merged[]    = [
+                    'ma_kh'   => (string) $maKh,
+                    'ten_kh'  => (string) ($row['ten_kh']  ?? ''),
+                    'dia_chi' => (string) ($row['dia_chi'] ?? ''),
+                    'tel'     => (string) ($row['tel']     ?? ''),
+                ];
+            }
+        }
+
+        return $merged;
+    }
+
+    /**
+     * Map mode -> danh sách pModuleId.
+     *
+     * @return array<int, string>
+     */
+    protected function resolveModules(): array
+    {
+        $modes = array_map('trim', preg_split('/[,.|]/', $this->mode) ?: []);
+
+        if (\in_array('all', $modes, true)) {
+            return ['AR', 'AP', 'CA'];
+        }
+
+        $map = [
+            'khachhang'  => 'AR',
+            'nhacungcap' => 'AP',
+            'nhanvien'   => 'CA',
+        ];
+
+        $modules = [];
+        foreach ($modes as $m) {
+            if (isset($map[$m])) {
+                $modules[] = $map[$m];
+            }
+        }
+
+        return [] === $modules ? ['AR'] : array_values(array_unique($modules));
+    }
+
+    /**
+     * Gọi SP asARGetDMKH cho 1 module.
+     *
+     * Simba dùng `ksd = 0` cho bản ghi đang sử dụng, `ksd = 1` là khóa.
+     */
+    protected function fetchDmKhByModule(string $moduleId): array
+    {
+        if (isset($this->dmCache[$moduleId])) {
+            return $this->dmCache[$moduleId];
+        }
+
+        $rows = AsARGetDMKH::call([
+            'pMa_cty'   => \CatalogService::company()->id,
+            'pMa_kh'    => null,
+            'pStruct'   => '0',
+            'pModuleId' => $moduleId,
+        ])->all();
+
+        return $this->dmCache[$moduleId] = array_values(array_filter(
+            array_map(
+                static function ($row) {
+                    if (\is_array($row)) {
+                        return self::normalizeRow($row);
+                    }
+                    if (\is_object($row)) {
+                        return self::normalizeRow((array) $row);
+                    }
+
+                    return [];
+                },
+                $rows
+            ),
+            static fn (array $row): bool => self::isActiveRow($row)
+        ));
+    }
+
+    /**
+     * Chuẩn hóa key của một row về lowercase (giữ nguyên thứ tự key).
+     */
+    protected static function normalizeRow(array $row): array
+    {
+        $lower = [];
+        foreach ($row as $k => $v) {
+            $lower[strtolower((string) $k)] = $v;
+        }
+
+        return $lower;
+    }
+
+    /**
+     * Tìm 1 record theo mã đối tượng, dùng cùng SP để tránh nguồn khác.
+     * Cũng áp dụng lọc `ksd = 0` theo lookup Simba.
+     */
+    protected function findOneByMaKh(string $maKh): ?array
+    {
+        foreach ($this->resolveModules() as $moduleId) {
+            $rows = AsARGetDMKH::call([
+                'pMa_cty'   => \CatalogService::company()->id,
+                'pMa_kh'    => $maKh,
+                'pStruct'   => '0',
+                'pModuleId' => $moduleId,
+            ])->all();
+            foreach ($rows as $row) {
+                $obj = \is_array($row) ? $row : (array) $row;
+                $lower = self::normalizeRow($obj);
+                if (($lower['ma_kh'] ?? null) === $maKh && self::isActiveRow($lower)) {
+                    return $lower;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    protected static function isActiveRow(array $row): bool
+    {
+        $ksd = $row['ksd'] ?? false;
+        if (\is_string($ksd)) {
+            $ksd = trim($ksd);
+        }
+
+        return !\in_array($ksd, [true, 1, '1'], true);
     }
 
     /**
@@ -214,16 +260,12 @@ class InputKhachhang extends Component
      */
     protected function getPlaceholderByMode(): string
     {
-        // Parse mode để hiển thị placeholder phù hợp
-        // Hỗ trợ cả comma và pipe (đều là OR logic)
-        $modes = array_map('trim', preg_split('/[,.|]/', $this->mode));
+        $modes = array_map('trim', preg_split('/[,.|]/', $this->mode) ?: []);
 
-        // Nếu có nhiều mode hoặc all → placeholder chung
         if (\count($modes) > 1 || \in_array('all', $modes, true)) {
             return 'Chọn đối tượng...';
         }
 
-        // Single mode
         return match ($modes[0]) {
             'khachhang'  => 'Chọn khách hàng...',
             'nhacungcap' => 'Chọn nhà cung cấp...',
