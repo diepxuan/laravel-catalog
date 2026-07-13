@@ -81,6 +81,19 @@ final class SimbaMenuRouteMetadataTest extends TestCase
         self::assertCount(count(array_unique(array_keys($routes))), $routes);
     }
 
+    public function testRouteNameSuffixAppendsCompactMenuId(): void
+    {
+        $metadata = $this->metadata([
+            $this->menu('10.30.11', SysMenu::TYPE_REPORT, 'PO', 'ARRptBCCN01'),
+            $this->menu('10.30.23', SysMenu::TYPE_REPORT, 'PO', 'ARRptBCCN01'),
+        ]);
+
+        $routes = $metadata->routes();
+
+        self::assertSame(['po.rpt.arrptbccn01', 'po.rpt.arrptbccn01103023'], array_keys($routes));
+        self::assertArrayNotHasKey('po.rpt.arrptbccn01-10-30-23', $routes);
+    }
+
     public function testCatalogZsysmenuUsesSysMenuContract(): void
     {
         self::assertTrue(is_subclass_of(

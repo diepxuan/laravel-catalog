@@ -212,7 +212,7 @@ final class SimbaMenuRouteMetadata
             return $route;
         }
 
-        return "{$route}-{$this->slug((string) $menu->menuid)}";
+        return "{$route}{$this->menuIdSuffix((string) $menu->menuid)}";
     }
 
     /**
@@ -384,6 +384,11 @@ final class SimbaMenuRouteMetadata
         $slug = strtolower((string) preg_replace('/[^A-Za-z0-9]+/', '-', $value));
 
         return trim($slug, '-');
+    }
+
+    private function menuIdSuffix(string $menuid): string
+    {
+        return preg_replace('/[^A-Za-z0-9]+/', '', $menuid) ?? '';
     }
 
     private function metadata(): SimbaMetadataService
