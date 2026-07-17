@@ -21,7 +21,9 @@
             <div x-show="activeTab === 'filter'" class="space-y-3 pt-2">
                 <div class="grid grid-cols-3 items-center gap-4">
                     <label class="text-right text-sm text-gray-700">Tiêu đề</label>
-                    <input class="col-span-2 rounded-md border-gray-300 py-1 text-sm shadow-sm" wire:model="pTieu_de" />
+                    <div class="col-span-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-1.5 text-sm text-gray-700">
+                        {{ $pTieu_de }}
+                    </div>
                 </div>
 
                 <div class="grid grid-cols-3 items-center gap-4">
