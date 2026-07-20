@@ -118,6 +118,11 @@ class Povchpo3Edit extends Component
         $this->pNgay_lct = now()->format('Y-m-d');
         $this->pNgay_hd = now()->format('Y-m-d');
 
+        // Default values theo yeu cau Sep
+        $this->pMa_httt = '331';
+        $this->pTk_pt = '11217';
+        $this->pTk_thue = '1331';
+
         if ($stt_rec) {
             $this->pMode = 'edit';
             $this->loadInvoice($stt_rec);
@@ -302,6 +307,18 @@ class Povchpo3Edit extends Component
         }
     }
 
+    /**
+     * Nhan event tu component `input-ngoaite` khi user chon ngoai te.
+     *
+     * Component `InputNgoaite` dispatch `ngoaite-updated`. pMa_nt da duoc dong bo
+     * tu dong qua wire:model (Modelable), nen ham nay chi xu ly auto-fill pTy_gia.
+     */
+    #[On('ngoaite-updated')]
+    public function onNgoaiteUpdated(?string $ma_nt = null, ?string $ten_nt = null, float $ty_gia = 1): void
+    {
+        $this->pTy_gia = ($ma_nt !== null && trim($ma_nt) !== '' && $ty_gia > 0) ? $ty_gia : 1;
+    }
+
     public function addChiTietRow(): void
     {
         $this->pChiTiet[] = [
@@ -415,12 +432,11 @@ class Povchpo3Edit extends Component
     {
         $this->validate([
             'pMa_kh' => 'required|string',
-            'pSo_hd' => 'required|string',
+            'pSo_hd' => 'nullable|string',
             'pNgay_hd' => 'required|date',
             'pNgay_ct' => 'required|date',
         ], [
             'pMa_kh.required' => 'Nhà cung cấp không được trống',
-            'pSo_hd.required' => 'Số hóa đơn không được trống',
             'pNgay_hd.required' => 'Ngày hóa đơn không được trống',
             'pNgay_ct.required' => 'Ngày chứng từ không được trống',
         ]);

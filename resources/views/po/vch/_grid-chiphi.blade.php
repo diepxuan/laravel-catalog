@@ -19,7 +19,7 @@
         <tbody>
             @forelse ($pChiPhi ?? [] as $i => $row)
                 <tr wire:key="cp-{{ $i }}" class="border-b">
-                    <td class="px-1 py-1"><input wire:model="pChiPhi.{{ $i }}.ma_cp" class="w-24 rounded border border-gray-200 px-2 py-1 text-xs" placeholder="Mã CP" /></td>
+                    <td class="px-1 py-1"><livewire:catalog::component.input-chiphi wire:model="pChiPhi.{{ $i }}.ma_cp" wire:key="cp-macp-{{ $i }}" /></td>
                     <td class="px-1 py-1"><input wire:model="pChiPhi.{{ $i }}.ten_cp" class="w-full rounded border border-gray-200 bg-gray-50 px-2 py-1 text-xs" readonly /></td>
                     <td class="px-1 py-1"><input wire:model="pChiPhi.{{ $i }}.tt_pb" class="w-12 rounded border border-gray-200 px-2 py-1 text-center text-xs" /></td>
                     <td class="px-1 py-1"><input type="number" step="0.01" wire:model.blur="pChiPhi.{{ $i }}.tien_cp_nt" wire:change="calculateChiPhiRow({{ $i }})" class="w-28 rounded border border-gray-200 px-2 py-1 text-right text-xs" /></td>
