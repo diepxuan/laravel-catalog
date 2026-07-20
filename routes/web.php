@@ -35,6 +35,8 @@ use Diepxuan\Catalog\Http\Livewire\Po\Dict\ArdmkhForm;
 use Diepxuan\Catalog\Http\Livewire\Si\Vch\Smks;
 use Diepxuan\Catalog\Http\Livewire\So\Rpt\Arrptbccn01;
 use Diepxuan\Catalog\Http\Livewire\Po\Rpt\Arrptbccn01Sl;
+use Diepxuan\Catalog\Http\Livewire\Po\Vch\Povchpo3;
+use Diepxuan\Catalog\Http\Livewire\Po\Vch\Povchpo3Edit;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountOpening;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountsPayable;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\AccountsReceivable;
@@ -258,7 +260,9 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
             // ['uri' => 'po/vch/apvchap4', 'name' => 'po.vch.apvchap4', 'module' => 'po', 'kind' => 'vch', 'slug' => 'apvchap4', 'component' => SimbaPage::class],
             // ['uri' => 'po/vch/potain', 'name' => 'po.vch.potain', 'module' => 'po', 'kind' => 'vch', 'slug' => 'potain', 'component' => SimbaPage::class],
             // ['uri' => 'po/vch/povchpo1', 'name' => 'po.vch.povchpo1', 'module' => 'po', 'kind' => 'vch', 'slug' => 'povchpo1', 'component' => SimbaPage::class],
-            // ['uri' => 'po/vch/povchpo3', 'name' => 'po.vch.povchpo3', 'module' => 'po', 'kind' => 'vch', 'slug' => 'povchpo3', 'component' => SimbaPage::class],
+            ['uri' => 'po/vch/povchpo3', 'name' => 'po.vch.povchpo3', 'module' => 'po', 'kind' => 'vch', 'slug' => 'povchpo3', 'component' => Povchpo3::class],
+            ['uri' => 'po/vch/povchpo3/create', 'name' => 'po.vch.povchpo3.create', 'module' => 'po', 'kind' => 'vch', 'slug' => 'povchpo3', 'component' => Povchpo3Edit::class],
+            ['uri' => 'po/vch/povchpo3/{id}/edit', 'name' => 'po.vch.povchpo3.edit', 'module' => 'po', 'kind' => 'vch', 'slug' => 'povchpo3', 'component' => Povchpo3Edit::class],
             // ['uri' => 'po/vch/povchpo4', 'name' => 'po.vch.povchpo4', 'module' => 'po', 'kind' => 'vch', 'slug' => 'povchpo4', 'component' => SimbaPage::class],
             // ['uri' => 'po/vch/povchpo5', 'name' => 'po.vch.povchpo5', 'module' => 'po', 'kind' => 'vch', 'slug' => 'povchpo5', 'component' => SimbaPage::class],
             // ['uri' => 'po/vch/povchpo6', 'name' => 'po.vch.povchpo6', 'module' => 'po', 'kind' => 'vch', 'slug' => 'povchpo6', 'component' => SimbaPage::class],
