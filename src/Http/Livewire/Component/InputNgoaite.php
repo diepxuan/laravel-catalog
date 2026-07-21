@@ -8,13 +8,14 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-07-20
+ * @lastupdate 2026-07-21
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Component;
 
 use Diepxuan\Simba\SModel\SModel;
 use Diepxuan\Simba\StoredProcedures\AsSIGetDMNT;
+use Diepxuan\Catalog\Http\Livewire\Component\Concerns\HasKsdFilter;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Modelable;
 use Livewire\Attributes\On;
@@ -43,6 +44,8 @@ use Livewire\Component;
  */
 class InputNgoaite extends Component
 {
+    use HasKsdFilter;
+
     #[Modelable]
     public ?string $value = null;
 
@@ -148,8 +151,7 @@ class InputNgoaite extends Component
                 continue;
             }
 
-            $ksd = (int) ($row['ksd'] ?? 0);
-            if ($ksd === 1) {
+            if (!self::isActiveRow($row)) {
                 continue;
             }
 

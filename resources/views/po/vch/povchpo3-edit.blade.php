@@ -78,7 +78,7 @@
 
                         <label class="col-span-3 text-right text-sm text-gray-700">Hình thức TT</label>
                         <div class="col-span-9">
-                            <livewire:catalog::component.input-httt :value="$pMa_httt" module-id="PO" placeholder="Chọn hình thức thanh toán" />
+                            <livewire:catalog::component.input-httt wire:model="pMa_httt" module-id="PO" placeholder="Chọn hình thức thanh toán" />
                             <x-input-error for="pMa_httt" class="mt-1" />
                         </div>
 

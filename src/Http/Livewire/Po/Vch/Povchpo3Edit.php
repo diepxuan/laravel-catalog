@@ -238,6 +238,9 @@ class Povchpo3Edit extends Component
             $this->pDia_chi = '';
             $this->pMa_so_thue = '';
             $this->pNguoi_gd = '';
+            $this->pMa_httt = null;
+            $this->pTk_pt = '';
+            $this->pTk_thue = '';
 
             return;
         }
@@ -251,32 +254,27 @@ class Povchpo3Edit extends Component
             if ($ncc->ma_httt_po) {
                 $this->pMa_httt = $ncc->ma_httt_po;
                 $this->fillTaiKhoanFromHttt($ncc->ma_httt_po);
-                // Dong bo hien thi cho component input-httt (bo Modelable -> khong tu sync).
-                $this->dispatch('httt-set', ma_httt: $ncc->ma_httt_po);
             }
         }
     }
 
     /**
-     * Nhan event tu component `input-httt` khi user chon/xoa HTTT.
-     *
-     * Component `InputHttt` dispatch `httt-updated` (thay vi wire:model), nen
-     * parent lang nghe qua #[On] de dong bo pMa_httt roi auto-fill tai khoan.
+     * Auto-fill tk_pt + tk_thue khi `pMa_httt` thay doi (user chon/xoa HTTT
+     * hoac `updatedPMaKh` gan tu NCC).
      *
      * Map tu bang SIDMHTTT (qua SP asSIGetDMHTTT):
      * - tk_pt    <- HTTT.tk               (tai khoan phai tra goc cua HTTT)
      * - tk_thue  <- HTTT.tk_thue_gtgt_mua (tai khoan thue GTGT dau vao)
      */
-    #[On('httt-updated')]
-    public function onHtttUpdated(?string $ma_httt = null, ?string $ten_httt = null): void
+    public function updatedPMaHttt(mixed $value): void
     {
-        $this->pMa_httt = $ma_httt;
+        if ($value === null || trim((string) $value) === '') {
+            $this->resetTaiKhoanFromHttt();
 
-        if ($ma_httt === null || trim($ma_httt) === '') {
             return;
         }
 
-        $this->fillTaiKhoanFromHttt($ma_httt);
+        $this->fillTaiKhoanFromHttt((string) $value);
     }
 
     protected function fillTaiKhoanFromHttt(string $ma_httt): void
@@ -293,6 +291,9 @@ class Povchpo3Edit extends Component
         ]);
 
         if ($rows->isEmpty()) {
+            $this->resetTaiKhoanFromHttt();
+            session()->flash('warning', 'Không tìm thấy HTTT \''.$ma_httt.'\' trong danh mục SIDMHTTT (module PO). TK phải trả + TK thuế đã được xóa, vui lòng chọn lại.');
+
             return;
         }
 
@@ -305,6 +306,15 @@ class Povchpo3Edit extends Component
         if (! empty($httt->tk_thue_gtgt_mua)) {
             $this->pTk_thue = $httt->tk_thue_gtgt_mua;
         }
+    }
+
+    /**
+     * Xoa tk_pt + tk_thue khi HTTT khong hop le.
+     */
+    protected function resetTaiKhoanFromHttt(): void
+    {
+        $this->pTk_pt = '';
+        $this->pTk_thue = '';
     }
 
     /**

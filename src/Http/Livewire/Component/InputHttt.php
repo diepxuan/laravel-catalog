@@ -8,42 +8,44 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-07-19
+ * @lastupdate 2026-07-21
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Component;
 
+use Diepxuan\Catalog\Http\Livewire\Component\Concerns\HasKsdFilter;
 use Diepxuan\Simba\SModel\SModel;
 use Diepxuan\Simba\StoredProcedures\AsGetDMHTTT;
 use Illuminate\Contracts\View\View;
+use Livewire\Attributes\Modelable;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
 /**
  * Input autocomplete hình thức thanh toán (HTTT).
  *
- * Features:
- * - Search theo mã HTTT hoặc tên HTTT
- * - Hiển thị mã + tên + TK phải trả trong dropdown
- * - Support keyboard navigation (Alpine local filter, debounce 150ms)
+ * Convention (khoi dong bo voi InputChiphi, InputNgoaite):
+ *  - `#[Modelable]` de parent bind qua `wire:model`.
+ *  - Dispatch `{slug}-updated` khi user chon/xoa de parent auto-fill (vd HTTT -> tk_pt/tk_thue).
+ *  - Dong bo `search` khi value doi (parent reset NCC, ..).
  *
  * Nguồn tra cứu:
  *   - simba-docs/data/sysDAOInfo.md (SIDMHTTT -> asSIGetDMHTTT)
  *   - simba-docs/procedures/SI/procedures.md (asSIGetDMHTTT signature)
  *   - SP wrapper: diepxuan/laravel-simba/src/StoredProcedures/AsGetDMHTTT.php
  *
- * Bảng SIDMHTTT có cột: ma_cty, ma_httt, moduleid, ten_httt, tk,
- *   tk_thue_gtgt_mua, tk_thue_gtgt_ban, tk_thue_nk, tk_thue_xk,
- *   tk_gtgt_nk_no, tk_gtgt_nk_co, tk_thue_gtgt_xk, tk_thue_ttdb, tk_ck, ksd.
+ * Bang SIDMHTTT: ma_cty, ma_httt, moduleid, ten_httt, tk, tk_thue_gtgt_mua, ksd.
  *
- * Lưu ý: Component này chỉ lookup/chọn; thêm/sửa/xóa thuộc task DM HTTT riêng.
+ * Luu y: Component nay chi lookup/chon; them/sua/xoa thuoc task DM HTTT rieng.
  */
 class InputHttt extends Component
 {
-    /** Giá trị selected (mã HTTT). */
+    use HasKsdFilter;
+
+    #[Modelable]
     public ?string $value = null;
 
-    /** Text hiển thị (tên HTTT). */
+    /** Text hien thi (ten HTTT). */
     public string $search = '';
 
     /** Placeholder text. */
@@ -61,15 +63,27 @@ class InputHttt extends Component
 
     public function mount(?string $value = null, ?string $moduleId = null): void
     {
-        $this->value = $value;
         $this->moduleId = $moduleId;
 
-        if ($value) {
-            $row = $this->findOneByMaHttt($value);
-            if ($row !== null) {
-                $this->search = (string) ($row['ten_httt'] ?? '');
-            }
+        if ($value !== null) {
+            $this->value = $value;
+            $this->refreshSearchFromValue();
         }
+    }
+
+    /**
+     * Dong bo `search` khi parent gan `value` qua wire:model.
+     */
+    public function updatedValue(mixed $newValue): void
+    {
+        if ($newValue === null || trim((string) $newValue) === '') {
+            $this->search = '';
+
+            return;
+        }
+
+        $row = $this->findOneByMaHttt((string) $newValue);
+        $this->search = $row !== null ? (string) ($row['ten_httt'] ?? '') : (string) $newValue;
     }
 
     /**
@@ -84,10 +98,7 @@ class InputHttt extends Component
     }
 
     /**
-     * Đồng bộ selection khi parent set mã HTTT (vd: auto-chọn theo NCC).
-     *
-     * Parent dispatch `httt-set` (kèm ma_httt) → component refresh `value` + text
-     * hiển thị. Không re-dispatch `httt-updated` để tránh vòng lặp với parent.
+     * Dong bo selection khi parent dispatch `httt-set` (vd auto-chon theo NCC).
      */
     #[On('httt-set')]
     public function setValue(?string $ma_httt = null): void
@@ -100,12 +111,11 @@ class InputHttt extends Component
         }
 
         $this->value = $ma_httt;
-        $row = $this->findOneByMaHttt($ma_httt);
-        $this->search = $row !== null ? (string) ($row['ten_httt'] ?? '') : $ma_httt;
+        $this->refreshSearchFromValue();
     }
 
     /**
-     * Xóa selection.
+     * Xoa selection.
      */
     public function clear(): void
     {
@@ -150,8 +160,7 @@ class InputHttt extends Component
                 continue;
             }
 
-            $ksd = (int) ($row['ksd'] ?? 0);
-            if ($ksd === 1) {
+            if (!self::isActiveRow($row)) {
                 continue;
             }
 
@@ -175,5 +184,13 @@ class InputHttt extends Component
         }
 
         return null;
+    }
+
+    protected function refreshSearchFromValue(): void
+    {
+        if ($this->value !== null) {
+            $row = $this->findOneByMaHttt($this->value);
+            $this->search = $row !== null ? (string) ($row['ten_httt'] ?? '') : $this->value;
+        }
     }
 }

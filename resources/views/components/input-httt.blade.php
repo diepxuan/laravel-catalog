@@ -84,12 +84,6 @@
 
                         this.filtered = this.filterHtts(this.search);
 
-                        // Sync khi server (parent) doi value/search, vd auto-chon HTTT theo NCC.
-                        this.$wire.$watch('search', (value) => {
-                            this.search = value || '';
-                            this.selectedValue = this.$wire.get('value') || null;
-                        });
-
                         this.$watch('search', (value) => {
                             clearTimeout(this.filterTimer);
                             this.filterTimer = setTimeout(() => {
