@@ -13,25 +13,25 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Http\Livewire\So\Rpt;
 
-use Diepxuan\Simba\StoredProcedures\AsARRptBCCN01;
+use Diepxuan\Simba\StoredProcedures\AsARRptBCCN01SL;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
 use Livewire\Component;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
- * SO/AR - Sổ chi tiết công nợ một khách hàng (không số lượng).
+ * SO - Sổ chi tiết công nợ một khách hàng - có số lượng.
  *
  * Mapping:
- * - menuID  : `06.30.14` (sysMenu.moduleid = SO; command = frmARRptBCCN01).
+ * - menuID  : `06.30.38` (sysMenu.moduleid = SO; command = frmARRptBCCN01).
  * - DLL     : `ARRptBCCN01.dll` (form goc chia se giua AR, AP, SO).
- * - SP      : `asARRptBCCN01` (report `ARBCCN011.rpt`).
- * - Route   : `_simba-source/so/rpt/arrptbccn01`.
+ * - SP      : `asARRptBCCN01SL` (report `ARBCCN012.rpt`).
+ * - Route   : `_simba-source/so/rpt/arrptbccn01063038` (slug compact theo task 358).
  *
- * Task 008 — Da optimize theo pattern task 359/370:
- * - presentationColumns(), reportLabel(), document/item helpers.
+ * Task 370 — Ke thua pattern tu Task 359 (Po\Rpt\Arrptbccn01Sl).
+ * Khac biet chinh: module SO, mode khachhang, title.
  */
-class Arrptbccn01 extends Component
+class Arrptbccn01Sl extends Component
 {
     public ?string $module = null;
     public ?string $kind   = null;
@@ -42,7 +42,7 @@ class Arrptbccn01 extends Component
     public ?string $pTk          = '131';
     public ?string $pMa_kh       = null;
     public ?string $pMa_nt       = '';
-    public ?string $pTieu_de     = 'Sổ chi tiết công nợ một khách hàng';
+    public ?string $pTieu_de     = 'Sổ chi tiết công nợ một khách hàng - có số lượng';
     public ?string $errorMessage = null;
 
     /** @var list<array<string,mixed>> */
@@ -81,7 +81,7 @@ class Arrptbccn01 extends Component
         $this->errorMessage = null;
 
         try {
-            $rows = AsARRptBCCN01::call([
+            $rows = AsARRptBCCN01SL::call([
                 'ma_cty' => (string) \CatalogService::company()->id,
                 'Ngay1'  => $this->pNgay1,
                 'Ngay2'  => $this->pNgay2,
@@ -93,7 +93,7 @@ class Arrptbccn01 extends Component
             report($exception);
             $this->rows         = [];
             $this->columns      = [];
-            $this->errorMessage = 'Không tải được dữ liệu báo cáo từ SP asARRptBCCN01.';
+            $this->errorMessage = 'Không tải được dữ liệu báo cáo từ SP asARRptBCCN01SL.';
 
             return;
         }
@@ -136,7 +136,7 @@ class Arrptbccn01 extends Component
         $rows            = $this->rows;
         $columns         = $presentationColumns;
         $foreignCurrency = $this->isForeignCurrency();
-        $filename        = 'arrptbccn01-' . now()->format('Ymd-His') . '.csv';
+        $filename        = 'arrptbccn01sl-' . now()->format('Ymd-His') . '.csv';
 
         return response()->streamDownload(static function () use ($rows, $columns, $foreignCurrency): void {
             $handle = fopen('php://output', 'w');
@@ -149,7 +149,7 @@ class Arrptbccn01 extends Component
 
             foreach ($rows as $row) {
                 fputcsv($handle, array_map(
-                    static fn (array $column): string => Arrptbccn01::csvValueForColumn($row, $column['key'], $foreignCurrency),
+                    static fn (array $column): string => Arrptbccn01Sl::csvValueForColumn($row, $column['key'], $foreignCurrency),
                     $columns
                 ));
             }
@@ -160,7 +160,7 @@ class Arrptbccn01 extends Component
 
     public function render(): View
     {
-        return view('catalog::so.rpt.arrptbccn01', [
+        return view('catalog::so.rpt.arrptbccn01sl', [
             'rows'                => $this->rows,
             'presentationColumns' => $this->presentationColumns(),
         ]);
@@ -214,13 +214,16 @@ class Arrptbccn01 extends Component
                 'key'         => 'dien_giai',
                 'label'       => 'Diễn giải',
                 'headerClass' => 'min-w-[280px] text-left',
-                'cellClass'   => 'align-top text-left transition-colors',
+                'cellClass'   => 'align-top text-left ' . $this->rowLineClassForColumn(),
             ],
         ];
 
         foreach ([
-            'ps_no' => ['PS Nợ', $this->moneyKeys('ps_no')],
-            'ps_co' => ['PS Có', $this->moneyKeys('ps_co')],
+            'so_luong' => ['Số lượng', ['so_luong', 't_so_luong', 'sl_ton', 'sl']],
+            'gia'      => ['Giá', $this->moneyKeys('gia')],
+            'tien'     => ['Tiền', $this->moneyKeys('tien')],
+            'ps_no'    => ['PS Nợ', $this->moneyKeys('ps_no')],
+            'ps_co'    => ['PS Có', $this->moneyKeys('ps_co')],
         ] as $key => [$label, $sourceKeys]) {
             if ($this->hasAnyRowValue($sourceKeys)) {
                 $columns[] = [
@@ -250,6 +253,64 @@ class Arrptbccn01 extends Component
         return self::csvValue(self::rowValue($row, ['stt_rec', 'Stt_rec']));
     }
 
+    public function itemCode(array $row): string
+    {
+        return self::csvValue(self::rowValue($row, ['ma_vt', 'Ma_vt']));
+    }
+
+    public function itemName(array $row): string
+    {
+        return self::csvValue(self::rowValue($row, ['ten_vt', 'Ten_vt']));
+    }
+
+    public function itemUnit(array $row): string
+    {
+        return self::csvValue(self::rowValue($row, ['dvt', 'Dvt']));
+    }
+
+    public function itemSummary(array $row): string
+    {
+        $itemCode = $this->itemCode($row);
+        $itemName = $this->itemName($row);
+        $itemUnit = $this->itemUnit($row);
+
+        if ('' === $itemCode && '' === $itemName && '' === $itemUnit) {
+            return '';
+        }
+
+        $item = trim(implode(' - ', array_filter([$itemCode, $itemName], static fn (string $value): bool => '' !== $value)));
+
+        return '' === $itemUnit ? $item : trim($item . ' (' . $itemUnit . ')');
+    }
+
+    public function rowIsProductLine(array $row): bool
+    {
+        return '' !== trim((string) (data_get($row, 'ma_vt') ?? data_get($row, 'Ma_vt') ?? ''));
+    }
+
+    public function rowIsSummaryLine(array $row): bool
+    {
+        $raw = (string) (data_get($row, 'dien_giai') ?? data_get($row, 'Dien_giai') ?? '');
+
+        if ($this->rowIsProductLine($row)) {
+            return false;
+        }
+
+        return str_starts_with($raw, '#ARRptBCCN_DDK')
+            || str_starts_with($raw, '#ARRptBCCN_TPS')
+            || str_starts_with($raw, '#ARRptBCCN_DCK');
+    }
+
+    public function rowLineClass(array $row): string
+    {
+        return $this->rowIsProductLine($row) ? 'ps-4' : '';
+    }
+
+    public function rowLineClassForColumn(): string
+    {
+        return 'transition-colors';
+    }
+
     public function cellValue(array $row, string $column): string
     {
         return self::csvValueForColumn($row, $column, $this->isForeignCurrency());
@@ -265,7 +326,10 @@ class Arrptbccn01 extends Component
                 self::csvValue(self::rowValue($row, ['so_ct', 'So_ct'])),
                 self::csvValue(self::rowValue($row, ['stt_rec', 'Stt_rec'])),
             ], static fn (string $value): bool => '' !== $value))),
-            'dien_giai' => self::csvValue(self::rowValue($row, ['dien_giai', 'Dien_giai'])),
+            'dien_giai' => self::csvDienGiaiWithIndent($row),
+            'so_luong'  => self::numberValue(self::rowValue($row, ['so_luong', 't_so_luong', 'sl_ton', 'sl']), 4),
+            'gia'      => self::numberValue(self::rowValue($row, self::staticMoneyKeys('gia', $foreignCurrency)), $foreignCurrency ? 4 : 0),
+            'tien'     => self::numberValue(self::rowValue($row, self::staticMoneyKeys('tien', $foreignCurrency)), $foreignCurrency ? 4 : 0),
             'ps_no'    => self::numberValue(self::rowValue($row, self::staticMoneyKeys('ps_no', $foreignCurrency)), $foreignCurrency ? 4 : 0),
             'ps_co'    => self::numberValue(self::rowValue($row, self::staticMoneyKeys('ps_co', $foreignCurrency)), $foreignCurrency ? 4 : 0),
             default     => self::csvValue(self::rowValue($row, [$column])),
@@ -297,13 +361,38 @@ class Arrptbccn01 extends Component
             || str_ends_with($column, '_nt');
     }
 
-    public function rowIsSummaryLine(array $row): bool
+    private static function csvDienGiaiWithIndent(array $row): string
     {
-        $raw = (string) (data_get($row, 'dien_giai') ?? data_get($row, 'Dien_giai') ?? '');
+        $value = trim(implode(' | ', array_filter([
+            self::csvValue(self::rowValue($row, ['dien_giai', 'Dien_giai'])),
+            self::csvItemSummary($row),
+        ], static fn (string $value): bool => '' !== $value)));
 
-        return str_starts_with($raw, '#ARRptBCCN_DDK')
-            || str_starts_with($raw, '#ARRptBCCN_TPS')
-            || str_starts_with($raw, '#ARRptBCCN_DCK');
+        if ('' === $value) {
+            return '';
+        }
+
+        $itemCode = self::csvValue(self::rowValue($row, ['ma_vt', 'Ma_vt']));
+        if ('' === trim($itemCode)) {
+            return $value;
+        }
+
+        return "\t" . $value;
+    }
+
+    private static function csvItemSummary(array $row): string
+    {
+        $itemCode = self::csvValue(self::rowValue($row, ['ma_vt', 'Ma_vt']));
+        $itemName = self::csvValue(self::rowValue($row, ['ten_vt', 'Ten_vt']));
+        $itemUnit = self::csvValue(self::rowValue($row, ['dvt', 'Dvt']));
+
+        if ('' === $itemCode && '' === $itemName && '' === $itemUnit) {
+            return '';
+        }
+
+        $item = trim(implode(' - ', array_filter([$itemCode, $itemName], static fn (string $value): bool => '' !== $value)));
+
+        return '' === $itemUnit ? $item : trim($item . ' (' . $itemUnit . ')');
     }
 
     /**
@@ -358,6 +447,12 @@ class Arrptbccn01 extends Component
     private static function staticMoneyKeys(string $column, bool $foreignCurrency): array
     {
         return match ($column) {
+            'gia' => $foreignCurrency
+                ? ['gia_nt', 'don_gia_nt', 'gia', 'don_gia']
+                : ['gia', 'don_gia', 'gia_nt', 'don_gia_nt'],
+            'tien' => $foreignCurrency
+                ? ['tien_nt', 't_tien_nt', 'tien', 't_tien']
+                : ['tien', 't_tien', 'tien_nt', 't_tien_nt'],
             'ps_no' => $foreignCurrency
                 ? ['ps_no_nt', 'du_no_nt', 'ps_no', 'du_no']
                 : ['ps_no', 'du_no', 'ps_no_nt', 'du_no_nt'],

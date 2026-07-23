@@ -30,7 +30,7 @@
                 <div class="grid grid-cols-3 items-center gap-4">
                     <label class="text-right text-sm text-gray-700">Thời gian</label>
                     <div class="col-span-2">
-                        @livewire('catalog::component.timer', key('arrptbccn01-timer'))
+                        @livewire('catalog::component.timer', key('arrptbccn01sl-timer'))
                         <x-input-error for="pNgay1" class="mt-1" />
                         <x-input-error for="pNgay2" class="mt-1" />
                     </div>
@@ -146,7 +146,7 @@
                                             </td>
                                             @foreach ($presentationColumns as $column)
                                                 <td
-                                                    class="text-gray-700 {{ $column['cellClass'] }} px-2 py-2">
+                                                    class="{{ $column['key'] === 'dien_giai' ? $this->rowLineClass($row) : 'text-gray-700' }} {{ $column['cellClass'] }} px-2 py-2">
                                                     @if ('document' === $column['key'])
                                                         <div class="whitespace-nowrap text-gray-700">
                                                             {{ $this->documentDate($row) }}
@@ -164,6 +164,12 @@
                                                         <div class="max-w-[420px] whitespace-normal leading-4">
                                                             {{ $this->displayValue(data_get($row, 'dien_giai') ?? data_get($row, 'Dien_giai')) }}
                                                         </div>
+                                                        @if ('' !== $this->itemSummary($row))
+                                                            <div
+                                                                class="mt-1 max-w-[420px] whitespace-normal text-[11px] leading-4 text-gray-500">
+                                                                {{ $this->itemSummary($row) }}
+                                                            </div>
+                                                        @endif
                                                     @else
                                                         {{ $this->cellValue($row, $column['key']) }}
                                                     @endif
