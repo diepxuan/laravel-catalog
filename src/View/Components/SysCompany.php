@@ -25,11 +25,14 @@ class SysCompany extends Component
     public function render(): string|View
     {
         $company = \CatalogService::company();
-        // \Debugbar::info($company);
+        // Fallback khi user chưa có UserLink / Simba SQL không khả dụng.
+
+        $maCty  = $company?->ma_cty  ?? '—';
+        $tenCty = $company?->ten_cty ?? 'Không có công ty';
 
         return <<<HTML
-                <span>[ {$company->ma_cty} ]</span>
-                <span class="text-sm font-bold">{$company->ten_cty}</span>
+                <span>[ {$maCty} ]</span>
+                <span class="text-sm font-bold">{$tenCty}</span>
             HTML;
     }
 }

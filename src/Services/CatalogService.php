@@ -24,9 +24,10 @@ use Illuminate\Support\Facades\Auth;
 
 class CatalogService
 {
-    protected SysLanguage $sysLanguage;
-    protected User $user;
-    protected SysUserInfo $simbaUser;
+    protected ?SysLanguage $sysLanguage = null;
+    protected ?User $user = null;
+    protected ?SysUserInfo $simbaUser = null;
+    protected bool $simbaUserResolved = false; // true = đã resolve (hit hoặc skip), tránh work lại
     protected ?SysCompany $company = null;
     protected string $maNt;
     protected string $id;
@@ -39,17 +40,98 @@ class CatalogService
         // \Debugbar::info('ReportService instance đã được khởi tạo với ID: ' . $this->id);
     }
 
-    public function user()
+    public function user(): ?User
     {
+        // Re-resolve nếu user thay đổi (login mới, logout) - reset cache
+        // để tránh stale data khi switch user trong cùng request lifecycle.
+        if ($this->user !== null && Auth::user()?->getKey() !== $this->user->getKey()) {
+            $this->user              = null;
+            $this->simbaUser         = null;
+            $this->simbaUserResolved = false;
+            $this->company           = null;
+            $this->sysLanguage       = null;
+            $this->glDmTks           = [];
+        }
+
         return $this->user ?? $this->user = Auth::user();
     }
 
     /**
      * Get Simba user.
+     *
+     * Returns null khi:
+     * - Guest (chưa login).
+     * - Đã login nhưng chưa có UserLink row (expected flow).
+     * - Simba SQL Server / ODBC lỗi (skip silent - caller tự handle).
+     *
+     * QUAN TRỌNG: không phải user nào cũng có Simba link. Dev/SSO-only
+     * flow hoàn toàn hợp lệ khi không có UserLink.
+     *
+     * Đã resolve 1 lần sẽ cache (hit hoặc skip), không check lại mỗi call.
+     * Không log để tránh spam (mỗi request có thể gọi simbaUser() nhiều lần).
+     * Caller có thể check hasSimba() trước khi render UI Simba-bound.
      */
-    public function simbaUser(): SysUserInfo
+    public function simbaUser(): ?SysUserInfo
     {
-        return $this->simbaUser ?? $this->simbaUser = $this->user()->getSimbaUser();
+        $this->resolveSimbaUser();
+
+        return $this->simbaUser;
+    }
+
+    /**
+     * True nếu user hiện tại có thể load Simba profile (SysUserInfo != null).
+     * Hữu ích cho UI: ẩn menu Simba-bound khi chưa có link.
+     */
+    public function hasSimba(): bool
+    {
+        $this->resolveSimbaUser();
+
+        return $this->simbaUser !== null;
+    }
+
+    /**
+     * Lazy resolver. Đảm bảo logic load chỉ chạy 1 lần trong vòng đời
+     * service instance. Kết quả cache dưới dạng 2-cờ:
+     * - simbaUserResolved: đã chạy xong
+     * - simbaUser: null (skip) hoặc SysUserInfo (hit)
+     *
+     * @return void
+     */
+    private function resolveSimbaUser(): void
+    {
+        if ($this->simbaUserResolved) {
+            return;
+        }
+
+        $laravelUser = $this->user();
+        if (! $laravelUser) {
+            // Guest: không log, đây là flow hợp lệ.
+            $this->simbaUserResolved = true;
+
+            return;
+        }
+
+        if (! $laravelUser->simbaLink) {
+            // Đã login nhưng chưa bind Simba - skip silent. Đây là expected
+            // flow cho user dev/SSO-only, không phải lỗi. Không log để tránh
+            // spam (mỗi request có thể kéo theo nhiều lần gọi simbaUser()).
+            $this->simbaUserResolved = true;
+
+            return;
+        }
+
+        try {
+            $this->simbaUser = $laravelUser->getSimbaUser();
+            $this->simbaUserResolved = true;
+        } catch (\Throwable $e) {
+            // SQL/ODBC lỗi - skip silent để tránh crash UI. Dev có thể
+            // bật debug log nếu cần tra: LOG_LEVEL=debug.
+            \Log::debug('CatalogService::resolveSimbaUser failed', [
+                'user_id' => $laravelUser->getKey(),
+                'error'   => $e->getMessage(),
+            ]);
+            $this->simbaUserResolved = true;
+        }
     }
 
     public function language()
@@ -57,27 +139,40 @@ class CatalogService
         return $this->sysLanguage ?? $this->sysLanguage = SysLanguage::current()->first();
     }
 
-    public function company()
+    /**
+     * Returns null when user has no Simba company binding.
+     */
+    public function company(): ?SysCompany
     {
         if ($this->company) {
             return $this->company;
         }
 
-        $ma_cty = session('selected_company', '001');
-        if ($ma_cty) {
-            $this->company = $this->companies()->firstWhere('ma_cty', $ma_cty);
-        } else {
-            $this->company = $this->companies()->first();
+        $companies = $this->companies();
+        if ($companies->isEmpty()) {
+            return $this->company = null;
         }
 
-        session(['selected_company' => $this->company->ma_cty]);
+        $ma_cty = session('selected_company', '001');
+        $this->company = $ma_cty
+            ? $companies->firstWhere('ma_cty', $ma_cty)
+            : $companies->first();
+
+        if ($this->company) {
+            session(['selected_company' => $this->company->ma_cty]);
+        }
 
         return $this->company;
     }
 
-    public function companies()
+    /**
+     * Returns empty collection when user has no Simba link (dev / SSO-only flows).
+     */
+    public function companies(): Collection
     {
-        return $this->simbaUser()->companies;
+        $simbaUser = $this->simbaUser();
+
+        return $simbaUser ? $simbaUser->companies : collect();
     }
 
     public function year(?int $year = null): int
@@ -132,7 +227,12 @@ class CatalogService
 
     public function glDmTks(?string $pTk = null, ?string $pStruct = null): Collection
     {
-        $maCty = $this->company()->id;
+        $company = $this->company();
+        if (! $company) {
+            return collect();
+        }
+
+        $maCty = $company->id;
         $key   = implode('|', [$maCty, $pStruct ?? '']);
 
         $this->glDmTks[$key] ??= AsGLGetDMTK::call([

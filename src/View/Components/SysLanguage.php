@@ -25,9 +25,12 @@ class SysLanguage extends Component
     public function render(): string|View
     {
         $language = \CatalogService::language();
+        // Fallback khi Simba chưa bind / SQL down.
+
+        $name = $language?->Name ?? 'vi';
 
         return <<<HTML
-                <span>{$language->Name}</span>
+                <span>{$name}</span>
             HTML;
     }
 }
