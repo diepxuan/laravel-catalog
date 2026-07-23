@@ -42,6 +42,20 @@ class SimbaMenuTargetResolver
             }
         }
 
+        // Fallback: neu slug khong co compact suffix (task 358), thu match bang code_name prefix
+        if (null !== $slug && '' !== $slug) {
+            $prefix = strtolower("{$module}.{$kind}.{$slug}");
+            $routes = app(SimbaMenuRouteMetadata::class)->routes();
+            foreach ($routes as $routeName => $metadata) {
+                if (str_starts_with(strtolower($routeName), $prefix)) {
+                    $target = $this->resolveRouteName((string) $routeName);
+                    if (null !== $target) {
+                        return $target;
+                    }
+                }
+            }
+        }
+
         return null;
     }
 
