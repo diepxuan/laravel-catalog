@@ -44,14 +44,47 @@ final class SimbaMenuRouteMetadata
             return $this->routes;
         }
 
-        $routes = [];
+        // Pass 1: classify every active leaf menu and collect base route-name
+        // candidates, counting how many menus share the same (module, kind,
+        // slug) group so we can decide deterministically whether to append
+        // the compact menuId suffix.
+        $rows = [];
         foreach ($this->activeLeafMenus() as $menu) {
             $sourceType = $this->sourceTypeFor($menu);
             if (null === $sourceType) {
                 continue;
             }
 
-            $routeName = $this->routeNameFor($menu, $sourceType, $routes);
+            $rows[] = [
+                'menu'       => $menu,
+                'sourceType' => $sourceType,
+                'base'       => $this->baseRouteName($menu, $sourceType),
+            ];
+        }
+
+        $groupCounts = [];
+        foreach ($rows as $row) {
+            $groupCounts[$row['base']] = ($groupCounts[$row['base']] ?? 0) + 1;
+        }
+
+        // Pass 2: build the route map. Only menus in groups of size 1 keep the
+        // bare base name; menus in groups of size >= 2 always get the compact
+        // menuId suffix. This guarantees the routeName does not depend on the
+        // iteration order of SimbaMenuRepository::activeMenus().
+        $routes = [];
+        foreach ($rows as $row) {
+            $menu       = $row['menu'];
+            $sourceType = $row['sourceType'];
+            $base       = $row['base'];
+            $suffix     = $groupCounts[$base] >= 2
+                ? $this->menuIdSuffix((string) $menu->menuid)
+                : '';
+            $routeName  = '' === $suffix ? $base : $base . $suffix;
+
+            if (isset($routes[$routeName])) {
+                continue;
+            }
+
             $routes[$routeName] = $this->metadataFor($menu, $sourceType);
         }
 
@@ -192,10 +225,7 @@ final class SimbaMenuRouteMetadata
         return null;
     }
 
-    /**
-     * @param array<string, array<string, mixed>> $existing
-     */
-    private function routeNameFor(SysMenu $menu, string $sourceType, array $existing): string
+    private function baseRouteName(SysMenu $menu, string $sourceType): string
     {
         $module = strtolower((string) $menu->moduleid);
         $kind = match ($sourceType) {
@@ -206,13 +236,8 @@ final class SimbaMenuRouteMetadata
         };
         $source = (string) ($menu->dllName ?: $menu->code_name);
         $slug = $this->slug($source);
-        $route = "{$module}.{$kind}.{$slug}";
 
-        if (!isset($existing[$route])) {
-            return $route;
-        }
-
-        return "{$route}{$this->menuIdSuffix((string) $menu->menuid)}";
+        return "{$module}.{$kind}.{$slug}";
     }
 
     /**

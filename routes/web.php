@@ -283,6 +283,7 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
             // ['uri' => 'so/dict/sodmts', 'name' => 'so.dict.sodmts', 'module' => 'so', 'kind' => 'dict', 'slug' => 'sodmts', 'component' => SimbaPage::class],
             // ['uri' => 'so/proc/arcdkh', 'name' => 'so.proc.arcdkh', 'module' => 'so', 'kind' => 'proc', 'slug' => 'arcdkh', 'component' => SimbaPage::class],
             ['uri' => 'so/rpt/arrptbccn01', 'name' => 'so.rpt.arrptbccn01', 'module' => 'so', 'kind' => 'rpt', 'slug' => 'arrptbccn01', 'component' => Arrptbccn01::class],
+            ['uri' => 'so/rpt/arrptbccn01063014', 'name' => 'so.rpt.arrptbccn01063014', 'module' => 'so', 'kind' => 'rpt', 'slug' => 'arrptbccn01063014', 'component' => Arrptbccn01::class],
             ['uri' => 'so/rpt/arrptbccn01063038', 'name' => 'so.rpt.arrptbccn01063038', 'module' => 'so', 'kind' => 'rpt', 'slug' => 'arrptbccn01063038', 'component' => SoArrptbccn01Sl::class],
             // ['uri' => 'so/rpt/arrptbccn01a', 'name' => 'so.rpt.arrptbccn01a', 'module' => 'so', 'kind' => 'rpt', 'slug' => 'arrptbccn01a', 'component' => SimbaPage::class],
             // ['uri' => 'so/rpt/arrptbccn02', 'name' => 'so.rpt.arrptbccn02', 'module' => 'so', 'kind' => 'rpt', 'slug' => 'arrptbccn02', 'component' => SimbaPage::class],

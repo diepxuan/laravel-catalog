@@ -90,8 +90,45 @@ final class SimbaMenuRouteMetadataTest extends TestCase
 
         $routes = $metadata->routes();
 
-        self::assertSame(['po.rpt.arrptbccn01', 'po.rpt.arrptbccn01103023'], array_keys($routes));
+        self::assertSame(
+            ['po.rpt.arrptbccn01103011', 'po.rpt.arrptbccn01103023'],
+            array_keys($routes),
+        );
+        self::assertArrayNotHasKey('po.rpt.arrptbccn01', $routes);
         self::assertArrayNotHasKey('po.rpt.arrptbccn01-10-30-23', $routes);
+    }
+
+    public function testRouteNameSuffixDeterministicRegardlessOfInputOrder(): void
+    {
+        $forward = $this->metadata([
+            $this->menu('10.30.11', SysMenu::TYPE_REPORT, 'PO', 'ARRptBCCN01'),
+            $this->menu('10.30.23', SysMenu::TYPE_REPORT, 'PO', 'ARRptBCCN01'),
+        ]);
+        $reversed = $this->metadata([
+            $this->menu('10.30.23', SysMenu::TYPE_REPORT, 'PO', 'ARRptBCCN01'),
+            $this->menu('10.30.11', SysMenu::TYPE_REPORT, 'PO', 'ARRptBCCN01'),
+        ]);
+
+        $expected = ['po.rpt.arrptbccn01103011', 'po.rpt.arrptbccn01103023'];
+
+        // Both directions must yield exactly the same SET of routeNames,
+        // regardless of which menu came first in the activeMenus() stream.
+        $forwardKeys = array_keys($forward->routes());
+        $reversedKeys = array_keys($reversed->routes());
+
+        sort($forwardKeys);
+        sort($reversedKeys);
+        self::assertSame($expected, $forwardKeys);
+        self::assertSame($expected, $reversedKeys);
+    }
+
+    public function testRouteNameKeepsBaseWhenSingleMenuPerGroup(): void
+    {
+        $metadata = $this->metadata([
+            $this->menu('10.30.11', SysMenu::TYPE_REPORT, 'PO', 'ARRptBCCN01'),
+        ]);
+
+        self::assertSame(['po.rpt.arrptbccn01'], array_keys($metadata->routes()));
     }
 
     public function testCatalogZsysmenuUsesSysMenuContract(): void
