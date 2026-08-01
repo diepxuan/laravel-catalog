@@ -85,7 +85,7 @@
             <div class="mt-4 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">{{ $errors->first() }}</div>
         @endif
         <div class="mt-6 flex justify-end gap-2">
-            <a href="{{ route('ca.nhanvien') }}" class="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Hủy</a>
+            <a href="{{ simbaroute('ca.dict.ardmkh') }}" class="rounded-md border border-gray-300 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">Hủy</a>
             <button type="submit" class="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">Lưu</button>
         </div>
     </form>

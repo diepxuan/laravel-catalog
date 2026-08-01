@@ -35,6 +35,7 @@ use Diepxuan\Catalog\Http\Livewire\Po\Dict\ArdmkhForm;
 use Diepxuan\Catalog\Http\Livewire\Si\Vch\Smks;
 use Diepxuan\Catalog\Http\Livewire\So\Rpt\Arrptbccn01;
 use Diepxuan\Catalog\Http\Livewire\So\Rpt\Arrptbccn01Sl as SoArrptbccn01Sl;
+use Diepxuan\Catalog\Http\Livewire\So\Rpt\Sorptbk01;
 use Diepxuan\Catalog\Http\Livewire\Po\Rpt\Arrptbccn01 as PoArrptbccn01;
 use Diepxuan\Catalog\Http\Livewire\Po\Rpt\Arrptbccn01Sl as PoArrptbccn01Sl;
 use Diepxuan\Catalog\Http\Livewire\Po\Vch\Povchpo3;
@@ -69,6 +70,10 @@ use Illuminate\Support\Facades\Route;
 Route::middleware([CorpAutoLogin::class])->group(static function (): void {
     Route::get('/cash/nhanvien/create', NhanvienForm::class)->name('ca.nhanvien.create');
     Route::get('/cash/nhanvien/edit/{id}', NhanvienForm::class)->name('ca.nhanvien.edit');
+
+    // Canonical CA ARDMKH dict routes (task 375)
+    Route::get('/ca/dict/ardmkh/create', NhanvienForm::class)->name('ca.dict.ardmkh.create');
+    Route::get('/ca/dict/ardmkh/{id}/edit', NhanvienForm::class)->name('ca.dict.ardmkh.edit');
 
     Route::resource('banhang/bangkebanhang', SellController::class)->names('sell.list');
 
@@ -295,7 +300,8 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
             // ['uri' => 'so/rpt/sorptbcpt03', 'name' => 'so.rpt.sorptbcpt03', 'module' => 'so', 'kind' => 'rpt', 'slug' => 'sorptbcpt03', 'component' => SimbaPage::class],
             // ['uri' => 'so/rpt/sorptbcpt04', 'name' => 'so.rpt.sorptbcpt04', 'module' => 'so', 'kind' => 'rpt', 'slug' => 'sorptbcpt04', 'component' => SimbaPage::class],
             // ['uri' => 'so/rpt/sorptbcpt06', 'name' => 'so.rpt.sorptbcpt06', 'module' => 'so', 'kind' => 'rpt', 'slug' => 'sorptbcpt06', 'component' => SimbaPage::class],
-            // ['uri' => 'so/rpt/sorptbk01', 'name' => 'so.rpt.sorptbk01', 'module' => 'so', 'kind' => 'rpt', 'slug' => 'sorptbk01', 'component' => SimbaPage::class],
+            ['uri' => 'so/rpt/sorptbk01', 'name' => 'so.rpt.sorptbk01', 'module' => 'so', 'kind' => 'rpt', 'slug' => 'sorptbk01', 'component' => Sorptbk01::class],
+            ['uri' => 'so/rpt/sorptbk01062002', 'name' => 'so.rpt.sorptbk01062002', 'module' => 'so', 'kind' => 'rpt', 'slug' => 'sorptbk01062002', 'component' => Sorptbk01::class],
             // ['uri' => 'so/rpt/sorptbk02', 'name' => 'so.rpt.sorptbk02', 'module' => 'so', 'kind' => 'rpt', 'slug' => 'sorptbk02', 'component' => SimbaPage::class],
             // ['uri' => 'so/rpt/sorptlailo', 'name' => 'so.rpt.sorptlailo', 'module' => 'so', 'kind' => 'rpt', 'slug' => 'sorptlailo', 'component' => SimbaPage::class],
             // ['uri' => 'so/rpt/sorptth01', 'name' => 'so.rpt.sorptth01', 'module' => 'so', 'kind' => 'rpt', 'slug' => 'sorptth01', 'component' => SimbaPage::class],

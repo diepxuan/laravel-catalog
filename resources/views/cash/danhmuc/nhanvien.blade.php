@@ -6,7 +6,7 @@
                 <h2 class="text-xl font-semibold leading-tight text-gray-800">{{ 'Danh mục nhân viên' }}</h2>
                 <p class="text-sm text-gray-500">Theo Simba menu 04.90.05 / ARDMKH / frmARDMKH</p>
             </div>
-            <a href="{{ route('ca.nhanvien.create') }}" class="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">+ Thêm nhân viên</a>
+            <a href="{{ simbaroute('ca.dict.ardmkh.create') }}" class="rounded-md bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">+ Thêm nhân viên</a>
         </div>
     </x-slot>
 
@@ -27,7 +27,7 @@
                         <td class="border-b border-gray-100 px-3 py-2 text-gray-600">{{ Str::limit($arDmKh->dia_chi, 40) }}</td>
                         <td class="border-b border-gray-100 px-3 py-2 text-gray-600">{{ $arDmKh->tel }}</td>
                         <td class="border-b border-gray-100 px-3 py-2 text-gray-600">{{ $arDmKh->nguoi_gd }}</td>
-                        <td class="border-b border-gray-100 px-3 py-2 text-right"><div class="flex justify-end gap-2"><a href="{{ route('ca.nhanvien.edit', $arDmKh->ma_kh) }}" class="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-700 hover:bg-yellow-200">Sửa</a><button wire:click="deleteDoiTuong('{{ $arDmKh->ma_kh }}')" wire:confirm="Bạn có chắc chắn muốn xóa nhân viên {{ $arDmKh->ma_kh }}?" class="rounded bg-red-100 px-2 py-1 text-xs text-red-700 hover:bg-red-200">Xóa</button></div></td>
+                        <td class="border-b border-gray-100 px-3 py-2 text-right"><div class="flex justify-end gap-2"><a href="{{ simbaroute('ca.dict.ardmkh.edit', $arDmKh->ma_kh) }}" class="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-700 hover:bg-yellow-200">Sửa</a><button wire:click="deleteDoiTuong('{{ $arDmKh->ma_kh }}')" wire:confirm="Bạn có chắc chắn muốn xóa nhân viên {{ $arDmKh->ma_kh }}?" class="rounded bg-red-100 px-2 py-1 text-xs text-red-700 hover:bg-red-200">Xóa</button></div></td>
                     </tr>
                 @empty
                     <tr><td colspan="7" class="px-3 py-8 text-center text-gray-500">Không tìm thấy nhân viên nào.</td></tr>

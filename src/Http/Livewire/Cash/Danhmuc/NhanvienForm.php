@@ -56,11 +56,8 @@ class NhanvienForm extends ArdmkhForm
     public function loadDoiTuong(string $maKh): void
     {
         try {
-            $result = AsARGetDMKH::call([
-                'pMa_cty' => SModel::CTY,
-                'pMa_kh' => $maKh,
-                'pModuleId' => 'CA',
-            ]);
+            // Dùng AsARGetDMKH::getEmployees() helper cho module CA
+            $result = AsARGetDMKH::getEmployees(search: $maKh);
 
             if ($result->isEmpty()) {
                 $this->dispatch('error', message: 'Không tìm thấy nhân viên.');
@@ -68,39 +65,40 @@ class NhanvienForm extends ArdmkhForm
             }
 
             $row = $result->first();
-            $this->ma_kh = $row->MA_KH ?? $maKh;
-            $this->ten_kh = $row->TEN_KH ?? '';
-            $this->dia_chi = $row->DIA_CHI ?? '';
-            $this->ma_so_thue = $row->MA_SO_THUE ?? '';
-            $this->dien_thoai = $row->TEL ?? '';
-            $this->fax = $row->FAX ?? '';
-            $this->email = $row->EMAIL ?? '';
-            $this->home_page = $row->HOME_PAGE ?? null;
-            $this->nguoi_gd = $row->NGUOI_GD ?? null;
-            $this->ma_httt = $row->MA_HTTT ?? null;
-            $this->ma_httt_po = $row->MA_HTTT_PO ?? null;
-            $this->gh_no = $this->toNullableFloat($row->GH_NO ?? null);
-            $this->han_tt = $this->toNullableFloat($row->HAN_TT ?? null);
-            $this->ma_ngh = $row->MA_NGH ?? null;
-            $this->ten_nh = $row->TEN_NH ?? null;
-            $this->cn_nh = $row->CN_NH ?? null;
-            $this->so_tk_nh = $row->SO_TK_NH ?? null;
-            $this->tinh_tp_nh = $row->TINH_TP_NH ?? null;
-            $this->tk_cn = $row->TK ?? null;
-            $this->ma_plkh1 = $row->MA_PLKH1 ?? null;
-            $this->ma_plkh2 = $row->MA_PLKH2 ?? null;
-            $this->ma_plkh3 = $row->MA_PLKH3 ?? null;
-            $this->ma_nhkh = $row->MA_NHKH ?? null;
-            $this->ma_tt = $row->MA_TT ?? null;
-            $this->han_ck = $this->toNullableFloat($row->HAN_CK ?? null);
-            $this->tl_ck = $this->toNullableFloat($row->TL_CK ?? null);
-            $this->ls_qh = $this->toNullableFloat($row->LS_QH ?? null);
-            $this->ghi_chu = $row->GHI_CHU ?? null;
-            $this->isKh = (bool) ($row->ISKH ?? false);
-            $this->isNcc = (bool) ($row->ISNCC ?? false);
-            $this->isNv = (bool) ($row->ISNV ?? true);
-            $this->tinh_dt_nb = (bool) ($row->TINH_DT_NB ?? false);
-            $this->ksd = (bool) ($row->KSD ?? false);
+            // Dùng helper field() từ parent ArdmkhForm để access case-insensitive
+            $this->ma_kh = $this->field($row, 'ma_kh', 'MA_KH', $maKh);
+            $this->ten_kh = $this->field($row, 'ten_kh', 'TEN_KH', '');
+            $this->dia_chi = $this->field($row, 'dia_chi', 'DIA_CHI', '');
+            $this->ma_so_thue = $this->field($row, 'ma_so_thue', 'MA_SO_THUE', '');
+            $this->dien_thoai = $this->field($row, 'tel', 'TEL', '');
+            $this->fax = $this->field($row, 'fax', 'FAX', '');
+            $this->email = $this->field($row, 'email', 'EMAIL', '');
+            $this->home_page = $this->field($row, 'home_page', 'HOME_PAGE');
+            $this->nguoi_gd = $this->field($row, 'nguoi_gd', 'NGUOI_GD');
+            $this->ma_httt = $this->field($row, 'ma_httt', 'MA_HTTT');
+            $this->ma_httt_po = $this->field($row, 'ma_httt_po', 'MA_HTTT_PO');
+            $this->gh_no = $this->toNullableFloat($this->field($row, 'gh_no', 'GH_NO'));
+            $this->han_tt = $this->toNullableFloat($this->field($row, 'han_tt', 'HAN_TT'));
+            $this->ma_ngh = $this->field($row, 'ma_ngh', 'MA_NGH');
+            $this->ten_nh = $this->field($row, 'ten_nh', 'TEN_NH');
+            $this->cn_nh = $this->field($row, 'cn_nh', 'CN_NH');
+            $this->so_tk_nh = $this->field($row, 'so_tk_nh', 'SO_TK_NH');
+            $this->tinh_tp_nh = $this->field($row, 'tinh_tp_nh', 'TINH_TP_NH');
+            $this->tk_cn = $this->field($row, 'tk', 'TK');
+            $this->ma_plkh1 = $this->field($row, 'ma_plkh1', 'MA_PLKH1');
+            $this->ma_plkh2 = $this->field($row, 'ma_plkh2', 'MA_PLKH2');
+            $this->ma_plkh3 = $this->field($row, 'ma_plkh3', 'MA_PLKH3');
+            $this->ma_nhkh = $this->field($row, 'ma_nhkh', 'MA_NHKH');
+            $this->ma_tt = $this->field($row, 'ma_tt', 'MA_TT');
+            $this->han_ck = $this->toNullableFloat($this->field($row, 'han_ck', 'HAN_CK'));
+            $this->tl_ck = $this->toNullableFloat($this->field($row, 'tl_ck', 'TL_CK'));
+            $this->ls_qh = $this->toNullableFloat($this->field($row, 'ls_qh', 'LS_QH'));
+            $this->ghi_chu = $this->field($row, 'ghi_chu', 'GHI_CHU');
+            $this->isKh = (bool) ($this->field($row, 'iskh', 'ISKH', false));
+            $this->isNcc = (bool) ($this->field($row, 'isncc', 'ISNCC', false));
+            $this->isNv = (bool) ($this->field($row, 'isnv', 'ISNV', true));
+            $this->tinh_dt_nb = (bool) ($this->field($row, 'tinh_dt_nb', 'TINH_DT_NB', false));
+            $this->ksd = (bool) ($this->field($row, 'ksd', 'KSD', false));
         } catch (\Exception $e) {
             $this->dispatch('error', message: 'Không thể tải nhân viên: ' . $e->getMessage());
         }
@@ -160,7 +158,7 @@ class NhanvienForm extends ArdmkhForm
             $procedureClass::call([
                 'pMa_cty' => SModel::CTY,
                 'pMa_kh' => $maKh,
-                'pLoai' => 1,
+                'pLoai' => '1',
                 'pTen_kh' => $this->ten_kh,
                 'pMa_so_thue' => $this->ma_so_thue,
                 'pDia_chi' => $this->dia_chi,
@@ -191,13 +189,13 @@ class NhanvienForm extends ArdmkhForm
                 'pTinh_dt_nb' => $this->tinh_dt_nb ? 1 : 0,
                 'pIskh' => $this->isKh ? 1 : 0,
                 'pIsncc' => $this->isNcc ? 1 : 0,
-                'pIsnv' => $this->isNv ? 1 : 0,
+                'pIsnv' => 1,  // CA always isNv=1
                 'pKsd' => $this->ksd ? 1 : 0,
                 'pLUser' => $user,
             ]);
 
             $this->dispatch('success', message: 'Đã lưu nhân viên ' . $maKh);
-            $this->redirect(route('ca.nhanvien'), navigate: true);
+            $this->redirect(simbaroute('ca.dict.ardmkh'), navigate: true);
         } catch (\Exception $e) {
             $this->dispatch('error', message: 'Không thể lưu nhân viên: ' . $e->getMessage());
         }

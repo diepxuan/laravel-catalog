@@ -59,12 +59,9 @@ class Nhanvien extends Ardmkh
 
     protected function getEmployeesPaginated()
     {
-        $results = AsARGetDMKH::call([
-            'pMa_cty' => SModel::CTY,
-            'pMa_kh' => '' !== $this->search ? $this->search : null,
-            'pStruct' => '0',
-            'pModuleId' => 'CA',
-        ]);
+        $results = AsARGetDMKH::getEmployees(
+            search: '' !== $this->search ? $this->search : null,
+        );
 
         $results = $this->normalizeRows($results);
 
