@@ -41,6 +41,12 @@ final class SourceRouteCoverageTest extends TestCase
         foreach ([
             '/_simba-source/po/dict/ardmkh/create' => '/simba/po/dict/ardmkh/create',
             '/_simba-source/po/dict/ardmkh/1CHIBANRAO/edit' => '/simba/po/dict/ardmkh/1CHIBANRAO/edit',
+            '/_simba-source/ca/dict/ardmkh/create' => '/simba/ca/dict/ardmkh/create',
+            '/_simba-source/ca/dict/ardmkh/1/edit' => '/simba/ca/dict/ardmkh/1/edit',
+            '/_simba-source/so/dict/ardmkh/create' => '/simba/so/dict/ardmkh/create',
+            '/_simba-source/so/dict/ardmkh/KH001/edit' => '/simba/so/dict/ardmkh/KH001/edit',
+            '/_simba-source/so/rpt/sorptbk01' => '/simba/so/rpt/sorptbk01',
+            '/_simba-source/so/rpt/sorptbk01062002' => '/simba/so/rpt/sorptbk01062002',
         ] as $sourceUrl => $canonicalUrl) {
             $resolved = Route::getRoutes()->match(request()->create($sourceUrl, 'GET'));
 
@@ -56,7 +62,6 @@ final class SourceRouteCoverageTest extends TestCase
         foreach ([
             'gl.vch.glvchgl1',
             'po.vch.povchpo1',
-            'po.vch.povchpo3',
             'so.rpt.sorptbcpt03',
         ] as $routeName) {
             self::assertFalse(Route::has($routeName), "Shell route {$routeName} should stay handled by /simba shell");
@@ -107,15 +112,57 @@ final class SourceRouteCoverageTest extends TestCase
         }
     }
 
-    public function testLegacyEmployeeCreateEditUrlsStillResolve(): void
+    public function testLegacyEmployeeCreateEditUrlsDoNotResolve(): void
     {
         foreach ([
             '/cash/nhanvien/create',
             '/cash/nhanvien/edit/1',
         ] as $url) {
+            self::assertFalse($this->urlResolves($url), "Legacy employee URL {$url} should not resolve");
+        }
+    }
+
+    public function testCanonicalEmployeeCreateEditUrlsResolve(): void
+    {
+        foreach ([
+            '/simba/ca/dict/ardmkh/create' => 'simba.create',
+            '/simba/ca/dict/ardmkh/1/edit' => 'simba.edit',
+        ] as $url => $routeName) {
             $resolved = Route::getRoutes()->match(request()->create($url, 'GET'));
 
-            self::assertNotNull($resolved->getName(), "Legacy employee URL {$url} did not resolve to a named route");
+            self::assertSame($routeName, $resolved->getName(), "Canonical employee URL {$url} resolved incorrectly");
+            self::assertSame('ca', $resolved->parameter('module'));
+            self::assertSame('dict', $resolved->parameter('kind'));
+            self::assertSame('ardmkh', $resolved->parameter('slug'));
+        }
+    }
+
+    public function testCanonicalSoCustomerCreateEditUrlsResolve(): void
+    {
+        foreach ([
+            '/simba/so/dict/ardmkh/create' => 'simba.create',
+            '/simba/so/dict/ardmkh/KH001/edit' => 'simba.edit',
+        ] as $url => $routeName) {
+            $resolved = Route::getRoutes()->match(request()->create($url, 'GET'));
+
+            self::assertSame($routeName, $resolved->getName(), "Canonical SO customer URL {$url} resolved incorrectly");
+            self::assertSame('so', $resolved->parameter('module'));
+            self::assertSame('dict', $resolved->parameter('kind'));
+            self::assertSame('ardmkh', $resolved->parameter('slug'));
+        }
+    }
+
+    public function testCanonicalSorptbk01UrlsResolve(): void
+    {
+        foreach ([
+            '/simba/so/rpt/sorptbk01' => 'simba.show',
+            '/simba/so/rpt/sorptbk01062002' => 'simba.show',
+        ] as $url => $routeName) {
+            $resolved = Route::getRoutes()->match(request()->create($url, 'GET'));
+
+            self::assertSame($routeName, $resolved->getName(), "Canonical SORptBK01 URL {$url} resolved incorrectly");
+            self::assertSame('so', $resolved->parameter('module'));
+            self::assertSame('rpt', $resolved->parameter('kind'));
         }
     }
 
@@ -136,7 +183,7 @@ final class SourceRouteCoverageTest extends TestCase
     private function componentBackedSourceRoutes(): array
     {
         return [
-            ['module' => 'ca', 'kind' => 'dict', 'slug' => 'ardmkh', 'routeName' => 'ca.dict.ardmkh', 'url' => '/_simba-source/ca/dict/ardmkh', 'component' => \Diepxuan\Catalog\Http\Livewire\Cash\Danhmuc\Nhanvien::class],
+            ['module' => 'ca', 'kind' => 'dict', 'slug' => 'ardmkh', 'routeName' => 'ca.dict.ardmkh', 'url' => '/_simba-source/ca/dict/ardmkh', 'component' => \Diepxuan\Catalog\Http\Livewire\Ca\Dict\Ardmkh::class],
             ['module' => 'ca', 'kind' => 'vch', 'slug' => 'cavchca1', 'routeName' => 'ca.vch.cavchca1', 'url' => '/_simba-source/ca/vch/cavchca1', 'component' => \Diepxuan\Catalog\Http\Livewire\Cash\Tienmat\Phieuthu::class],
             ['module' => 'ca', 'kind' => 'vch', 'slug' => 'cavchca2', 'routeName' => 'ca.vch.cavchca2', 'url' => '/_simba-source/ca/vch/cavchca2', 'component' => \Diepxuan\Catalog\Http\Livewire\Cash\Tienmat\Phieuchi::class],
             ['module' => 'ca', 'kind' => 'vch', 'slug' => 'cavchca4', 'routeName' => 'ca.vch.cavchca4', 'url' => '/_simba-source/ca/vch/cavchca4', 'component' => \Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baoco::class],
@@ -150,11 +197,13 @@ final class SourceRouteCoverageTest extends TestCase
             ['module' => 'po', 'kind' => 'dict', 'slug' => 'ardmkh', 'routeName' => 'po.dict.ardmkh', 'url' => '/_simba-source/po/dict/ardmkh', 'component' => \Diepxuan\Catalog\Http\Livewire\Po\Dict\Ardmkh::class],
             ['module' => 'po', 'kind' => 'dict', 'slug' => 'podmcp', 'routeName' => 'po.dict.podmcp', 'url' => '/_simba-source/po/dict/podmcp', 'component' => \Diepxuan\Catalog\Http\Livewire\Muahang\PoDmCpIndex::class],
             ['module' => 'si', 'kind' => 'vch', 'slug' => 'smks', 'routeName' => 'si.vch.smks', 'url' => '/_simba-source/si/vch/smks', 'component' => \Diepxuan\Catalog\Http\Livewire\Si\Vch\Smks::class],
-            ['module' => 'so', 'kind' => 'dict', 'slug' => 'ardmkh', 'routeName' => 'so.dict.ardmkh', 'url' => '/_simba-source/so/dict/ardmkh', 'component' => \Diepxuan\Catalog\Http\Livewire\Banhang\Khachhang::class],
+            ['module' => 'so', 'kind' => 'dict', 'slug' => 'ardmkh', 'routeName' => 'so.dict.ardmkh', 'url' => '/_simba-source/so/dict/ardmkh', 'component' => \Diepxuan\Catalog\Http\Livewire\So\Dict\Ardmkh::class],
             ['module' => 'so', 'kind' => 'dict', 'slug' => 'ardmplkh', 'routeName' => 'so.dict.ardmplkh', 'url' => '/_simba-source/so/dict/ardmplkh', 'component' => \Diepxuan\Catalog\Http\Livewire\AR\Danhmuc\Phanloaikhachhang::class],
             ['module' => 'so', 'kind' => 'rpt', 'slug' => 'arrptbccn01', 'routeName' => 'so.rpt.arrptbccn01', 'url' => '/_simba-source/so/rpt/arrptbccn01', 'component' => \Diepxuan\Catalog\Http\Livewire\So\Rpt\Arrptbccn01::class],
             ['module' => 'so', 'kind' => 'rpt', 'slug' => 'arrptbccn01063014', 'routeName' => 'so.rpt.arrptbccn01063014', 'url' => '/_simba-source/so/rpt/arrptbccn01063014', 'component' => \Diepxuan\Catalog\Http\Livewire\So\Rpt\Arrptbccn01::class],
             ['module' => 'so', 'kind' => 'rpt', 'slug' => 'arrptbccn01063038', 'routeName' => 'so.rpt.arrptbccn01063038', 'url' => '/_simba-source/so/rpt/arrptbccn01063038', 'component' => \Diepxuan\Catalog\Http\Livewire\So\Rpt\Arrptbccn01Sl::class],
+            ['module' => 'so', 'kind' => 'rpt', 'slug' => 'sorptbk01', 'routeName' => 'so.rpt.sorptbk01', 'url' => '/_simba-source/so/rpt/sorptbk01', 'component' => \Diepxuan\Catalog\Http\Livewire\So\Rpt\Sorptbk01::class],
+            ['module' => 'so', 'kind' => 'rpt', 'slug' => 'sorptbk01062002', 'routeName' => 'so.rpt.sorptbk01062002', 'url' => '/_simba-source/so/rpt/sorptbk01062002', 'component' => \Diepxuan\Catalog\Http\Livewire\So\Rpt\Sorptbk01::class],
             ['module' => 'so', 'kind' => 'vch', 'slug' => 'sovchso1', 'routeName' => 'so.vch.sovchso1', 'url' => '/_simba-source/so/vch/sovchso1', 'component' => \Diepxuan\Catalog\Http\Livewire\Banhang\Hoadonbanhang::class],
         ];
     }

@@ -8,7 +8,7 @@ declare(strict_types=1);
  * @author     Tran Ngoc Duc <ductn@diepxuan.com>
  * @author     Tran Ngoc Duc <caothu91@gmail.com>
  *
- * @lastupdate 2026-05-16 00:28:04
+ * @lastupdate 2026-08-03 00:00:00
  */
 
 namespace Diepxuan\Catalog\Http\Livewire\Po\Dict;
@@ -16,83 +16,131 @@ namespace Diepxuan\Catalog\Http\Livewire\Po\Dict;
 use Diepxuan\Simba\SModel\SModel;
 use Diepxuan\Simba\StoredProcedures\AsARGetDMKH;
 use Diepxuan\Support\Collection;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator as LengthAwarePaginatorContract;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Pagination\Paginator;
 use Illuminate\View\View;
 use Livewire\Component;
-use Livewire\WithPagination;
 
+/**
+ * Base cho 3 danh sách ARDMKH (PO/SO/CA).
+ *
+ * Load toàn bộ rows một lần qua SP `asARGetDMKH` (pModuleId thay đổi theo module);
+ * search chạy phía client bằng Alpine trong view, page không dùng pagination.
+ */
 class Ardmkh extends Component
 {
-    use WithPagination;
+    /** Mã công ty hiện tại (truyền cho view để render, không dùng trong search). */
+    public string $maCty;
 
-    public string $search = '';
+    /** Toàn bộ rows sau khi normalize; view dùng Alpine filter, không dùng pagination. */
+    public array $rows = [];
 
-    protected int $perPage = 50;
-
-    protected $queryString = [
-        'search' => ['except' => ''],
-    ];
-
-    public function updatedSearch(): void
+    public function mount(): void
     {
-        $this->resetPage();
+        $this->maCty = SModel::CTY;
+        $this->rows  = $this->loadAllRows();
     }
 
     public function deleteDoiTuong(string $maKh): void
     {
-        $nhaCungCap = \Diepxuan\Catalog\Models\Simba\ArDmKh::withoutGlobalScopes()
+        $doiTuong = \Diepxuan\Catalog\Models\Simba\ArDmKh::withoutGlobalScopes()
             ->where('ma_kh', $maKh)
             ->first()
         ;
 
-        if (!$nhaCungCap) {
-            $this->dispatch('error', message: 'Không tìm thấy nhà cung cấp.');
+        if (!$doiTuong) {
+            $this->dispatch('error', message: $this->notFoundMessage());
 
             return;
         }
 
-        if ($nhaCungCap->hasTransactions()) {
-            $this->dispatch('error', message: 'Không thể xóa nhà cung cấp đã có giao dịch.');
+        if ($doiTuong->hasTransactions()) {
+            $this->dispatch('error', message: $this->hasTransactionsMessage());
 
             return;
         }
 
         try {
             \Diepxuan\Simba\StoredProcedures\AsARDelDMKH::call([
-                'pMa_cty' => SModel::CTY,
+                'pMa_cty' => $this->maCty,
                 'pMa_kh'  => $maKh,
             ]);
-            $this->dispatch('success', message: 'Đã xóa nhà cung cấp ' . $maKh);
+
+            $this->dispatch('success', message: $this->deletedMessage($maKh));
+            // Reload để đồng bộ sau khi xóa.
+            $this->rows = $this->loadAllRows();
         } catch (\Exception $e) {
-            $this->dispatch('error', message: 'Không thể xóa nhà cung cấp: ' . $e->getMessage());
+            $this->dispatch('error', message: $this->deleteFailedMessage($maKh, $e->getMessage()));
         }
     }
 
     public function render(): View
     {
-        return view('catalog::po.dict.ardmkh', [
-            'arDmKhs' => $this->getSuppliersPaginated(),
+        return view($this->listView(), [
+            'rows'   => $this->rows,
+            'maCty'  => $this->maCty,
+            'module' => $this->moduleLabel(),
         ])->layout('catalog::layouts.app');
     }
 
-    protected function getSuppliersPaginated(): LengthAwarePaginatorContract
+    /**
+     * Subclass override để chọn mode (AR/AP/CA) + view blade + label.
+     */
+    protected function spModuleId(): string
     {
-        $results = AsARGetDMKH::getSuppliers(
-            maCty: SModel::CTY,
-            search: '' !== $this->search ? $this->search : null,
-        );
-
-        $results = $this->normalizeRows($results);
-
-        if ('' !== $this->search) {
-            $results = $this->filterSearchResults($results);
-        }
-
-        return $this->paginateCollection($results);
+        return 'AP';
     }
 
+    protected function listView(): string
+    {
+        return 'catalog::po.dict.ardmkh';
+    }
+
+    protected function moduleLabel(): string
+    {
+        return 'PO';
+    }
+
+    protected function notFoundMessage(): string
+    {
+        return 'Không tìm thấy nhà cung cấp.';
+    }
+
+    protected function hasTransactionsMessage(): string
+    {
+        return 'Không thể xóa nhà cung cấp đã có giao dịch.';
+    }
+
+    protected function deletedMessage(string $maKh): string
+    {
+        return 'Đã xóa nhà cung cấp ' . $maKh;
+    }
+
+    protected function deleteFailedMessage(string $maKh, string $reason): string
+    {
+        return 'Không thể xóa nhà cung cấp ' . $maKh . ': ' . $reason;
+    }
+
+    /**
+     * Load toàn bộ rows từ SP. Không truyền `search` để SP trả về hết; Alpine phía client lo filter.
+     *
+     * @return array<int, object>
+     */
+    protected function loadAllRows(): array
+    {
+        $raw = AsARGetDMKH::call([
+            'pMa_cty'   => $this->maCty,
+            'pMa_kh'    => null,
+            'pStruct'   => '0',
+            'pModuleId' => $this->spModuleId(),
+        ]);
+
+        return $this->normalizeRows($raw)->values()->all();
+    }
+
+    /**
+     * Chuẩn hóa row về object với field lowercase; render Blade đọc thẳng.
+     *
+     * @return Collection<int, object>
+     */
     protected function normalizeRows($results): Collection
     {
         return new Collection(collect($results)->map(static fn ($item) => (object) [
@@ -105,37 +153,5 @@ class Ardmkh extends Component
             'ma_so_thue' => $item->ma_so_thue ?? $item->MA_SO_THUE ?? '',
             'ma_nhkh'    => $item->ma_nhkh ?? $item->MA_NHKH ?? '',
         ]));
-    }
-
-    protected function filterSearchResults(Collection $results): Collection
-    {
-        $search = mb_strtolower($this->search);
-
-        return new Collection($results->filter(static function ($item) use ($search): bool {
-            foreach ([$item->ma_kh, $item->ten_kh, $item->dia_chi, $item->tel, $item->ma_so_thue] as $field) {
-                if (str_contains(mb_strtolower((string) $field), $search)) {
-                    return true;
-                }
-            }
-
-            return false;
-        })->values());
-    }
-
-    protected function paginateCollection($items): LengthAwarePaginatorContract
-    {
-        $page   = Paginator::resolveCurrentPage();
-        $total  = \count($items);
-        $offset = ($page - 1) * $this->perPage;
-
-        $pagedItems = collect($items)->slice($offset, $this->perPage)->values();
-
-        return new LengthAwarePaginator(
-            $pagedItems,
-            $total,
-            $this->perPage,
-            $page,
-            ['path' => request()->url(), 'query' => request()->query()],
-        );
     }
 }
