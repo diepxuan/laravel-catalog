@@ -24,6 +24,7 @@ class SimbaMenuTargetResolver
         SimbaMenuRouteMetadata::TYPE_VOUCHER    => 'vch',
         SimbaMenuRouteMetadata::TYPE_REPORT     => 'rpt',
         SimbaMenuRouteMetadata::TYPE_CUSTOM     => 'proc',
+        SimbaMenuRouteMetadata::TYPE_UTILITY    => 'vch',
     ];
 
     /**
@@ -87,6 +88,10 @@ class SimbaMenuTargetResolver
     public function urlForRouteName(string $routeName, ?array $metadata = null): string
     {
         $metadata ??= app(SimbaMenuRouteMetadata::class)->routes()[$routeName] ?? [];
+        if (isset($metadata['url']) && '' !== $metadata['url']) {
+            return (string) $metadata['url'];
+        }
+
         $parts = explode('.', $routeName);
         $module = strtolower((string) ($metadata['module'] ?? $parts[0] ?? 'simba'));
         $sourceType = $metadata['source_type'] ?? null;

@@ -21,6 +21,20 @@ final class SimbaMenuRouteMetadata
     public const TYPE_VOUCHER    = 'voucher';
     public const TYPE_REPORT     = 'report';
     public const TYPE_CUSTOM     = 'custom';
+    public const TYPE_UTILITY    = 'utility';
+
+    /**
+     * Canonical route overrides for Simba menus whose route name cannot be
+     * derived from the sysMenu fields (utility type 3 has no source-type
+     * mapping, but Portal already exposes a concrete /simba/si/vch/year).
+     */
+    private const MENU_ROUTE_OVERRIDES = [
+        '90.30.02' => [
+            'route_name'  => 'si.vch.year',
+            'url'         => '/simba/si/vch/year',
+            'source_type' => self::TYPE_UTILITY,
+        ],
+    ];
 
     private ?array $routes = null;
     private ?array $dictionaries = null;
@@ -50,7 +64,8 @@ final class SimbaMenuRouteMetadata
         // the compact menuId suffix.
         $rows = [];
         foreach ($this->activeLeafMenus() as $menu) {
-            $sourceType = $this->sourceTypeFor($menu);
+            $override = self::MENU_ROUTE_OVERRIDES[(string) $menu->menuid] ?? null;
+            $sourceType = $override['source_type'] ?? $this->sourceTypeFor($menu);
             if (null === $sourceType) {
                 continue;
             }
@@ -58,7 +73,8 @@ final class SimbaMenuRouteMetadata
             $rows[] = [
                 'menu'       => $menu,
                 'sourceType' => $sourceType,
-                'base'       => $this->baseRouteName($menu, $sourceType),
+                'base'       => $override['route_name'] ?? $this->baseRouteName($menu, $sourceType),
+                'url'        => $override['url'] ?? null,
             ];
         }
 
@@ -86,6 +102,9 @@ final class SimbaMenuRouteMetadata
             }
 
             $routes[$routeName] = $this->metadataFor($menu, $sourceType);
+            if (null !== $row['url']) {
+                $routes[$routeName]['url'] = $row['url'];
+            }
         }
 
         return $this->routes = $routes;

@@ -29,10 +29,6 @@
                                 class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-3">
                                 {{ __('Đơn vị') }}
                             </x-nav-link>
-                            <x-nav-link :href="route('system.year')" :active="$this->isActive('system.year')"
-                                class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-3">
-                                {{ __('Năm làm việc') }}
-                            </x-nav-link>
                             <x-nav-link :href="route('system.balance.index')" :active="$this->isActive('system.balance')"
                                 class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-3">
                                 {{ __('Nhập/Chuyển số dư') }}

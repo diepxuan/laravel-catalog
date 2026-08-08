@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Diepxuan\Catalog\Tests\Unit\Services;
 
 use Diepxuan\Catalog\Services\SimbaMenuRouteMetadata;
+use Diepxuan\Catalog\Services\SimbaMenuTargetResolver;
 use Diepxuan\Catalog\Models\Simba\SysMenu;
 use PHPUnit\Framework\TestCase;
 
@@ -186,5 +187,31 @@ final class SimbaMenuRouteMetadataTest extends TestCase
         ], true);
 
         return $menu;
+    }
+
+    public function testUtilityMenuCanBeOverriddenToConcretePortalRoute(): void
+    {
+        $metadata = $this->metadata([
+            $this->menu('90.30.02', SysMenu::TYPE_UTILITY, 'SI', 'SiChangeFY', 'CHGFY'),
+        ]);
+
+        $routes = $metadata->routes();
+
+        self::assertArrayHasKey('si.vch.year', $routes);
+        self::assertSame('90.30.02', $routes['si.vch.year']['menuid']);
+        self::assertSame(SimbaMenuRouteMetadata::TYPE_UTILITY, $routes['si.vch.year']['source_type']);
+        self::assertSame('/simba/si/vch/year', $routes['si.vch.year']['url']);
+    }
+
+    public function testUtilityMenuUrlUsesConcreteOverrideInsteadOfDerivedSlug(): void
+    {
+        $metadata = $this->metadata([
+            $this->menu('90.30.02', SysMenu::TYPE_UTILITY, 'SI', 'SiChangeFY', 'CHGFY'),
+        ]);
+        $resolver = new SimbaMenuTargetResolver();
+
+        $url = $resolver->urlForRouteName('si.vch.year', $metadata->routes()['si.vch.year']);
+
+        self::assertSame('/simba/si/vch/year', $url);
     }
 }

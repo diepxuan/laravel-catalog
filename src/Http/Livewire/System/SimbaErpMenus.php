@@ -252,7 +252,7 @@ class SimbaErpMenus extends Component
                 continue;
             }
 
-            $url = $this->portalUrl($routeName, $metadata['source_type']);
+            $url = $this->portalUrl($routeName, $metadata);
             if (null === $url) {
                 continue;
             }
@@ -268,9 +268,9 @@ class SimbaErpMenus extends Component
         return $this->routeMapByMenuId = $map;
     }
 
-    private function portalUrl(string $routeName, string $sourceType): ?string
+    private function portalUrl(string $routeName, array $metadata): ?string
     {
-        return $this->resolver->urlForRouteName($routeName, ['source_type' => $sourceType]);
+        return $this->resolver->urlForRouteName($routeName, $metadata);
     }
 
     private function sourceTypeLabel(string $sourceType): string
@@ -280,6 +280,7 @@ class SimbaErpMenus extends Component
             SimbaMenuRouteMetadata::TYPE_DICTIONARY => 'Danh muc',
             SimbaMenuRouteMetadata::TYPE_VOUCHER    => 'Chung tu',
             SimbaMenuRouteMetadata::TYPE_CUSTOM     => 'Portal',
+            SimbaMenuRouteMetadata::TYPE_UTILITY    => 'Tien ich',
             default                             => 'Portal',
         };
     }

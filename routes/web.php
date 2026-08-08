@@ -34,6 +34,7 @@ use Diepxuan\Catalog\Http\Livewire\Muahang\PoDmCpIndex;
 use Diepxuan\Catalog\Http\Livewire\Po\Dict\Ardmkh as PoArdmkh;
 use Diepxuan\Catalog\Http\Livewire\Po\Dict\ArdmkhForm;
 use Diepxuan\Catalog\Http\Livewire\Si\Vch\Smks;
+use Diepxuan\Catalog\Http\Livewire\Si\Vch\YearSelector;
 use Diepxuan\Catalog\Http\Livewire\So\Rpt\Arrptbccn01;
 use Diepxuan\Catalog\Http\Livewire\So\Rpt\Arrptbccn01Sl as SoArrptbccn01Sl;
 use Diepxuan\Catalog\Http\Livewire\So\Rpt\Sorptbk01;
@@ -53,7 +54,6 @@ use Diepxuan\Catalog\Http\Livewire\System\Balance\Transfer;
 use Diepxuan\Catalog\Http\Livewire\System\Balance\WorkInProgress;
 use Diepxuan\Catalog\Http\Livewire\System\CompanySelector;
 use Diepxuan\Catalog\Http\Livewire\System\SimbaPage;
-use Diepxuan\Catalog\Http\Livewire\System\YearSelector;
 use Diepxuan\Support\Http\Middleware\CorpAutoLogin;
 use Illuminate\Support\Facades\Route;
 
@@ -272,6 +272,7 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
             // ['uri' => 'po/vch/povchpo6', 'name' => 'po.vch.povchpo6', 'module' => 'po', 'kind' => 'vch', 'slug' => 'povchpo6', 'component' => SimbaPage::class],
             // ['uri' => 'po/vch/povchpo7', 'name' => 'po.vch.povchpo7', 'module' => 'po', 'kind' => 'vch', 'slug' => 'povchpo7', 'component' => SimbaPage::class],
             ['uri' => 'si/vch/smks', 'name' => 'si.vch.smks', 'module' => 'si', 'kind' => 'vch', 'slug' => 'smks', 'component' => Smks::class],
+            ['uri' => 'si/vch/year', 'name' => 'si.vch.year', 'module' => 'si', 'kind' => 'vch', 'slug' => 'year', 'component' => YearSelector::class],
             ['uri' => 'so/dict/ardmkh', 'name' => 'so.dict.ardmkh', 'module' => 'so', 'kind' => 'dict', 'slug' => 'ardmkh', 'component' => SoArdmkh::class],
             ['uri' => 'so/dict/ardmkh/create', 'name' => 'so.dict.ardmkh.create', 'module' => 'so', 'kind' => 'dict', 'slug' => 'ardmkh', 'component' => SoArdmkhForm::class],
             ['uri' => 'so/dict/ardmkh/{id}/edit', 'name' => 'so.dict.ardmkh.edit', 'module' => 'so', 'kind' => 'dict', 'slug' => 'ardmkh', 'component' => SoArdmkhForm::class],
@@ -367,7 +368,7 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
         Route::get('company', CompanySelector::class)->name('company');
         Route::resource('user', SystemUserController::class)->names('user');
         Route::resource('website', SystemWebsiteController::class)->names('website');
-        Route::get('year', YearSelector::class)->name('year');
+        Route::redirect('year', '/simba/si/vch/year')->name('year');
 
         // Balance Management Routes - Livewire Components
         Route::prefix('balance')->name('balance.')->group(static function (): void {

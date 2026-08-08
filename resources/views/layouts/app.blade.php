@@ -66,8 +66,11 @@
                     @auth
                         <x-sys-user-info />
                     @endauth
-                    <x-sys-year />
+                    <span class="mx-1"></span>
+                    @livewire('catalog::component.input-year-worked')
+                    <span class="mx-1"></span>
                     <x-sys-company />
+                    <span class="mx-1"></span>
                     <x-sys-language />
                 </div>
             </div>
