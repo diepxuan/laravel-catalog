@@ -38,6 +38,8 @@ use Diepxuan\Catalog\Http\Livewire\Si\Vch\YearSelector;
 use Diepxuan\Catalog\Http\Livewire\So\Rpt\Arrptbccn01;
 use Diepxuan\Catalog\Http\Livewire\So\Rpt\Arrptbccn01Sl as SoArrptbccn01Sl;
 use Diepxuan\Catalog\Http\Livewire\So\Rpt\Sorptbk01;
+use Diepxuan\Catalog\Http\Livewire\So\Vch\Sovchso3;
+use Diepxuan\Catalog\Http\Livewire\So\Vch\Sovchso3Edit;
 use Diepxuan\Catalog\Http\Livewire\Po\Rpt\Arrptbccn01 as PoArrptbccn01;
 use Diepxuan\Catalog\Http\Livewire\Po\Rpt\Arrptbccn01Sl as PoArrptbccn01Sl;
 use Diepxuan\Catalog\Http\Livewire\Po\Vch\Povchpo3;
@@ -308,7 +310,9 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
             // ['uri' => 'so/vch/arvchar4', 'name' => 'so.vch.arvchar4', 'module' => 'so', 'kind' => 'vch', 'slug' => 'arvchar4', 'component' => SimbaPage::class],
             // ['uri' => 'so/vch/sotaout', 'name' => 'so.vch.sotaout', 'module' => 'so', 'kind' => 'vch', 'slug' => 'sotaout', 'component' => SimbaPage::class],
             ['uri' => 'so/vch/sovchso1', 'name' => 'so.vch.sovchso1', 'module' => 'so', 'kind' => 'vch', 'slug' => 'sovchso1', 'component' => Hoadonbanhang::class],
-            // ['uri' => 'so/vch/sovchso3', 'name' => 'so.vch.sovchso3', 'module' => 'so', 'kind' => 'vch', 'slug' => 'sovchso3', 'component' => SimbaPage::class],
+            ['uri' => 'so/vch/sovchso3', 'name' => 'so.vch.sovchso3', 'module' => 'so', 'kind' => 'vch', 'slug' => 'sovchso3', 'component' => Sovchso3::class],
+            ['uri' => 'so/vch/sovchso3/create', 'name' => 'so.vch.sovchso3.create', 'module' => 'so', 'kind' => 'vch', 'slug' => 'sovchso3', 'component' => Sovchso3Edit::class],
+            ['uri' => 'so/vch/sovchso3/{id}/edit', 'name' => 'so.vch.sovchso3.edit', 'module' => 'so', 'kind' => 'vch', 'slug' => 'sovchso3', 'component' => Sovchso3Edit::class],
             // ['uri' => 'so/vch/sovchso4', 'name' => 'so.vch.sovchso4', 'module' => 'so', 'kind' => 'vch', 'slug' => 'sovchso4', 'component' => SimbaPage::class],
             // ['uri' => 'so/vch/sovchso5', 'name' => 'so.vch.sovchso5', 'module' => 'so', 'kind' => 'vch', 'slug' => 'sovchso5', 'component' => SimbaPage::class],
         ];

@@ -23,7 +23,7 @@
                     <label class="text-right text-sm text-gray-700">Tìm kiếm</label>
                     <div class="col-span-2">
                         <input wire:model.defer="pSearch"
-                            placeholder="Số HĐ, số CT, mã NCC..."
+                            placeholder="Số HĐ, số CT, mã KH..."
                             class="w-full rounded-md border border-gray-200 px-3 py-1.5 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" />
                         <x-input-error for="pSearch" class="mt-1" />
                     </div>
@@ -32,14 +32,14 @@
                 <div class="grid grid-cols-3 items-center gap-4">
                     <label class="text-right text-sm text-gray-700">Kỳ báo cáo</label>
                     <div class="col-span-2">
-                        @livewire('catalog::component.timer', key('povchpo3-timer-' . $timerKey))
+                        @livewire('catalog::component.timer', key('sovchso3-timer-' . $timerKey))
                     </div>
                 </div>
 
                 <div class="grid grid-cols-3 items-center gap-4">
-                    <label class="text-right text-sm text-gray-700">Mã nhà cung cấp</label>
+                    <label class="text-right text-sm text-gray-700">Mã khách hàng</label>
                     <div class="col-span-2">
-                        <livewire:catalog::component.input-khachhang mode="nhacungcap" wire:model="pMa_kh" />
+                        <livewire:catalog::component.input-khachhang mode="khachhang" wire:model="pMa_kh" />
                         <x-input-error for="pMa_kh" class="mt-1" />
                     </div>
                 </div>
@@ -57,7 +57,7 @@
                             wire:click="resetFilters">
                             Xóa lọc
                         </button>
-                        <a href="{{ simbaroute('po.vch.povchpo3.create') }}"
+                        <a href="{{ simbaroute('so.vch.sovchso3.create') }}"
                             class="rounded-md bg-blue-600 px-3 py-1.5 text-sm text-white hover:bg-blue-700">
                             Thêm mới
                         </a>
@@ -80,9 +80,9 @@
                                         <th class="border-b border-gray-200 px-2 py-2 text-right font-medium">#</th>
                                         <th class="border-b border-gray-200 px-2 py-2 text-left font-medium">Số CT</th>
                                         <th class="border-b border-gray-200 px-2 py-2 text-left font-medium">Ngày CT</th>
-                                        <th class="border-b border-gray-200 px-2 py-2 text-left font-medium">Số HĐ</th>
-                                        <th class="border-b border-gray-200 px-2 py-2 text-left font-medium">Ngày HĐ</th>
-                                        <th class="border-b border-gray-200 px-2 py-2 text-left font-medium">Mã NCC</th>
+                                        <th class="border-b border-gray-200 px-2 py-2 text-left font-medium">Số seri</th>
+                                        <th class="border-b border-gray-200 px-2 py-2 text-left font-medium">Mã KH</th>
+                                        <th class="border-b border-gray-200 px-2 py-2 text-left font-medium">Tên khách hàng</th>
                                         <th class="border-b border-gray-200 px-2 py-2 text-left font-medium">Diễn giải</th>
                                         <th class="border-b border-gray-200 px-2 py-2 text-right font-medium">Tổng tiền</th>
                                     </tr>
@@ -91,7 +91,7 @@
                                     @foreach ($invoices as $invoice)
                                         <tr class="hover:bg-sky-50">
                                             <td class="whitespace-nowrap px-2 py-2">
-                                                <a href="{{ simbaroute('po.vch.povchpo3.edit', $invoice['stt_rec']) }}"
+                                                <a href="{{ simbaroute('so.vch.sovchso3.edit', $invoice['stt_rec']) }}"
                                                     class="rounded border border-gray-200 px-2 py-1 text-xs font-medium text-gray-700 hover:border-sky-300 hover:text-sky-700">
                                                     Sửa
                                                 </a>
@@ -100,10 +100,10 @@
                                                 {{ $loop->iteration }}
                                             </td>
                                             <td class="whitespace-nowrap px-2 py-2 font-mono text-gray-700">{{ $invoice['so_ct'] }}</td>
-                                            <td class="whitespace-nowrap px-2 py-2 text-gray-700">{{ !empty($invoice['ngay_ct']) ? \Illuminate\Support\Carbon::parse($invoice['ngay_ct'])->format('d/m/Y') : '' }}</td>
-                                            <td class="whitespace-nowrap px-2 py-2 font-mono text-gray-700">{{ $invoice['so_hd'] ?? '' }}</td>
-                                            <td class="whitespace-nowrap px-2 py-2 text-gray-700">{{ !empty($invoice['ngay_hd']) ? \Illuminate\Support\Carbon::parse($invoice['ngay_hd'])->format('d/m/Y') : '' }}</td>
+                                            <td class="whitespace-nowrap px-2 py-2 text-gray-700">{{ \Illuminate\Support\Carbon::parse($invoice['ngay_ct'])->format('d/m/Y') }}</td>
+                                            <td class="whitespace-nowrap px-2 py-2 font-mono text-gray-700">{{ $invoice['so_seri'] ?? '' }}</td>
                                             <td class="whitespace-nowrap px-2 py-2 font-mono text-gray-700">{{ $invoice['ma_kh'] }}</td>
+                                            <td class="px-2 py-2 text-gray-700">{{ $invoice['ten_kh'] ?? '' }}</td>
                                             <td class="px-2 py-2 text-gray-700">
                                                 <div class="max-w-[420px] truncate">{{ $invoice['dien_giai'] ?? '' }}</div>
                                             </td>
@@ -116,7 +116,7 @@
                             </table>
                         </div>
                         <div class="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-500">
-                            <span>{{ count($invoices) }} dòng dữ liệu</span>
+                            <span>{{ $invoices->count() }} dòng dữ liệu</span>
                             <button type="button"
                                 class="rounded-md bg-gray-700 px-2.5 py-1 text-xs text-white hover:bg-gray-800"
                                 wire:click="exportCsv">

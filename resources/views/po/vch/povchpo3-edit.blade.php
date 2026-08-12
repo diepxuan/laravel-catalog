@@ -9,23 +9,12 @@
                 </h2>
                 <p>Chứng từ: PO3 — Hóa đơn mua hàng trong nước</p>
             </div>
-            <a href="{{ route('po.vch.povchpo3') }}"
+            <a href="{{ simbaroute('po.vch.povchpo3') }}"
                 class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-500">
                 ← Quay lại
             </a>
         </div>
     </x-slot>
-
-    @if (session()->has('success'))
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-4 text-xs">
-            {{ session('success') }}
-        </div>
-    @endif
-    @if (session()->has('error'))
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mb-4 text-xs">
-            {{ session('error') }}
-        </div>
-    @endif
 
     @if (session()->has('success'))
         <div class="mb-4 rounded border border-green-400 bg-green-100 px-4 py-2 text-xs text-green-700">
@@ -223,7 +212,13 @@
         </div>
 
         <div class="mt-4 flex justify-end gap-2">
-            <a href="{{ route('po.vch.povchpo3') }}"
+            @if ('edit' === $mode)
+                <button type="button" wire:click="deleteInvoice" wire:confirm="Bạn có chắc chắn muốn xóa hóa đơn {{ $pSo_ct }}?"
+                    class="inline-flex items-center rounded-md bg-red-600 px-4 py-2 text-xs font-semibold text-white hover:bg-red-500">
+                    Xóa hóa đơn
+                </button>
+            @endif
+            <a href="{{ simbaroute('po.vch.povchpo3') }}"
                 class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest hover:bg-gray-50">
                 Hủy
             </a>

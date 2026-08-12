@@ -18,8 +18,12 @@ use Diepxuan\Simba\SModel\SModel;
 use Diepxuan\Simba\StoredProcedures\AsGetDMHTTT;
 use Diepxuan\Simba\StoredProcedures\AsGetSoCt;
 use Diepxuan\Simba\StoredProcedures\AsGetSttRec;
+use Diepxuan\Simba\StoredProcedures\AsINGetDMKHO;
+use Diepxuan\Simba\StoredProcedures\AsINGetDMVT;
+use Diepxuan\Simba\StoredProcedures\AsPODeletePO3;
 use Diepxuan\Simba\StoredProcedures\AsPOGetPO3;
 use Diepxuan\Simba\StoredProcedures\AsPOSavePO3;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Livewire\Attributes\On;
@@ -137,96 +141,109 @@ class Povchpo3Edit extends Component
 
     public function loadInvoice(string $stt_rec): void
     {
-        $result = AsPOGetPO3::call([
+        $result = AsPOGetPO3::callWithDataSets([
             'pMa_cty' => SModel::CTY,
             'pStt_rec' => $stt_rec,
         ]);
 
-        if ($result->isEmpty()) {
+        if ([] === $result || (($result[0] ?? collect())->isEmpty())) {
             session()->flash('error', 'Không tìm thấy hóa đơn.');
 
             return;
         }
 
         // Dataset 0: Header
-        $header = $result[0];
-        $this->pStt_rec = $header->stt_rec ?? null;
-        $this->pNgay_ct = optional($header->ngay_ct)->format('Y-m-d');
-        $this->pNgay_lct = optional($header->ngay_lct)->format('Y-m-d');
-        $this->pSo_ct = $header->so_ct ?? '';
-        $this->pSo_hd = $header->so_hd ?? '';
-        $this->pNgay_hd = optional($header->ngay_hd)->format('Y-m-d');
-        $this->pMa_kh = $header->ma_kh;
-        $this->pTen_kh = $header->ten_kh ?? '';
-        $this->pNguoi_gd = $header->nguoi_gd ?? '';
-        $this->pDia_chi = $header->dia_chi ?? '';
-        $this->pMa_so_thue = $header->ma_so_thue ?? '';
-        $this->pDien_giai = $header->dien_giai ?? '';
-        $this->pMa_httt = $header->ma_httt;
-        $this->pMa_nt = $header->ma_nt ?? 'VND';
-        $this->pTy_gia = (float) ($header->ty_gia ?? 1);
-        $this->pTk_pt = $header->tk_pt ?? '';
-        $this->pTk_thue = $header->tk_thue ?? '';
+        $header = $result[0]->first();
+        if (null === $header) {
+            session()->flash('error', 'Không tìm thấy hóa đơn.');
 
-        $this->pT_tien_nt0 = (float) ($header->t_tien_nt0 ?? 0);
-        $this->pT_tien0 = (float) ($header->t_tien0 ?? 0);
-        $this->pT_cp_nt = (float) ($header->t_cp_nt ?? 0);
-        $this->pT_cp = (float) ($header->t_cp ?? 0);
-        $this->pT_thue_nt = (float) ($header->t_thue_nt ?? 0);
-        $this->pT_thue = (float) ($header->t_thue ?? 0);
-        $this->pT_ck_nt = (float) ($header->t_ck_nt ?? 0);
-        $this->pT_ck = (float) ($header->t_ck ?? 0);
-        $this->pT_tt_nt = (float) ($header->t_tt_nt ?? 0);
-        $this->pT_tt = (float) ($header->t_tt ?? 0);
-        $this->pT_so_luong = (float) ($header->t_so_luong ?? 0);
+            return;
+        }
+        $header = \is_array($header) ? $header : (array) $header;
+        $this->pStt_rec = $header['stt_rec'] ?? null;
+        $this->pNgay_ct = $this->dateValue($header['ngay_ct'] ?? null);
+        $this->pNgay_lct = $this->dateValue($header['ngay_lct'] ?? null);
+        $this->pSo_ct = (string) ($header['so_ct'] ?? '');
+        $this->pSo_hd = (string) ($header['so_hd'] ?? '');
+        $this->pNgay_hd = $this->dateValue($header['ngay_hd'] ?? null);
+        $this->pMa_kh = (string) ($header['ma_kh'] ?? '');
+        $this->pTen_kh = (string) ($header['ten_kh'] ?? '');
+        $this->pNguoi_gd = (string) ($header['nguoi_gd'] ?? '');
+        $this->pDia_chi = (string) ($header['dia_chi'] ?? '');
+        $this->pMa_so_thue = (string) ($header['ma_so_thue'] ?? '');
+        $this->pDien_giai = (string) ($header['dien_giai'] ?? '');
+        $this->pMa_httt = '' !== (string) ($header['ma_httt'] ?? '') ? (string) $header['ma_httt'] : null;
+        $this->pMa_nt = (string) ($header['ma_nt'] ?? 'VND');
+        $this->pTy_gia = (float) ($header['ty_gia'] ?? 1);
+        $this->pTk_pt = (string) ($header['tk_pt'] ?? '');
+        $this->pTk_thue = (string) ($header['tk_thue'] ?? '');
+
+        $this->pT_tien_nt0 = (float) ($header['t_tien_nt0'] ?? 0);
+        $this->pT_tien0 = (float) ($header['t_tien0'] ?? 0);
+        $this->pT_cp_nt = (float) ($header['t_cp_nt'] ?? 0);
+        $this->pT_cp = (float) ($header['t_cp'] ?? 0);
+        $this->pT_thue_nt = (float) ($header['t_thue_nt'] ?? 0);
+        $this->pT_thue = (float) ($header['t_thue'] ?? 0);
+        $this->pT_ck_nt = (float) ($header['t_ck_nt'] ?? 0);
+        $this->pT_ck = (float) ($header['t_ck'] ?? 0);
+        $this->pT_tt_nt = (float) ($header['t_tt_nt'] ?? 0);
+        $this->pT_tt = (float) ($header['t_tt'] ?? 0);
+        $this->pT_so_luong = (float) ($header['t_so_luong'] ?? 0);
 
         // Dataset 1: Chi tiet vat tu
         if (isset($result[1])) {
-            $this->pChiTiet = collect($result[1])->map(static fn ($ct) => [
-                'stt_rec0' => $ct->stt_rec0 ?? '',
-                'ma_vt' => $ct->ma_vt ?? '',
-                'ten_vt' => $ct->ten_vt ?? '',
-                'dvt' => $ct->dvt ?? '',
-                'ma_kho' => $ct->ma_kho ?? '',
-                'so_luong' => (float) ($ct->so_luong ?? 0),
-                'gia_nt0' => (float) ($ct->gia_nt0 ?? 0),
-                'gia0' => (float) ($ct->gia0 ?? 0),
-                'tien_nt0' => (float) ($ct->tien_nt0 ?? 0),
-                'tien0' => (float) ($ct->tien0 ?? 0),
-                'ts_gtgt' => (float) ($ct->ts_gtgt ?? 0),
-                'thue_gtgt_nt' => (float) ($ct->thue_gtgt_nt ?? 0),
-                'thue_gtgt' => (float) ($ct->thue_gtgt ?? 0),
-                'tl_ck' => (float) ($ct->tl_ck ?? 0),
-                'ck_nt' => (float) ($ct->ck_nt ?? 0),
-                'ck' => (float) ($ct->ck ?? 0),
-                'tien_cp_nt' => (float) ($ct->tien_cp_nt ?? 0),
-                'tien_cp' => (float) ($ct->tien_cp ?? 0),
-                'tk_vt' => $ct->tk_vt ?? '',
-                'tk_thue' => $ct->tk_thue ?? '',
-                'ma_bp' => $ct->ma_bp ?? '',
-                'ma_phi' => $ct->ma_phi ?? '',
-                'ma_spct' => $ct->ma_spct ?? '',
+            $this->pChiTiet = $result[1]->map(static fn ($ct) => [
+                'stt_rec0' => (string) ($ct['stt_rec0'] ?? ''),
+                'ma_vt' => (string) ($ct['ma_vt'] ?? ''),
+                'ten_vt' => (string) ($ct['ten_vt'] ?? ''),
+                'dvt' => (string) ($ct['dvt'] ?? ''),
+                'ma_kho' => (string) ($ct['ma_kho'] ?? ''),
+                'ma_vitri' => (string) ($ct['ma_vitri'] ?? ''),
+                'ma_lo' => (string) ($ct['ma_lo'] ?? ''),
+                'so_luong' => (float) ($ct['so_luong'] ?? 0),
+                'so_luong_qd' => (float) ($ct['so_luong_qd'] ?? 0),
+                'gia_nt0' => (float) ($ct['gia_nt0'] ?? 0),
+                'gia0' => (float) ($ct['gia0'] ?? 0),
+                'tien_nt0' => (float) ($ct['tien_nt0'] ?? 0),
+                'tien0' => (float) ($ct['tien0'] ?? 0),
+                'ma_thue' => (string) ($ct['ma_thue'] ?? ''),
+                'ts_gtgt' => (float) ($ct['ts_gtgt'] ?? 0),
+                'thue_gtgt_nt' => (float) ($ct['thue_gtgt_nt'] ?? 0),
+                'thue_gtgt' => (float) ($ct['thue_gtgt'] ?? 0),
+                'tl_ck' => (float) ($ct['tl_ck'] ?? 0),
+                'ck_nt' => (float) ($ct['ck_nt'] ?? 0),
+                'ck' => (float) ($ct['ck'] ?? 0),
+                'tien_cp_nt' => (float) ($ct['tien_cp_nt'] ?? 0),
+                'tien_cp' => (float) ($ct['tien_cp'] ?? 0),
+                'tk_vt' => (string) ($ct['tk_vt'] ?? ''),
+                'tk_thue' => (string) ($ct['tk_thue'] ?? ''),
+                'tk_dt' => (string) ($ct['tk_dt'] ?? ''),
+                'tk_gv' => (string) ($ct['tk_gv'] ?? ''),
+                'tk_ck' => (string) ($ct['tk_ck'] ?? ''),
+                'ma_bp' => (string) ($ct['ma_bp'] ?? ''),
+                'ma_phi' => (string) ($ct['ma_phi'] ?? ''),
+                'ma_spct' => (string) ($ct['ma_spct'] ?? ''),
             ])->toArray();
         }
 
         // Dataset 2: Chi phi
         if (isset($result[2])) {
-            $this->pChiPhi = collect($result[2])->map(static fn ($cp) => [
-                'stt_rec0' => $cp->stt_rec0 ?? '',
-                'ma_cp' => $cp->ma_cp ?? '',
-                'ten_cp' => $cp->ten_cp ?? '',
-                'tt_pb' => $cp->tt_pb ?? '1',
-                'tien_cp_nt' => (float) ($cp->tien_cp_nt ?? 0),
-                'tien_cp' => (float) ($cp->tien_cp ?? 0),
-                'ts_gtgt' => (float) ($cp->ts_gtgt ?? 0),
-                'thue_gtgt_nt' => (float) ($cp->thue_gtgt_nt ?? 0),
-                'thue_gtgt' => (float) ($cp->thue_gtgt ?? 0),
-                'tt_nt' => (float) ($cp->tt_nt ?? 0),
-                'tt' => (float) ($cp->tt ?? 0),
-                'ma_bp' => $cp->ma_bp ?? '',
-                'ma_phi' => $cp->ma_phi ?? '',
-                'ma_spct' => $cp->ma_spct ?? '',
-                'ma_lo' => $cp->ma_lo ?? '',
+            $this->pChiPhi = $result[2]->map(static fn ($cp) => [
+                'stt_rec0' => (string) ($cp['stt_rec0'] ?? ''),
+                'ma_cp' => (string) ($cp['ma_cp'] ?? ''),
+                'ten_cp' => (string) ($cp['ten_cp'] ?? ''),
+                'tt_pb' => (string) ($cp['tt_pb'] ?? '1'),
+                'tien_cp_nt' => (float) ($cp['tien_cp_nt'] ?? 0),
+                'tien_cp' => (float) ($cp['tien_cp'] ?? 0),
+                'ts_gtgt' => (float) ($cp['ts_gtgt'] ?? 0),
+                'thue_gtgt_nt' => (float) ($cp['thue_gtgt_nt'] ?? 0),
+                'thue_gtgt' => (float) ($cp['thue_gtgt'] ?? 0),
+                'tt_nt' => (float) ($cp['tt_nt'] ?? 0),
+                'tt' => (float) ($cp['tt'] ?? 0),
+                'ma_bp' => (string) ($cp['ma_bp'] ?? ''),
+                'ma_phi' => (string) ($cp['ma_phi'] ?? ''),
+                'ma_spct' => (string) ($cp['ma_spct'] ?? ''),
+                'ma_lo' => (string) ($cp['ma_lo'] ?? ''),
             ])->toArray();
         }
     }
@@ -337,11 +354,15 @@ class Povchpo3Edit extends Component
             'ten_vt' => '',
             'dvt' => '',
             'ma_kho' => '',
+            'ma_vitri' => '',
+            'ma_lo' => '',
             'so_luong' => 0,
+            'so_luong_qd' => 0,
             'gia_nt0' => 0,
             'gia0' => 0,
             'tien_nt0' => 0,
             'tien0' => 0,
+            'ma_thue' => '',
             'ts_gtgt' => 0,
             'thue_gtgt_nt' => 0,
             'thue_gtgt' => 0,
@@ -352,6 +373,9 @@ class Povchpo3Edit extends Component
             'tien_cp' => 0,
             'tk_vt' => '',
             'tk_thue' => '',
+            'tk_dt' => '',
+            'tk_gv' => '',
+            'tk_ck' => '',
             'ma_bp' => '',
             'ma_phi' => '',
             'ma_spct' => '',
@@ -363,6 +387,84 @@ class Povchpo3Edit extends Component
         unset($this->pChiTiet[$index]);
         $this->pChiTiet = array_values($this->pChiTiet);
         $this->recalculateTotals();
+    }
+
+    public function updated($property): void
+    {
+        if (preg_match('/^pChiTiet\.(\d+)\.ma_vt$/', (string) $property, $matches)) {
+            $this->fillVatTu((int) $matches[1]);
+
+            return;
+        }
+
+        if (preg_match('/^pChiTiet\.(\d+)\.ma_kho$/', (string) $property, $matches)) {
+            $this->fillKho((int) $matches[1]);
+        }
+    }
+
+    protected function fillVatTu(int $index): void
+    {
+        if (! isset($this->pChiTiet[$index])) {
+            return;
+        }
+
+        $maVt = (string) ($this->pChiTiet[$index]['ma_vt'] ?? '');
+        if ('' === $maVt) {
+            return;
+        }
+
+        $rows = AsINGetDMVT::call([
+            'pMa_cty'   => SModel::CTY,
+            'pMa_vt'    => $maVt,
+            'pStruct'   => '0',
+            'pLanguage' => 'vi-VN',
+        ]);
+
+        $vt = $rows->first();
+        if (null === $vt) {
+            return;
+        }
+
+        $row = &$this->pChiTiet[$index];
+        $row['ten_vt'] = (string) ($vt->ten_vt ?? '');
+        $row['dvt'] = (string) ($vt->dvt ?? $vt->dvt_mua ?? '');
+        $row['ma_thue'] = (string) ($vt->ma_thue ?? $row['ma_thue'] ?? '');
+        $row['ts_gtgt'] = (float) ($vt->ts_gtgt ?? $row['ts_gtgt'] ?? 0);
+        $row['tk_vt'] = (string) ($vt->tk_vt ?? '');
+        $row['tk_gv'] = (string) ($vt->tk_gv ?? '');
+        $row['tk_dt'] = (string) ($vt->tk_dt ?? '');
+        $row['tk_ck'] = (string) ($vt->tk_ck ?? '');
+        $row['gia_nt0'] = (float) ($vt->gia_nt0 ?? $row['gia_nt0'] ?? 0);
+        $row['ma_vitri'] = (string) ($vt->ma_vitri ?? '');
+
+        if ('' === (string) ($row['ma_kho'] ?? '') && ! empty($vt->ma_kho)) {
+            $row['ma_kho'] = (string) $vt->ma_kho;
+            $this->fillKho($index);
+        }
+
+        $this->calculateChiTietRow($index);
+    }
+
+    protected function fillKho(int $index): void
+    {
+        if (! isset($this->pChiTiet[$index])) {
+            return;
+        }
+
+        $maKho = (string) ($this->pChiTiet[$index]['ma_kho'] ?? '');
+        if ('' === $maKho) {
+            return;
+        }
+
+        $rows = AsINGetDMKHO::call([
+            'pMa_cty' => SModel::CTY,
+            'pMa_kho' => $maKho,
+            'pStruct' => '0',
+        ]);
+        $kho = $rows->first();
+        if (null !== $kho) {
+            $this->pChiTiet[$index]['ten_kho'] = (string) ($kho->ten_kho ?? '');
+        }
     }
 
     public function addChiPhiRow(): void
@@ -443,12 +545,16 @@ class Povchpo3Edit extends Component
         $this->validate([
             'pMa_kh' => 'required|string',
             'pSo_hd' => 'nullable|string',
+            'pMa_nt' => 'required|string',
             'pNgay_hd' => 'required|date',
             'pNgay_ct' => 'required|date',
+            'pTy_gia' => 'required|numeric|gt:0',
         ], [
             'pMa_kh.required' => 'Nhà cung cấp không được trống',
+            'pMa_nt.required' => 'Mã ngoại tệ không được để trống',
             'pNgay_hd.required' => 'Ngày hóa đơn không được trống',
             'pNgay_ct.required' => 'Ngày chứng từ không được trống',
+            'pTy_gia.gt' => 'Tỷ giá phải lớn hơn 0',
         ]);
 
         try {
@@ -456,7 +562,9 @@ class Povchpo3Edit extends Component
 
             $this->ensureSttRecBeforeSave();
 
-            AsPOSavePO3::call([
+            $this->recalculateTotals();
+
+            $result = AsPOSavePO3::call([
                 // Header
                 'pStt_rec' => $this->pStt_rec,
                 'pMa_ct' => self::MA_CT,
@@ -489,15 +597,43 @@ class Povchpo3Edit extends Component
                 'pChiTiet' => json_encode($this->pChiTiet),
                 'pChiPhi' => json_encode($this->pChiPhi),
             ]);
+            $this->assertProcedureSuccess($result);
 
             DB::commit();
 
             session()->flash('success', 'Đã lưu hóa đơn mua hàng.');
 
-            redirect()->route('po.vch.povchpo3');
+            $this->redirect(simbaroute('po.vch.povchpo3'));
         } catch (\Exception $e) {
             DB::rollBack();
             session()->flash('error', 'Lỗi khi lưu hóa đơn: '.$e->getMessage());
+        }
+    }
+
+    public function deleteInvoice(): void
+    {
+        if (empty($this->pStt_rec)) {
+            session()->flash('error', 'Chưa có chứng từ để xóa.');
+
+            return;
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $result = AsPODeletePO3::call([
+                'pMa_cty'  => SModel::CTY,
+                'pStt_rec' => $this->pStt_rec,
+            ]);
+            $this->assertProcedureSuccess($result);
+
+            DB::commit();
+            session()->flash('success', 'Đã xóa hóa đơn mua hàng.');
+            $this->redirect(simbaroute('po.vch.povchpo3'));
+        } catch (\Throwable $exception) {
+            DB::rollBack();
+            report($exception);
+            session()->flash('error', 'Lỗi khi xóa hóa đơn: ' . $exception->getMessage());
         }
     }
 
@@ -524,5 +660,30 @@ class Povchpo3Edit extends Component
         if (empty($this->pStt_rec)) {
             throw new \Exception('Không thể sinh stt_rec cho hóa đơn mua hàng PO3. Vui lòng kiểm tra AsGetSttRec.');
         }
+    }
+
+    protected function assertProcedureSuccess(Collection $result): void
+    {
+        $row = $result->first();
+        $pRet = \is_array($row) ? ($row['pRet'] ?? null) : ($row->pRet ?? null);
+
+        if (null !== $pRet && 0 !== (int) $pRet) {
+            throw new \RuntimeException('Stored procedure trả về mã lỗi ' . (int) $pRet . '.');
+        }
+    }
+
+    protected function dateValue(mixed $value): ?string
+    {
+        if (null === $value || '' === $value) {
+            return null;
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format('Y-m-d');
+        }
+
+        $date = \Illuminate\Support\Carbon::parse($value);
+
+        return $date->year >= 1901 ? $date->format('Y-m-d') : null;
     }
 }
