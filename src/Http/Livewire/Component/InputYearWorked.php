@@ -16,6 +16,7 @@ namespace Diepxuan\Catalog\Http\Livewire\Component;
 use Illuminate\Support\Collection;
 use Illuminate\View\View;
 use Livewire\Component;
+use Livewire\Livewire;
 
 /**
  * Input chọn năm làm việc trên header.
@@ -60,7 +61,9 @@ class InputYearWorked extends Component
         $this->selectedYear  = catalog()->year($year);
         $this->statusMessage = __('Đã chọn năm làm việc :year.', ['year' => $this->selectedYear]);
         $this->open          = false;
-        $this->redirect(request()->url(), navigate: true);
+        // request()->url() tro ve /livewire/update trong update request;
+        // originalUrl() doc memo.path tu snapshot de lay URL trang hien tai.
+        $this->redirect(Livewire::originalUrl(), navigate: true);
     }
 
     public function render(): View
