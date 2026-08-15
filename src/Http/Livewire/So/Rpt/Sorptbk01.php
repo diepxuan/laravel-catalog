@@ -14,9 +14,11 @@ declare(strict_types=1);
 namespace Diepxuan\Catalog\Http\Livewire\So\Rpt;
 
 use Diepxuan\Simba\StoredProcedures\AsSIGetDmSo_ct;
+use Diepxuan\Simba\StoredProcedures\AsSODelPH3;
 use Diepxuan\Simba\StoredProcedures\AsSORptBK01;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -191,6 +193,69 @@ class Sorptbk01 extends Component
         $this->chiTietFiltered    = [];
     }
 
+    public function canEditSelectedVoucher(): bool
+    {
+        if ([] === $this->selectedPhieu) {
+            return false;
+        }
+
+        return 'SO3' === $this->voucherTypeCode($this->selectedPhieu)
+            && '' !== $this->selectedVoucherSttRec();
+    }
+
+    public function selectedVoucherSttRec(): string
+    {
+        return (string) self::rowValue($this->selectedPhieu, ['stt_rec', 'Stt_rec', 'STT_REC']);
+    }
+
+    public function selectedVoucherSoCt(): string
+    {
+        return self::csvValue(self::rowValue($this->selectedPhieu, ['so_ct', 'So_ct']));
+    }
+
+    public function deleteSelectedVoucher(): void
+    {
+        if (!$this->canEditSelectedVoucher()) {
+            session()->flash('error', 'Chứng từ đang chọn không hỗ trợ xóa từ bảng kê này.');
+
+            return;
+        }
+
+        $sttRec = $this->selectedVoucherSttRec();
+
+        DB::beginTransaction();
+
+        try {
+            $result = AsSODelPH3::call([
+                'pMa_cty' => $this->companyId(),
+                'pStt_rec' => $sttRec,
+            ]);
+            $row = $result->first();
+            $pRet = \is_array($row) ? ($row['pRet'] ?? null) : ($row->pRet ?? null);
+
+            if (null !== $pRet && 0 !== (int) $pRet) {
+                throw new \RuntimeException('Stored procedure trả về mã lỗi ' . (int) $pRet . '.');
+            }
+
+            $this->phieuRows = array_values(array_filter(
+                $this->phieuRows,
+                static fn (array $phieu): bool => (string) self::rowValue($phieu, ['stt_rec', 'Stt_rec', 'STT_REC']) !== $sttRec
+            ));
+            $this->chiTietRows = array_values(array_filter(
+                $this->chiTietRows,
+                static fn (array $row): bool => (string) self::rowValue($row, ['stt_rec', 'Stt_rec', 'STT_REC']) !== $sttRec
+            ));
+            $this->clearSelectedPhieu();
+
+            DB::commit();
+            session()->flash('success', 'Đã xóa hóa đơn bán hàng.');
+        } catch (\Throwable $exception) {
+            DB::rollBack();
+            report($exception);
+            session()->flash('error', 'Lỗi khi xóa hóa đơn: ' . $exception->getMessage());
+        }
+    }
+
     public function exportCsv(): ?StreamedResponse
     {
         if ([] === $this->phieuRows) {
@@ -223,70 +288,96 @@ class Sorptbk01 extends Component
     }
 
     /**
+     * Danh sách cột bảng phiếu: các cột quen thuộc (với nhãn tiếng Việt, canh
+     * lề, xử lý VND/NT) đứng trước, sau đó tự bổ sung MỌI cột còn lại mà SP
+     * asSORptBK01 trả về — giống DataGridView của SimbaERP tự sinh cột từ
+     * DataTable (ReportGridviewBrowseDynamic), đảm bảo bảng hiển thị đầy đủ
+     * dữ liệu cần thiết như bản gốc. Các cột raw không có nhãn hiển thị sẽ
+     * được lọc trong appendDynamicColumns().
+     *
      * @return list<array{key:string,label:string,class:string}>
      */
     public function phieuColumns(): array
     {
         $currency = $this->isForeignCurrency() ? 'NT' : 'VND';
 
-        return [
+        $columns = [
+            ['key' => 'ma_ct', 'label' => 'Loại phiếu', 'class' => 'text-left whitespace-nowrap'],
             ['key' => 'ngay_ct', 'label' => 'Ngày CT', 'class' => 'text-left whitespace-nowrap'],
             ['key' => 'so_ct', 'label' => 'Số CT', 'class' => 'text-left whitespace-nowrap font-mono'],
             ['key' => 'ma_kh', 'label' => 'Mã KH', 'class' => 'text-left whitespace-nowrap'],
             ['key' => 'ten_kh', 'label' => 'Khách hàng', 'class' => 'text-left'],
-            ['key' => 't_tien', 'label' => 'Tiền ' . $currency, 'class' => 'text-right whitespace-nowrap'],
-            ['key' => 't_thue', 'label' => 'Thuế ' . $currency, 'class' => 'text-right whitespace-nowrap'],
-            ['key' => 't_tt', 'label' => 'Thanh toán ' . $currency, 'class' => 'text-right whitespace-nowrap'],
+            ['key' => 'tien2', 'label' => 'Tiền ' . $currency, 'class' => 'text-right whitespace-nowrap'],
+            ['key' => 'thue_gtgt', 'label' => 'Thuế ' . $currency, 'class' => 'text-right whitespace-nowrap'],
+            ['key' => 'tt', 'label' => 'Thanh toán ' . $currency, 'class' => 'text-right whitespace-nowrap'],
         ];
+
+        return $this->appendDynamicColumns($columns, $this->phieuRows);
     }
 
     /**
+     * Danh sách cột bảng chi tiết: tương tự phieuColumns(), các cột quen thuộc
+     * trước rồi tự bổ sung mọi cột còn lại của result set CT.
+     *
      * @return list<array{key:string,label:string,class:string}>
      */
     public function chiTietColumns(): array
     {
         $currency = $this->isForeignCurrency() ? 'NT' : 'VND';
 
-        return [
+        $columns = [
             ['key' => 'ma_vt', 'label' => 'Mã VT', 'class' => 'text-left whitespace-nowrap'],
             ['key' => 'ten_vt', 'label' => 'Tên vật tư', 'class' => 'text-left'],
             ['key' => 'dvt', 'label' => 'DVT', 'class' => 'text-left whitespace-nowrap'],
             ['key' => 'ma_kho', 'label' => 'Kho', 'class' => 'text-left whitespace-nowrap'],
             ['key' => 'so_luong', 'label' => 'Số lượng', 'class' => 'text-right whitespace-nowrap'],
-            ['key' => 'gia', 'label' => 'Giá ' . $currency, 'class' => 'text-right whitespace-nowrap'],
-            ['key' => 'tien', 'label' => 'Tiền ' . $currency, 'class' => 'text-right whitespace-nowrap'],
+            ['key' => 'gia2', 'label' => 'Giá ' . $currency, 'class' => 'text-right whitespace-nowrap'],
+            ['key' => 'tien2', 'label' => 'Tiền ' . $currency, 'class' => 'text-right whitespace-nowrap'],
             ['key' => 'thue_gtgt', 'label' => 'Thuế ' . $currency, 'class' => 'text-right whitespace-nowrap'],
+            ['key' => 'tt', 'label' => 'Thanh toán ' . $currency, 'class' => 'text-right whitespace-nowrap'],
             ['key' => 'ma_nvkd', 'label' => 'NVKD', 'class' => 'text-left whitespace-nowrap'],
         ];
+
+        return $this->appendDynamicColumns($columns, $this->chiTietRows);
     }
 
-    public function phieuCellValue(array $row, string $column): string
+    /**
+     * @param bool $forExport true khi xuất CSV: ô tiền trống trả về '' thay vì
+     *                        placeholder '—' (giống quy ước cũ của csvRows()).
+     */
+    public function phieuCellValue(array $row, string $column, bool $forExport = false): string
     {
         return match ($column) {
+            'ma_ct'   => self::csvValue($this->voucherTypeName(self::rowValue($row, ['ma_ct', 'Ma_ct', 'MA_CT', 'loai_ct', 'Loai_ct', 'LOAI_CT']))),
             'ngay_ct' => self::dateValue(self::rowValue($row, ['ngay_ct', 'Ngay_ct'])),
             'so_ct'   => self::csvValue(self::rowValue($row, ['so_ct', 'So_ct'])),
             'ma_kh'   => self::csvValue(self::rowValue($row, ['ma_kh', 'Ma_kh'])),
             'ten_kh'  => self::csvValue(self::rowValue($row, ['ten_kh', 'Ten_kh'])),
-            't_tien'  => $this->moneyValue($row, 't_tien'),
-            't_thue'  => $this->moneyValue($row, 't_thue'),
-            't_tt'    => $this->moneyValue($row, 't_tt'),
-            default   => self::csvValue(self::rowValue($row, [$column])),
+            'tien2'   => $this->moneyCell($row, 'tien2', $forExport),
+            'thue_gtgt' => $this->moneyCell($row, 'thue_gtgt', $forExport),
+            'tt'      => $this->moneyCell($row, 'tt', $forExport),
+            default   => $this->dynamicCellValue($row, $column, $forExport),
         };
     }
 
-    public function chiTietCellValue(array $row, string $column): string
+    /**
+     * @param bool $forExport true khi xuất CSV: ô tiền/số lượng trống trả về
+     *                        '' thay vì placeholder '—'.
+     */
+    public function chiTietCellValue(array $row, string $column, bool $forExport = false): string
     {
         return match ($column) {
             'ma_vt'     => self::csvValue(self::rowValue($row, ['ma_vt', 'Ma_vt'])),
             'ten_vt'    => self::csvValue(self::rowValue($row, ['ten_vt', 'Ten_vt'])),
             'dvt'       => self::csvValue(self::rowValue($row, ['dvt', 'Dvt'])),
             'ma_kho'    => self::csvValue(self::rowValue($row, ['ma_kho', 'Ma_kho'])),
-            'so_luong'  => self::numberValue(self::rowValue($row, ['so_luong', 'So_luong']), 4),
-            'gia'       => $this->moneyValue($row, 'gia'),
-            'tien'      => $this->moneyValue($row, 'tien'),
-            'thue_gtgt' => $this->moneyValue($row, 'thue_gtgt'),
+            'so_luong'  => $this->quantityCell($row, 'so_luong', $forExport),
+            'gia2'      => $this->moneyCell($row, 'gia2', $forExport),
+            'tien2'     => $this->moneyCell($row, 'tien2', $forExport),
+            'thue_gtgt' => $this->moneyCell($row, 'thue_gtgt', $forExport),
+            'tt'        => $this->moneyCell($row, 'tt', $forExport),
             'ma_nvkd'   => self::csvValue(self::rowValue($row, ['ma_nvkd', 'Ma_nvkd'])),
-            default     => self::csvValue(self::rowValue($row, [$column])),
+            default     => $this->dynamicCellValue($row, $column, $forExport),
         };
     }
 
@@ -361,35 +452,381 @@ class Sorptbk01 extends Component
         $rows = [];
 
         foreach ($this->phieuRows as $phieu) {
-            $rows[] = [
-                'Loai'         => 'Phiếu',
-                'Ngay CT'      => self::dateValue(self::rowValue($phieu, ['ngay_ct', 'Ngay_ct'])),
-                'So CT'        => self::csvValue(self::rowValue($phieu, ['so_ct', 'So_ct'])),
-                'Khach hang'   => self::csvValue(self::rowValue($phieu, ['ten_kh', 'Ten_kh'])),
-                'Tien'         => $this->moneyValue($phieu, 't_tien'),
-                'Thue'         => $this->moneyValue($phieu, 't_thue'),
-                'Thanh toan'   => $this->moneyValue($phieu, 't_tt'),
-            ];
+            $row = ['Loai' => 'Phiếu'];
+            foreach ($this->phieuColumns() as $column) {
+                $row[$column['label']] = $this->phieuCellValue($phieu, $column['key'], true);
+            }
+            $rows[] = $row;
         }
 
         foreach ($this->chiTietRows as $chiTiet) {
-            $rows[] = [
-                'Loai'         => 'Chi tiết',
-                'Ngay CT'      => '',
-                'So CT'        => self::csvValue(self::rowValue($chiTiet, ['stt_rec', 'Stt_rec'])),
-                'Khach hang'   => self::csvValue(self::rowValue($chiTiet, ['ten_vt', 'Ten_vt'])),
-                'Tien'         => $this->moneyValue($chiTiet, 'tien'),
-                'Thue'         => $this->moneyValue($chiTiet, 'thue_gtgt'),
-                'Thanh toan'   => '',
-            ];
+            $row = ['Loai' => 'Chi tiết'];
+            foreach ($this->chiTietColumns() as $column) {
+                $row[$column['label']] = $this->chiTietCellValue($chiTiet, $column['key'], true);
+            }
+            $rows[] = $row;
         }
 
         return $rows;
     }
 
+    /**
+     * Ghep them vao danh sach cot cac cot con lai ma SP tra ve (ngoai nhung
+     * cot da khai bao cu the). Giong SimbaERP: DataGridView tu sinh cot tu
+     * DataTable, nen bang phai hien thi day du cac truong co nhan hien thi
+     * cua result set.
+     *
+     * Bo qua: cot lien ket noi bo (stt_rec), cac bien the tien te khong dung
+     * (VND/NT theo pMa_nt) de tranh trung lap voi cot tien chinh.
+     *
+     * @param list<array{key:string,label:string,class:string}> $columns
+     * @param list<array<string,mixed>>                          $rows
+     *
+     * @return list<array{key:string,label:string,class:string}>
+     */
+    private function appendDynamicColumns(array $columns, array $rows): array
+    {
+        $seen = [];
+        foreach ($columns as $column) {
+            $seen[mb_strtolower($column['key'])] = true;
+            foreach ($this->columnKeys($column['key']) as $variant) {
+                $seen[mb_strtolower($variant)] = true;
+            }
+        }
+        $seen['stt_rec'] = true;
+
+        foreach ($rows as $row) {
+            foreach (array_keys($row) as $key) {
+                $lower = mb_strtolower((string) $key);
+                if (isset($seen[$lower])
+                    || $this->isCurrencyVariantToSkip($key)
+                    || $this->isUnlabeledColumnToSkip($key)) {
+                    continue;
+                }
+                $seen[$lower] = true;
+                $columns[] = [
+                    'key'   => (string) $key,
+                    'label' => self::extraColumnLabel($key),
+                    'class' => $this->extraColumnClass($key),
+                ];
+            }
+        }
+
+        return $columns;
+    }
+
+    /**
+     * SP asSORptBK01 tra ve them mot so truong thuc su chi dung cho viec tinh
+     * toan/hien thi o phieu hoac cac cot raw khong co nhan hien thi trong
+     * DataGridView goc. Khong them cac cot chua co nhan tieng Viet vao bang de
+     * tranh hien nhung ten cot ky thuat khong can thiet.
+     */
+    private function isUnlabeledColumnToSkip(string $key): bool
+    {
+        if (in_array(mb_strtolower($key), [
+            'stt_rec0', 'stt_rec0_dh', 'ma_lo', 'ma_vitri', 'tk_pt', 'tk_thue', 'tk_ck_ds',
+        ], true)) {
+            return true;
+        }
+
+        return mb_strtolower(self::extraColumnLabel($key)) === mb_strtolower(self::csvValue($key));
+    }
+
+    /**
+     * Bien the tien te khong dung theo lua chon pMa_nt thi khong them cot
+     * rieng (vi cot tien chinh da xu ly VND/NT): vd dang chon VND thi bo
+     * qua t_tien_nt / t_tien_nt2; dang chon NT thi bo qua t_tien / t_tien2.
+     */
+    private function isCurrencyVariantToSkip(string $key): bool
+    {
+        $lower = mb_strtolower($key);
+        $isNt  = str_contains($lower, '_nt') || str_ends_with($lower, '_nt2');
+        $isMoney = $this->isMoneyColumn($key);
+
+        if (!$isMoney) {
+            return false;
+        }
+
+        return $this->isForeignCurrency() ? !$isNt : $isNt;
+    }
+
+    /**
+     * Gia tri hien thi cho cot dong (SP tra ve them, khong nam trong match):
+     * cot tien -> dinh dang tien (co '—' khi trong), cot ngay -> dinh dang
+     * ngay, con lai -> chuoi thuan.
+     */
+    private function dynamicCellValue(array $row, string $column, bool $forExport = false): string
+    {
+        $lower = mb_strtolower($column);
+
+        if (str_starts_with($lower, 'ngay')) {
+            return self::dateValue(self::rowValue($row, [$column]));
+        }
+
+        if ($this->isQuantityColumn($column)) {
+            return $this->quantityCell($row, $column, $forExport);
+        }
+
+        if ($this->isMoneyColumn($column)) {
+            return $this->moneyCell($row, $column, $forExport);
+        }
+
+        return self::csvValue(self::rowValue($row, [$column]));
+    }
+
+    /**
+     * Cot so luong (so_luong_qd, sl_xuat, sl_xuat_qd...) — dinh dang 4 chu so
+     * thap phan khong phu thuoc vao VND/NT.
+     */
+    private function isQuantityColumn(string $column): bool
+    {
+        $lower = mb_strtolower($column);
+
+        return in_array($lower, ['so_luong', 'so_luong_qd', 'sl_xuat', 'sl_xuat_qd'], true)
+            || (bool) preg_match('/(^|_)(so_luong|sl_xuat)(_|$)/', $lower);
+    }
+
+    /**
+     * Cell tien: dinh dang so tien; khi rong hien thi '—' tren UI, CSV van ''.
+     */
+    private function moneyCell(array $row, string $column, bool $forExport): string
+    {
+        $value = $this->moneyValue($row, $column);
+
+        return $forExport ? $value : self::moneyDisplay($value);
+    }
+
+    /**
+     * Cell so luong: 4 chu so thap phan; khi rong hien thi '—' tren UI.
+     */
+    private function quantityCell(array $row, string $column, bool $forExport): string
+    {
+        $value = self::numberValue(self::rowValue($row, [$column]), 4);
+
+        return $forExport ? $value : self::moneyDisplay($value);
+    }
+
+    /**
+     * Cot tien/so luong (canh phai, danh dau am/SO4): gom cac cot quen thuoc
+     * + cac cot dong co ten chua tien/thue/gia/ck/so_luong.
+     */
+    private function isMoneyColumn(string $column): bool
+    {
+        $lower = mb_strtolower($column);
+
+        if (in_array($lower, [
+            't_tien', 't_thue', 't_tt', 't_ck', 't_ck_ds', 't_gg', 't_cp', 't_tien_hh', 't_thue_hh', 't_tt_cp',
+            'so_luong', 'so_luong_qd', 'sl_xuat', 'sl_xuat_qd',
+            'gia', 'tien', 'gia2', 'tien2', 'tt', 'tt_nt',
+            'thue_gtgt', 'thue_gtgt_nt', 'tien_ck', 'tien_ck_nt', 'ck_ds', 'ck_ds_nt',
+            'ty_gia',
+        ], true)) {
+            return true;
+        }
+
+        return (bool) preg_match('/(^|_)(t_tien|t_thue|t_tt|t_ck|t_gg|t_cp|tien|thue|gia|so_luong)(_|$)/', $lower);
+    }
+
+    /**
+     * Nhan tieng Viet cho cac cot phu hay gap cua SP (PH/CT SO3-SO5); neu
+     * chua co thi hien thi chinh ten cot.
+     */
+    private static function extraColumnLabel(string $key): string
+    {
+        $labels = [
+            'ma_nt'         => 'Mã NT',
+            'ty_gia'        => 'Tỷ giá',
+            'dien_giai'     => 'Diễn giải',
+            'nguoi_gd'      => 'Người giao dịch',
+            'so_seri'       => 'Số seri',
+            'so_seri_mhd'   => 'Mẫu HĐ',
+            'so_hd'         => 'Số HĐ',
+            'ngay_hd'       => 'Ngày HĐ',
+            'ngay_lct'      => 'Ngày lập',
+            'ngay_px'       => 'Ngày PX',
+            'so_px'         => 'Số PX',
+            'ngay_pn'       => 'Ngày PN',
+            'so_pn'         => 'Số PN',
+            'ma_so_thue'    => 'MST',
+            'ten_kh_vat'    => 'Tên KH (HĐ)',
+            'dia_chi_vat'   => 'Địa chỉ (HĐ)',
+            'ma_httt'       => 'HTTT',
+            'httt'          => 'Tên HTTT',
+            'ma_tt'         => 'ĐKTT',
+            'trang_thai'    => 'Trạng thái',
+            'ma_hd'         => 'Mã HĐ',
+            'ten_hd'        => 'Tên HĐ',
+            'ma_bp'         => 'Bộ phận',
+            'ten_nvkd'      => 'Tên NVKD',
+            'ma_gd'         => 'Mã GD',
+            'tk_pt'         => 'TK phải thu',
+            'tk_thue'       => 'TK thuế',
+            'tk_ck_ds'      => 'TK chiết khấu doanh số',
+            'ma_lo'         => 'Mã lô',
+            'ma_vitri'      => 'Vị trí',
+            'ma_spct'       => 'SPCT',
+            'ma_phi'        => 'Mã phí',
+            'ma_thue'       => 'Mã thuế',
+            'ts_gtgt'       => 'Thuế suất',
+            'ma_kho'        => 'Mã kho',
+            'ten_vt'        => 'Tên vật tư',
+            'dvt'           => 'DVT',
+            'stt_rec0'      => 'STT',
+            'so_luong_qd'   => 'SL quy đổi',
+            'sl_xuat'       => 'SL xuất',
+            'sl_xuat_qd'    => 'SL xuất QĐ',
+            't_ck'          => 'Chiết khấu',
+            't_ck_nt'       => 'Chiết khấu NT',
+            't_ck_ds'       => 'Chiết khấu doanh số',
+            't_ck_ds_nt'    => 'Chiết khấu doanh số NT',
+            't_gg'          => 'Giảm giá',
+            't_gg_nt'       => 'Giảm giá NT',
+            't_cp'          => 'Chi phí',
+            't_cp_nt'       => 'Chi phí NT',
+            't_tien_hh'     => 'Tiền hàng hóa',
+            't_tien_hh_nt'  => 'Tiền HH NT',
+            't_thue_hh'     => 'Thuế HH',
+            't_thue_hh_nt'  => 'Thuế HH NT',
+            't_tt_cp'       => 'TT chi phí',
+            't_tt_cp_nt'    => 'TT chi phí NT',
+            't_so_luong'    => 'Tổng SL',
+            'tien_ck'       => 'Tiền chiết khấu',
+            'tien_ck_nt'    => 'Tiền chiết khấu NT',
+            'ck_ds'         => 'Chiết khấu doanh số',
+            'ck_ds_nt'      => 'Chiết khấu doanh số NT',
+            'gia_nt'        => 'Giá NT',
+            'gia_nt2'       => 'Giá NT',
+            'tien_nt'       => 'Tiền NT',
+            'tien_nt2'      => 'Tiền NT',
+            'thue_gtgt_nt'  => 'Thuế NT',
+            't_tien_nt'     => 'Tiền NT',
+            't_tien_nt2'    => 'Tiền NT',
+            't_thue_nt'     => 'Thuế NT',
+            't_tt_nt'       => 'TT NT',
+            't_tt_nt2'      => 'TT NT',
+            'ma_nvkd'       => 'NVKD',
+            'ma_bp'         => 'Bộ phận',
+            'nguoi_lap'     => 'Người lập',
+            'post2gl'       => 'Đã post GL',
+            'post2in'       => 'Đã post IN',
+            'so_dh'         => 'Số ĐH',
+            'ngay_dh'       => 'Ngày ĐH',
+            'ma_nhkh'       => 'Nhóm KH',
+            'ma_nhvt'       => 'Nhóm VT',
+            'ma_plkh1'      => 'PL KH 1',
+            'ma_plkh2'      => 'PL KH 2',
+            'ma_plkh3'      => 'PL KH 3',
+            'ma_plvt1'      => 'PL VT 1',
+            'ma_plvt2'      => 'PL VT 2',
+            'ma_plvt3'      => 'PL VT 3',
+            'ma_hd'         => 'Số HĐ',
+            'nguoi_nhan'    => 'Người nhận',
+            'cty_nhan'      => 'Cty nhận',
+            'dc_nhan'       => 'Địa chỉ nhận',
+            'tel_nhan'      => 'ĐT nhận',
+            'ten_kho'       => 'Tên kho',
+            'ten_nv'       => 'Tên NV',
+        ];
+
+        $lower = mb_strtolower($key);
+
+        return $labels[$lower] ?? self::csvValue($key);
+    }
+
+    /**
+     * Class canh le cho cot dong: cot tien/so luong canh phai; cot ngay/cot
+     * ma canh trai; cot dien giai/dia chi/ten cho phep xuong dong.
+     */
+    private function extraColumnClass(string $key): string
+    {
+        $lower = mb_strtolower($key);
+
+        if ($this->isMoneyColumn($key)) {
+            return 'text-right whitespace-nowrap';
+        }
+
+        if (str_contains($lower, 'dien_giai') || str_contains($lower, 'dia_chi') || str_contains($lower, 'ten_') || str_contains($lower, 'httt')) {
+            return 'text-left';
+        }
+
+        return 'text-left whitespace-nowrap';
+    }
+
     private function moneyValue(array $row, string $column): string
     {
-        $keys = match ($column) {
+        return self::numberValue(
+            self::rowValue($row, $this->columnKeys($column)),
+            $this->isForeignCurrency() ? 4 : 0
+        );
+    }
+
+    /**
+     * Text color class cho cell bảng phiếu: do nhat (text-red-500) khi phiếu
+     * tra lai (SO4) hoặc gia tri am, xam mac dinh cho cac cell khac.
+     */
+    public function phieuCellClass(array $row, string $column): string
+    {
+        return $this->isMoneyColumn($column) && $this->isReturnCell($row, $column)
+            ? 'text-red-500'
+            : 'text-gray-700';
+    }
+
+    /**
+     * Text color class cho cell bang chi tiet: do nhat (text-red-500) khi
+     * phieu dang chon la phieu tra lai (SO4) hoặc gia tri am, xam mac dinh
+     * cho cac cell khac.
+     */
+    public function chiTietCellClass(array $row, string $column): string
+    {
+        $isReturn = 'SO4' === $this->voucherTypeCode($this->selectedPhieu);
+
+        return $this->isMoneyColumn($column)
+            && ($isReturn || $this->isNegative($row, $column))
+            ? 'text-red-500'
+            : 'text-gray-700';
+    }
+
+    /**
+     * Cell tiền cua phiếu tra lai (SO4) hoặc gia tri am duoc danh mau do nhat.
+     *
+     * SO4 luu so tien duong trong SoPh4, dau am chi ap dung khi post GL
+     * (asPostSoPh4_glct) — nen phai nhan dien theo ma_ct chu khong phai
+     * dau am, neu khong phiếu tra hang khong bao gio co mau.
+     */
+    private function isReturnCell(array $row, string $column): bool
+    {
+        if ($this->isNegative($row, $column)) {
+            return true;
+        }
+
+        return 'SO4' === $this->voucherTypeCode($row);
+    }
+
+    /**
+     * Gia tri am nghia la phiếu tra lai (so tien / so luong bi tru di).
+     */
+    private function isNegative(array $row, string $column): bool
+    {
+        $value = self::rowValue($row, $this->columnKeys($column));
+
+        return is_numeric($value) && (float) $value < 0;
+    }
+
+    /**
+     * Ma chung tu (ma_ct) cua mot row PH/CT, chuan hoa hoa — chi tiet ct
+     * khong co ma_ct nen lay tu phieu cha dang chon khi can.
+     */
+    private function voucherTypeCode(array $row): string
+    {
+        return mb_strtoupper(trim((string) self::rowValue($row, ['ma_ct', 'Ma_ct', 'MA_CT', 'loai_ct', 'Loai_ct', 'LOAI_CT'])));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function columnKeys(string $column): array
+    {
+        return match ($column) {
             't_tien' => $this->isForeignCurrency()
                 ? ['t_tien_nt', 't_tien_nt2', 't_tien', 't_tien2']
                 : ['t_tien', 't_tien2', 't_tien_nt', 't_tien_nt2'],
@@ -402,16 +839,24 @@ class Sorptbk01 extends Component
             'gia' => $this->isForeignCurrency()
                 ? ['gia_nt', 'gia_nt2', 'gia', 'gia2']
                 : ['gia', 'gia2', 'gia_nt', 'gia_nt2'],
+            'gia2' => $this->isForeignCurrency()
+                ? ['gia_nt2', 'gia_nt', 'gia2', 'gia']
+                : ['gia2', 'gia', 'gia_nt2', 'gia_nt'],
             'tien' => $this->isForeignCurrency()
                 ? ['tien_nt', 'tien_nt2', 'tien', 'tien2']
                 : ['tien', 'tien2', 'tien_nt', 'tien_nt2'],
+            'tien2' => $this->isForeignCurrency()
+                ? ['tien_nt2', 'tien_nt', 'tien2', 'tien']
+                : ['tien2', 'tien', 'tien_nt2', 'tien_nt'],
             'thue_gtgt' => $this->isForeignCurrency()
                 ? ['thue_gtgt_nt', 'thue_gtgt', 't_thue_nt', 't_thue']
                 : ['thue_gtgt', 't_thue', 'thue_gtgt_nt', 't_thue_nt'],
+            'tt' => $this->isForeignCurrency()
+                ? ['tt_nt', 'tt', 't_tt_nt', 't_tt']
+                : ['tt', 't_tt', 'tt_nt', 't_tt_nt'],
+            'so_luong' => ['so_luong', 'So_luong'],
             default => [$column],
         };
-
-        return self::numberValue(self::rowValue($row, $keys), $this->isForeignCurrency() ? 4 : 0);
     }
 
     private function nullableString(?string $value): string
@@ -472,6 +917,29 @@ class Sorptbk01 extends Component
         $this->phieuRows = [];
         $this->chiTietRows = [];
         $this->clearSelectedPhieu();
+    }
+
+    /**
+     * Tra ve ten loai phieu (ten_ct) tu ma chung tu (ma_ct) trong danh muc
+     * asSIGetDmSo_ct; fallback la chinh ma_ct neu chua co trong danh muc.
+     *
+     * SORptBK01 gop nhieu loai phieu SO1-SO5 nen can cot Loai phieu de phan
+     * biet phieu ban hang (SO3) voi phieu nhap hang ban bi tra lai (SO4).
+     */
+    private function voucherTypeName(mixed $value): string
+    {
+        $maCt = trim((string) $value);
+        if ('' === $maCt) {
+            return '';
+        }
+
+        foreach ($this->voucherTypes as $voucherType) {
+            if (($voucherType['ma_ct'] ?? '') === $maCt) {
+                return (string) ($voucherType['ten_ct'] ?? $maCt);
+            }
+        }
+
+        return $maCt;
     }
 
     /**
@@ -541,6 +1009,15 @@ class Sorptbk01 extends Component
         }
 
         return $date->format('d/m/Y');
+    }
+
+    /**
+     * O rong trong cot tien/thue/thanh toan duoc hien thi la '—' de phan biet
+     * voi cell du lieu thieu (khong co gia tri khong phai loi). CSV van xuat ''.
+     */
+    private static function moneyDisplay(string $value): string
+    {
+        return '' === $value ? '—' : $value;
     }
 
     private static function numberValue(mixed $value, int $maxDecimals): string

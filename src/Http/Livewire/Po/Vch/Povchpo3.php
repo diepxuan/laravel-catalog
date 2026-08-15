@@ -14,7 +14,8 @@ declare(strict_types=1);
 namespace Diepxuan\Catalog\Http\Livewire\Po\Vch;
 
 use Diepxuan\Simba\StoredProcedures\AsPOFilt3;
-use Diepxuan\Support\Collection;
+use Diepxuan\Simba\StoredProcedures\AsPODeletePO3;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 use Livewire\Component;
 
@@ -44,11 +45,23 @@ class Povchpo3 extends Component
 
     public int $timerKey = 0;
 
-    protected $invoices;
+    /** @var list<array<string, mixed>> */
+    public array $phieuRows = [];
+
+    /** @var list<array<string, mixed>> */
+    public array $chiTietRows = [];
+
+    /** @var list<array<string, mixed>> */
+    public array $chiTietFiltered = [];
+
+    public ?int $selectedPhieuIndex = null;
+
+    /** @var array<string, mixed> */
+    public array $selectedPhieu = [];
 
     public function mount(): void
     {
-        $this->invoices = collect();
+        $this->clearSelection();
     }
 
     public function updated($property): void
@@ -73,10 +86,17 @@ class Povchpo3 extends Component
             'pKeyCt' => AsPOFilt3::keyCt($maCty),
         ]);
 
-        $this->invoices = $sets['ph']
-            ->map(static fn (mixed $row): array => (array) $row);
+        $this->phieuRows = $sets['ph']
+            ->map(static fn (mixed $row): array => (array) $row)
+            ->values()
+            ->all();
+        $this->chiTietRows = $sets['ct']
+            ->map(static fn (mixed $row): array => self::normalizePoDetail($row))
+            ->values()
+            ->all();
+        $this->clearSelection();
 
-        if ($this->invoices->isNotEmpty()) {
+        if ([] !== $this->phieuRows) {
             $this->dispatch('switch-tab', 'content');
         }
     }
@@ -90,12 +110,79 @@ class Povchpo3 extends Component
         \CatalogService::timer(['id' => 't' . str_pad((string) now()->month, 2, '0', STR_PAD_LEFT)]);
         $this->timerKey++;
 
-        $this->invoices = collect();
+        $this->phieuRows = [];
+        $this->chiTietRows = [];
+        $this->clearSelection();
+    }
+
+    public function selectPhieu(int $index): void
+    {
+        if (!isset($this->phieuRows[$index])) {
+            $this->clearSelection();
+
+            return;
+        }
+
+        if ($index === $this->selectedPhieuIndex) {
+            $this->clearSelection();
+
+            return;
+        }
+
+        $this->selectedPhieuIndex = $index;
+        $this->selectedPhieu = $this->phieuRows[$index];
+        $sttRec = (string) ($this->selectedPhieu['stt_rec'] ?? '');
+        $this->chiTietFiltered = array_values(array_filter(
+            $this->chiTietRows,
+            static fn (array $row): bool => (string) ($row['stt_rec'] ?? '') === $sttRec
+        ));
+    }
+
+    public function clearSelection(): void
+    {
+        $this->selectedPhieuIndex = null;
+        $this->selectedPhieu = [];
+        $this->chiTietFiltered = [];
+    }
+
+    public function deleteInvoice(string $sttRec): void
+    {
+        DB::beginTransaction();
+
+        try {
+            $result = AsPODeletePO3::call([
+                'pMa_cty' => (string) \CatalogService::company()->id,
+                'pStt_rec' => $sttRec,
+            ]);
+            $row = $result->first();
+            $pRet = \is_array($row) ? ($row['pRet'] ?? null) : ($row->pRet ?? null);
+
+            if (null !== $pRet && 0 !== (int) $pRet) {
+                throw new \RuntimeException('Stored procedure trả về mã lỗi ' . (int) $pRet . '.');
+            }
+
+            $this->phieuRows = array_values(array_filter(
+                $this->phieuRows,
+                static fn (array $phieu): bool => (string) ($phieu['stt_rec'] ?? '') !== $sttRec
+            ));
+            $this->chiTietRows = array_values(array_filter(
+                $this->chiTietRows,
+                static fn (array $row): bool => (string) ($row['stt_rec'] ?? '') !== $sttRec
+            ));
+            $this->clearSelection();
+
+            DB::commit();
+            session()->flash('success', 'Đã xóa hóa đơn mua hàng.');
+        } catch (\Throwable $exception) {
+            DB::rollBack();
+            report($exception);
+            session()->flash('error', 'Lỗi khi xóa hóa đơn: ' . $exception->getMessage());
+        }
     }
 
     public function exportCsv(): \Symfony\Component\HttpFoundation\StreamedResponse
     {
-        $rows = $this->invoices ?? collect();
+        $rows = $this->phieuRows;
         $filename = 'po3-hoa-don-mua-hang-' . now()->format('Ymd-His') . '.csv';
 
         return response()->streamDownload(static function () use ($rows): void {
@@ -125,7 +212,32 @@ class Povchpo3 extends Component
     public function render(): View
     {
         return view('catalog::po.vch.povchpo3', [
-            'invoices' => $this->invoices,
+            'phieuRows' => $this->phieuRows,
+            'chiTietFiltered' => $this->chiTietFiltered,
+            'selectedPhieuIndex' => $this->selectedPhieuIndex,
+            'selectedPhieu' => $this->selectedPhieu,
         ])->layout('catalog::layouts.app');
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function normalizePoDetail(mixed $row): array
+    {
+        $row = \is_array($row) ? $row : (array) $row;
+
+        return [
+            'stt_rec' => (string) ($row['stt_rec'] ?? ''),
+            'stt_rec0' => (string) ($row['stt_rec0'] ?? ''),
+            'ma_vt' => (string) ($row['ma_vt'] ?? ''),
+            'ten_vt' => (string) ($row['ten_vt'] ?? ''),
+            'dvt' => (string) ($row['dvt'] ?? ''),
+            'ma_kho' => (string) ($row['ma_kho'] ?? ''),
+            'so_luong' => (float) ($row['so_luong'] ?? 0),
+            'gia_nt0' => (float) ($row['gia_nt0'] ?? 0),
+            'tien_nt0' => (float) ($row['tien_nt0'] ?? 0),
+            'thue_gtgt_nt' => (float) ($row['thue_gtgt_nt'] ?? 0),
+            'tt_nt' => (float) ($row['tt_nt'] ?? 0),
+        ];
     }
 }

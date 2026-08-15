@@ -281,7 +281,7 @@
                                                 class="cursor-pointer {{ $selectedPhieuIndex === $loop->index ? 'bg-sky-50' : 'hover:bg-sky-50' }}">
                                                 <td class="px-2 py-2 text-right tabular-nums text-gray-400">{{ $loop->iteration }}</td>
                                                 @foreach ($phieuColumns as $column)
-                                                    <td class="{{ $column['class'] }} px-2 py-2 text-gray-700">
+                                                    <td class="{{ $column['class'] }} px-2 py-2 {{ $this->phieuCellClass($phieu, $column['key']) }}">
                                                         {{ $this->phieuCellValue($phieu, $column['key']) }}
                                                     </td>
                                                 @endforeach
@@ -324,7 +324,7 @@
                                                     <tr class="hover:bg-sky-50">
                                                         <td class="px-2 py-2 text-right tabular-nums text-gray-400">{{ $loop->iteration }}</td>
                                                         @foreach ($chiTietColumns as $column)
-                                                            <td class="{{ $column['class'] }} px-2 py-2 text-gray-700">
+                                                            <td class="{{ $column['class'] }} px-2 py-2 {{ $this->chiTietCellClass($chiTiet, $column['key']) }}">
                                                                 {{ $this->chiTietCellValue($chiTiet, $column['key']) }}
                                                             </td>
                                                         @endforeach
@@ -333,8 +333,22 @@
                                             </tbody>
                                         </table>
                                     </div>
-                                    <div class="border-t border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-500">
-                                        {{ number_format(count($chiTietFiltered)) }} dòng chi tiết
+                                    <div class="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-500">
+                                        <span>{{ number_format(count($chiTietFiltered)) }} dòng chi tiết</span>
+                                        @if ($this->canEditSelectedVoucher())
+                                            <div class="flex items-center gap-2">
+                                                <a href="{{ simbaroute('so.vch.sovchso3.edit', $this->selectedVoucherSttRec()) }}"
+                                                    class="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-700 hover:bg-yellow-200">
+                                                    Sửa
+                                                </a>
+                                                <button type="button"
+                                                    wire:click="deleteSelectedVoucher"
+                                                    wire:confirm="Bạn có chắc chắn muốn xóa chứng từ {{ $this->selectedVoucherSoCt() }}?"
+                                                    class="rounded bg-red-100 px-2 py-1 text-xs text-red-700 hover:bg-red-200">
+                                                    Xóa
+                                                </button>
+                                            </div>
+                                        @endif
                                     </div>
                                 @else
                                     <div class="p-4 text-sm text-gray-600">Phiếu không có chi tiết.</div>
