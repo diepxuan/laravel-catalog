@@ -57,8 +57,10 @@ class TimerConfig
             $from   = session('timeStart');
             $to     = session('timeEnd');
 
-            // Nếu chưa có session, tính toán mặc định
-            if (!$from || !$to) {
+            // Period định sẵn (tháng/quý/nửa năm/cả năm) luôn tính lại theo
+            // năm làm việc hiện tại (session('year')), để đổi năm ở header
+            // phản ánh ngay vào range. Chỉ custom mode giữ cache from/to.
+            if (!$from || !$to || !self::isCustom($timeId)) {
                 $result = self::calculateTimeRange($timeId);
                 $from   = $result['from'];
                 $to     = $result['to'];

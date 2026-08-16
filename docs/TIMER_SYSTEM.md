@@ -279,7 +279,11 @@ SESSION_DRIVER=file  # or database, redis
 
 ### Date range sai năm
 
-**Check**: Year session key set correctly?
+Period định sẵn (tháng/quý/nửa năm/cả năm) **luôn tính lại** theo năm làm việc
+hiện tại (`session('year')`) mỗi lần đọc, nên đổi năm ở header phản ánh ngay
+vào range. Chỉ **custom mode** (`c`) giữ cache `from`/`to` do user nhập.
+
+Nếu range vẫn sai năm, check year session key:
 ```php
 // In controller or middleware
 session(['year' => 2026]);
