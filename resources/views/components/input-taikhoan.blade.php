@@ -146,13 +146,7 @@
                     },
 
                     normalizeText(value) {
-                        return String(value || '')
-                            .normalize('NFD')
-                            .replace(/[\u0300-\u036f]/g, '')
-                            .replace(/[đĐ]/g, 'd')
-                            .toLowerCase()
-                            .trim()
-                            .replace(/\s+/g, ' ');
+                        return window.PortalSearch.normalize(value);
                     },
 
                     openDropdown() {
@@ -234,7 +228,7 @@
                         if (!query) return base.slice(0, 10);
 
                         const q = this.normalizeText(query);
-                        return base.filter(acc => acc._search.includes(q)).slice(0, 10);
+                        return base.filter(acc => window.PortalSearch.matchesSubsequence(acc._search, q)).slice(0, 10);
                     }
                 }
             }

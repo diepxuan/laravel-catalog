@@ -69,22 +69,29 @@ class Sorptbk01 extends Component
     public ?string $pTieu_de  = 'Bảng kê chứng từ bán hàng';
     public ?string $errorMessage = null;
 
-    /** @var list<array<string,mixed>> */
-    public array $phieuRows = [];
-
-    /** @var list<array<string,mixed>> */
-    public array $chiTietRows = [];
-
-    /** @var list<array<string,mixed>> */
-    public array $chiTietFiltered = [];
-
     /** @var list<array{ma_ct:string,ten_ct:string}> */
     public array $voucherTypes = [];
 
-    public ?int $selectedPhieuIndex = null;
+    /** Co du lieu bao cao da load (bật nút Xuất Excel ở tab lọc). */
+    public bool $hasData = false;
 
-    /** @var array<string,mixed> */
-    public array $selectedPhieu = [];
+    /**
+     * Du lieu bao cao KHONG nam trong snapshot Livewire: chi giu phia server
+     * (session) de export CSV / xoa chung tu, con hien thi do Alpine render
+     * client-side tu payload dispatch mot lan khi submit.
+     *
+     * @var list<array<string,mixed>>
+     */
+    private array $phieuRows = [];
+
+    /** @var list<array<string,mixed>> */
+    private array $chiTietRows = [];
+
+    /** @var null|list<array{key:string,label:string,class:string}> */
+    private ?array $phieuColumns = null;
+
+    /** @var null|list<array{key:string,label:string,class:string}> */
+    private ?array $chiTietColumns = null;
 
     public function mount(
         ?string $module = null,
@@ -144,20 +151,29 @@ class Sorptbk01 extends Component
         try {
             $data = AsSORptBK01::callWithDataSets($this->procedurePayload());
 
-            $this->phieuRows = $data['ph']
-                ->map(fn (mixed $row): array => self::rowToArray($row))
-                ->values()
-                ->all();
-            $this->chiTietRows = $data['ct']
-                ->map(fn (mixed $row): array => self::rowToArray($row))
-                ->values()
-                ->all();
-            $this->clearSelectedPhieu();
+            $phieuRows   = $data['ph']->map(fn (mixed $row): array => self::rowToArray($row))->values()->all();
+            $chiTietRows = $data['ct']->map(fn (mixed $row): array => self::rowToArray($row))->values()->all();
 
-            if ([] !== $this->phieuRows) {
-                $this->selectPhieu(0);
-            }
+            $this->phieuRows    = $phieuRows;
+            $this->chiTietRows  = $chiTietRows;
+            $this->phieuColumns = $this->buildPhieuColumns($phieuRows);
+            $this->chiTietColumns = $this->buildChiTietColumns($chiTietRows);
+            $this->hasData      = [] !== $phieuRows;
 
+            // Cat du lieu tho + cot vao session de export CSV / xoa chung tu
+            // (khong giu trong snapshot Livewire).
+            session([$this->reportSessionKey() => [
+                'phieu'   => $phieuRows,
+                'chitiet' => $chiTietRows,
+            ]]);
+
+            $this->dispatch(
+                'sorptbk01-report-loaded',
+                phieuColumns: $this->phieuColumns,
+                chiTietColumns: $this->chiTietColumns,
+                phieu: $this->clientRows($phieuRows, $this->phieuColumns, 'phieuCellValue'),
+                chiTiet: $this->clientRows($chiTietRows, $this->chiTietColumns, 'chiTietCellValue'),
+            );
             $this->dispatch('switch-tab', 'content');
         } catch (\Throwable $exception) {
             report($exception);
@@ -168,60 +184,35 @@ class Sorptbk01 extends Component
         }
     }
 
-    public function selectPhieu(int $index): void
+    /**
+     * Xoa chung tu SO3 theo stt_rec (Alpine goi sau khi user chon phieu va
+     * xac nhan). Thanh cong: dispatch event de Alpine loai dong khoi bang
+     * client-side, khong can goi lai SP.
+     */
+    public function deleteVoucher(string $sttRec): void
     {
-        if (!isset($this->phieuRows[$index])) {
-            $this->clearSelectedPhieu();
+        $sttRec = trim($sttRec);
+        if ('' === $sttRec) {
+            session()->flash('error', 'Chứng từ không hợp lệ.');
 
             return;
         }
 
-        $this->selectedPhieuIndex = $index;
-        $this->selectedPhieu      = $this->phieuRows[$index];
-        $sttRec = self::rowValue($this->selectedPhieu, ['stt_rec', 'Stt_rec', 'STT_REC']);
+        $stored = $this->storedReport();
+        $phieu  = null;
+        foreach ($stored['phieu'] as $row) {
+            if ((string) self::rowValue($row, ['stt_rec', 'Stt_rec', 'STT_REC']) === $sttRec) {
+                $phieu = $row;
 
-        $this->chiTietFiltered = array_values(array_filter(
-            $this->chiTietRows,
-            static fn (array $row): bool => (string) self::rowValue($row, ['stt_rec', 'Stt_rec', 'STT_REC']) === (string) $sttRec
-        ));
-    }
-
-    public function clearSelectedPhieu(): void
-    {
-        $this->selectedPhieuIndex = null;
-        $this->selectedPhieu      = [];
-        $this->chiTietFiltered    = [];
-    }
-
-    public function canEditSelectedVoucher(): bool
-    {
-        if ([] === $this->selectedPhieu) {
-            return false;
+                break;
+            }
         }
 
-        return 'SO3' === $this->voucherTypeCode($this->selectedPhieu)
-            && '' !== $this->selectedVoucherSttRec();
-    }
-
-    public function selectedVoucherSttRec(): string
-    {
-        return (string) self::rowValue($this->selectedPhieu, ['stt_rec', 'Stt_rec', 'STT_REC']);
-    }
-
-    public function selectedVoucherSoCt(): string
-    {
-        return self::csvValue(self::rowValue($this->selectedPhieu, ['so_ct', 'So_ct']));
-    }
-
-    public function deleteSelectedVoucher(): void
-    {
-        if (!$this->canEditSelectedVoucher()) {
+        if (null === $phieu || 'SO3' !== $this->voucherTypeCode($phieu)) {
             session()->flash('error', 'Chứng từ đang chọn không hỗ trợ xóa từ bảng kê này.');
 
             return;
         }
-
-        $sttRec = $this->selectedVoucherSttRec();
 
         DB::beginTransaction();
 
@@ -237,18 +228,20 @@ class Sorptbk01 extends Component
                 throw new \RuntimeException('Stored procedure trả về mã lỗi ' . (int) $pRet . '.');
             }
 
-            $this->phieuRows = array_values(array_filter(
-                $this->phieuRows,
-                static fn (array $phieu): bool => (string) self::rowValue($phieu, ['stt_rec', 'Stt_rec', 'STT_REC']) !== $sttRec
+            $stored['phieu'] = array_values(array_filter(
+                $stored['phieu'],
+                static fn (array $item): bool => (string) self::rowValue($item, ['stt_rec', 'Stt_rec', 'STT_REC']) !== $sttRec
             ));
-            $this->chiTietRows = array_values(array_filter(
-                $this->chiTietRows,
-                static fn (array $row): bool => (string) self::rowValue($row, ['stt_rec', 'Stt_rec', 'STT_REC']) !== $sttRec
+            $stored['chitiet'] = array_values(array_filter(
+                $stored['chitiet'],
+                static fn (array $item): bool => (string) self::rowValue($item, ['stt_rec', 'Stt_rec', 'STT_REC']) !== $sttRec
             ));
-            $this->clearSelectedPhieu();
+            session([$this->reportSessionKey() => $stored]);
+            $this->hasData = [] !== $stored['phieu'];
 
             DB::commit();
             session()->flash('success', 'Đã xóa hóa đơn bán hàng.');
+            $this->dispatch('sorptbk01-voucher-deleted', sttRec: $sttRec);
         } catch (\Throwable $exception) {
             DB::rollBack();
             report($exception);
@@ -258,7 +251,9 @@ class Sorptbk01 extends Component
 
     public function exportCsv(): ?StreamedResponse
     {
-        if ([] === $this->phieuRows) {
+        $stored = $this->storedReport();
+
+        if ([] === $stored['phieu']) {
             $this->errorMessage = 'Chưa có dữ liệu để xuất.';
 
             return null;
@@ -295,9 +290,11 @@ class Sorptbk01 extends Component
      * dữ liệu cần thiết như bản gốc. Các cột raw không có nhãn hiển thị sẽ
      * được lọc trong appendDynamicColumns().
      *
+     * @param list<array<string,mixed>> $rows
+     *
      * @return list<array{key:string,label:string,class:string}>
      */
-    public function phieuColumns(): array
+    private function buildPhieuColumns(array $rows): array
     {
         $currency = $this->isForeignCurrency() ? 'NT' : 'VND';
 
@@ -312,16 +309,18 @@ class Sorptbk01 extends Component
             ['key' => 'tt', 'label' => 'Thanh toán ' . $currency, 'class' => 'text-right whitespace-nowrap'],
         ];
 
-        return $this->appendDynamicColumns($columns, $this->phieuRows);
+        return $this->appendDynamicColumns($columns, $rows);
     }
 
     /**
      * Danh sách cột bảng chi tiết: tương tự phieuColumns(), các cột quen thuộc
      * trước rồi tự bổ sung mọi cột còn lại của result set CT.
      *
+     * @param list<array<string,mixed>> $rows
+     *
      * @return list<array{key:string,label:string,class:string}>
      */
-    public function chiTietColumns(): array
+    private function buildChiTietColumns(array $rows): array
     {
         $currency = $this->isForeignCurrency() ? 'NT' : 'VND';
 
@@ -338,7 +337,7 @@ class Sorptbk01 extends Component
             ['key' => 'ma_nvkd', 'label' => 'NVKD', 'class' => 'text-left whitespace-nowrap'],
         ];
 
-        return $this->appendDynamicColumns($columns, $this->chiTietRows);
+        return $this->appendDynamicColumns($columns, $rows);
     }
 
     /**
@@ -402,8 +401,7 @@ class Sorptbk01 extends Component
     public function render(): View
     {
         return view('catalog::so.rpt.sorptbk01', [
-            'phieuColumns' => $this->phieuColumns(),
-            'chiTietColumns' => $this->chiTietColumns(),
+            'editUrlTemplate' => simbaroute('so.vch.sovchso3.edit', ['id' => '__STT_REC__']),
         ]);
     }
 
@@ -449,19 +447,23 @@ class Sorptbk01 extends Component
      */
     private function csvRows(): array
     {
+        $stored = $this->storedReport();
+        $phieuColumns   = $this->buildPhieuColumns($stored['phieu']);
+        $chiTietColumns = $this->buildChiTietColumns($stored['chitiet']);
+
         $rows = [];
 
-        foreach ($this->phieuRows as $phieu) {
+        foreach ($stored['phieu'] as $phieu) {
             $row = ['Loai' => 'Phiếu'];
-            foreach ($this->phieuColumns() as $column) {
+            foreach ($phieuColumns as $column) {
                 $row[$column['label']] = $this->phieuCellValue($phieu, $column['key'], true);
             }
             $rows[] = $row;
         }
 
-        foreach ($this->chiTietRows as $chiTiet) {
+        foreach ($stored['chitiet'] as $chiTiet) {
             $row = ['Loai' => 'Chi tiết'];
-            foreach ($this->chiTietColumns() as $column) {
+            foreach ($chiTietColumns as $column) {
                 $row[$column['label']] = $this->chiTietCellValue($chiTiet, $column['key'], true);
             }
             $rows[] = $row;
@@ -761,32 +763,6 @@ class Sorptbk01 extends Component
     }
 
     /**
-     * Text color class cho cell bảng phiếu: do nhat (text-red-500) khi phiếu
-     * tra lai (SO4) hoặc gia tri am, xam mac dinh cho cac cell khac.
-     */
-    public function phieuCellClass(array $row, string $column): string
-    {
-        return $this->isMoneyColumn($column) && $this->isReturnCell($row, $column)
-            ? 'text-red-500'
-            : 'text-gray-700';
-    }
-
-    /**
-     * Text color class cho cell bang chi tiet: do nhat (text-red-500) khi
-     * phieu dang chon la phieu tra lai (SO4) hoặc gia tri am, xam mac dinh
-     * cho cac cell khac.
-     */
-    public function chiTietCellClass(array $row, string $column): string
-    {
-        $isReturn = 'SO4' === $this->voucherTypeCode($this->selectedPhieu);
-
-        return $this->isMoneyColumn($column)
-            && ($isReturn || $this->isNegative($row, $column))
-            ? 'text-red-500'
-            : 'text-gray-700';
-    }
-
-    /**
      * Cell tiền cua phiếu tra lai (SO4) hoặc gia tri am duoc danh mau do nhat.
      *
      * SO4 luu so tien duong trong SoPh4, dau am chi ap dung khi post GL
@@ -916,7 +892,72 @@ class Sorptbk01 extends Component
     {
         $this->phieuRows = [];
         $this->chiTietRows = [];
-        $this->clearSelectedPhieu();
+        $this->phieuColumns = null;
+        $this->chiTietColumns = null;
+        $this->hasData = false;
+        session()->forget($this->reportSessionKey());
+    }
+
+    private function reportSessionKey(): string
+    {
+        return 'sorptbk01.report.' . $this->getId();
+    }
+
+    /**
+     * Du lieu tho da cat trong session o submit() — dung cho export CSV va
+     * xoa chung tu.
+     *
+     * @return array{phieu: list<array<string,mixed>>, chitiet: list<array<string,mixed>>}
+     */
+    private function storedReport(): array
+    {
+        $stored = session($this->reportSessionKey());
+
+        return [
+            'phieu'   => $stored['phieu'] ?? [],
+            'chitiet' => $stored['chitiet'] ?? [],
+        ];
+    }
+
+    /**
+     * Pre-format rows cho Alpine: moi row giu stt_rec/ma_ct/so_ct kem cac
+     * cell da dinh dang san (gia tri + class mau) theo danh sach cot, de
+     * bang render client-side khong can goi lai server.
+     *
+     * @param list<array<string,mixed>>                          $rows
+     * @param list<array{key:string,label:string,class:string}> $columns
+     *
+     * @return list<array{stt_rec:string,ma_ct:string,so_ct:string,cells:list<array{v:string,c:string}>}>
+     */
+    private function clientRows(array $rows, array $columns, string $valueMethod): array
+    {
+        // Chi tiet ct khong co ma_ct — nhan dien phieu cha (SO3/SO4...) theo stt_rec.
+        $maCtBySttRec = [];
+        foreach ($this->phieuRows as $phieu) {
+            $maCtBySttRec[(string) self::rowValue($phieu, ['stt_rec', 'Stt_rec', 'STT_REC'])] = $this->voucherTypeCode($phieu);
+        }
+
+        return array_map(function (array $row) use ($columns, $valueMethod, $maCtBySttRec): array {
+            $sttRec = (string) self::rowValue($row, ['stt_rec', 'Stt_rec', 'STT_REC']);
+            $maCt   = $this->voucherTypeCode($row) ?: ($maCtBySttRec[$sttRec] ?? '');
+
+            $cells = [];
+            foreach ($columns as $column) {
+                $isRed = $this->isMoneyColumn($column['key'])
+                    && ('SO4' === $maCt || $this->isNegative($row, $column['key']));
+                $cells[] = [
+                    'v' => $this->{$valueMethod}($row, $column['key']),
+                    'c' => $isRed ? 'text-red-500' : 'text-gray-700',
+                ];
+            }
+
+            return [
+                'stt_rec' => $sttRec,
+                'ma_ct'   => $maCt,
+                'so_ct'   => self::csvValue(self::rowValue($row, ['so_ct', 'So_ct'])),
+                'cells'   => $cells,
+            ];
+        }, $rows);
     }
 
     /**

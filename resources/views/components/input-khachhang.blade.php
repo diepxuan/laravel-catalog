@@ -78,9 +78,8 @@
                     initComponent() {
                         this.customers = this.customers.map((kh) => ({
                             ...kh,
-                            _ten_kh: this.normalizeText(kh.ten_kh),
-                            _abbrev: this.abbreviate(kh.ten_kh),
-                            _search: this.normalizeText([kh.ma_kh, kh.ten_kh, kh.dia_chi, kh.tel].join(' ')),
+                            _ten_kh: window.PortalSearch.normalize(kh.ten_kh),
+                            _search: window.PortalSearch.normalize([kh.ma_kh, kh.ten_kh, kh.dia_chi, kh.tel].join(' ')),
                         }));
 
                         this.filtered = this.filterCustomers(this.search);
@@ -92,30 +91,6 @@
                                 this.highlightedIndex = -1;
                             }, 150);
                         });
-                    },
-
-                    normalizeText(value) {
-                        return String(value || '')
-                            .normalize('NFD')
-                            .replace(/[\u0300-\u036f]/g, '')
-                            .replace(/[đĐ]/g, 'd')
-                            .toLowerCase()
-                            .trim()
-                            .replace(/\s+/g, ' ');
-                    },
-
-                    abbreviate(value) {
-                        const normalized = this.normalizeText(value);
-                        if (!normalized) {
-                            return '';
-                        }
-
-                        const words = normalized
-                            .split(/\s+/)
-                            .filter((word) => /^[a-z0-9]/.test(word));
-                        const initials = words.map((word) => word[0]).join('');
-
-                        return initials + ' ' + words.map((word) => word).join(' ');
                     },
 
                     optionId(index) {
@@ -134,7 +109,7 @@
                             return;
                         }
 
-                        const q = this.normalizeText(this.search);
+                        const q = window.PortalSearch.normalize(this.search);
                         if (!q) {
                             this.selectedValue = null;
                             this.$wire.set('value', null);
@@ -147,9 +122,9 @@
                             return;
                         }
 
-                        const abbrevMatches = this.customers.filter((kh) => kh._abbrev.includes(q));
-                        if (1 === abbrevMatches.length) {
-                            this.selectCustomer(abbrevMatches[0]);
+                        const sequenceMatches = this.customers.filter((kh) => window.PortalSearch.matchesSubsequence(kh._search, q));
+                        if (1 === sequenceMatches.length) {
+                            this.selectCustomer(sequenceMatches[0]);
                             return;
                         }
 
@@ -159,7 +134,7 @@
                             return;
                         }
 
-                        const contains = this.customers.filter((kh) => kh._ten_kh.includes(q));
+                        const contains = this.customers.filter((kh) => kh._search.includes(q));
                         if (1 === contains.length) {
                             this.selectCustomer(contains[0]);
                             return;
@@ -229,28 +204,29 @@
                     },
 
                     filterCustomers(query) {
-                        const q = this.normalizeText(query);
+                        const q = window.PortalSearch.normalize(query);
                         if (!q) {
                             return this.customers.slice(0, 20);
                         }
 
                         const exactName = this.customers.filter((kh) => kh._ten_kh === q);
-                        const abbrev = this.customers.filter(
-                            (kh) => kh._ten_kh !== q && kh._abbrev.includes(q)
+                        const contains = this.customers.filter(
+                            (kh) => kh._ten_kh !== q
+                                && kh._search.includes(q)
                         );
                         const startsWith = this.customers.filter(
                             (kh) => kh._ten_kh !== q
-                                && !kh._abbrev.includes(q)
+                                && !kh._search.includes(q)
                                 && kh._ten_kh.startsWith(q)
                         );
-                        const contains = this.customers.filter(
+                        const sequence = this.customers.filter(
                             (kh) => kh._ten_kh !== q
-                                && !kh._abbrev.includes(q)
+                                && !kh._search.includes(q)
                                 && !kh._ten_kh.startsWith(q)
-                                && kh._search.includes(q)
+                                && window.PortalSearch.matchesSubsequence(kh._search, q)
                         );
 
-                        return [...exactName, ...abbrev, ...startsWith, ...contains].slice(0, 20);
+                        return [...exactName, ...contains, ...startsWith, ...sequence].slice(0, 20);
                     }
                 };
             };

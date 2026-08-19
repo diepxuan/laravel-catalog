@@ -94,13 +94,7 @@
                     },
 
                     normalizeText(value) {
-                        return String(value || '')
-                            .normalize('NFD')
-                            .replace(/[\u0300-\u036f]/g, '')
-                            .replace(/[đĐ]/g, 'd')
-                            .toLowerCase()
-                            .trim()
-                            .replace(/\s+/g, ' ');
+                        return window.PortalSearch.normalize(value);
                     },
 
                     optionId(index) {
@@ -192,7 +186,7 @@
                             return this.htttList.slice(0, 20);
                         }
 
-                        return this.htttList.filter((ht) => ht._search.includes(q)).slice(0, 20);
+                        return this.htttList.filter((ht) => window.PortalSearch.matchesSubsequence(ht._search, q)).slice(0, 20);
                     }
                 };
             };

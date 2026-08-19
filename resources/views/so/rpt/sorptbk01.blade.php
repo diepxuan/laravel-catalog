@@ -235,7 +235,7 @@
                             wire:click="submit">
                             Thực hiện
                         </x-button-loading>
-                        @if ([] !== $phieuRows)
+                        @if ($hasData)
                             <x-button-loading
                                 class="rounded-md bg-gray-700 px-3 py-1.5 text-sm text-white hover:bg-gray-800"
                                 wire:click="exportCsv">
@@ -246,122 +246,194 @@
                 </div>
             </div>
 
-            <div x-show="activeTab === 'content'" class="w-full overflow-x-auto py-2">
+            <div x-show="activeTab === 'content'"
+                x-data="sorptbk01Report(@js($editUrlTemplate))"
+                @sorptbk01-report-loaded.window="onLoaded($event.detail)"
+                @sorptbk01-voucher-deleted.window="onDeleted($event.detail)"
+                class="w-full overflow-x-auto py-2">
                 @if ($errorMessage)
                     <div class="mb-3 rounded border border-red-200 bg-red-50 p-3 text-sm text-red-700">
                         {{ $errorMessage }}
                     </div>
                 @endif
 
-                @if ([] === $phieuRows)
-                    <div class="rounded border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
-                        Chưa có dữ liệu. Nhập điều kiện lọc rồi bấm Thực hiện.
-                    </div>
-                @else
-                    <div class="space-y-4">
-                        <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-                            <div class="border-b border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700">
-                                Danh sách phiếu
-                            </div>
-                            <div class="max-h-[calc(100vh-300px)] overflow-y-auto">
-                                <table class="min-w-max text-left text-xs">
-                                    <thead class="sticky top-0 z-10 bg-gray-50 text-gray-500">
-                                        <tr>
-                                            <th class="border-b border-gray-200 px-2 py-2 text-right font-medium">#</th>
-                                            @foreach ($phieuColumns as $column)
-                                                <th class="{{ $column['class'] }} border-b border-gray-200 px-2 py-2 font-medium">
-                                                    {{ $column['label'] }}
-                                                </th>
-                                            @endforeach
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-gray-100">
-                                        @foreach ($phieuRows as $phieu)
-                                            <tr wire:click="selectPhieu({{ $loop->index }})"
-                                                class="cursor-pointer {{ $selectedPhieuIndex === $loop->index ? 'bg-sky-50' : 'hover:bg-sky-50' }}">
-                                                <td class="px-2 py-2 text-right tabular-nums text-gray-400">{{ $loop->iteration }}</td>
-                                                @foreach ($phieuColumns as $column)
-                                                    <td class="{{ $column['class'] }} px-2 py-2 {{ $this->phieuCellClass($phieu, $column['key']) }}">
-                                                        {{ $this->phieuCellValue($phieu, $column['key']) }}
-                                                    </td>
-                                                @endforeach
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-500">
-                                <span>{{ number_format(count($phieuRows)) }} phiếu</span>
-                                <x-button-loading
-                                    class="rounded-md bg-gray-700 px-2.5 py-1 text-xs text-white hover:bg-gray-800"
-                                    wire:click="exportCsv">
-                                    Xuất Excel
-                                </x-button-loading>
-                            </div>
-                        </div>
+                <div x-show="!loaded" class="rounded border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
+                    Chưa có dữ liệu. Nhập điều kiện lọc rồi bấm Thực hiện.
+                </div>
 
-                        @if ([] !== $selectedPhieu)
-                            <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-                                <div class="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-3 py-2">
-                                    <span class="text-sm font-medium text-gray-700">Chi tiết phiếu #{{ ($selectedPhieuIndex ?? 0) + 1 }}</span>
-                                    <span class="font-mono text-xs text-gray-500">{{ $this->phieuCellValue($selectedPhieu, 'so_ct') }}</span>
-                                </div>
-                                @if ([] !== $chiTietFiltered)
+                <div x-show="loaded" class="space-y-4">
+                    <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+                        <div class="border-b border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-700">
+                            Danh sách phiếu
+                        </div>
+                        <div class="max-h-[calc(100vh-300px)] overflow-y-auto">
+                            <table class="min-w-max text-left text-xs">
+                                <thead class="sticky top-0 z-10 bg-gray-50 text-gray-500">
+                                    <tr>
+                                        <th class="border-b border-gray-200 px-2 py-2 text-right font-medium">#</th>
+                                        <template x-for="column in phieuColumns" :key="column.key">
+                                            <th :class="column.class" class="border-b border-gray-200 px-2 py-2 font-medium" x-text="column.label"></th>
+                                        </template>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">
+                                    <template x-for="(phieu, index) in phieuRows" :key="phieu.stt_rec">
+                                        <tr @click="selectPhieu(index)"
+                                            :class="selectedIndex === index ? 'bg-sky-50' : 'cursor-pointer hover:bg-sky-50'">
+                                            <td class="px-2 py-2 text-right tabular-nums text-gray-400" x-text="index + 1"></td>
+                                            <template x-for="(cell, ci) in phieu.cells" :key="ci">
+                                                <td :class="[phieuColumns[ci].class, cell.c]" class="px-2 py-2" x-text="cell.v"></td>
+                                            </template>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-500">
+                            <span x-text="phieuRows.length.toLocaleString('vi-VN') + ' phiếu'"></span>
+                            <x-button-loading
+                                class="rounded-md bg-gray-700 px-2.5 py-1 text-xs text-white hover:bg-gray-800"
+                                wire:click="exportCsv">
+                                Xuất Excel
+                            </x-button-loading>
+                        </div>
+                    </div>
+
+                    <template x-if="selectedPhieu">
+                        <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+                            <div class="flex items-center justify-between border-b border-gray-200 bg-gray-50 px-3 py-2">
+                                <span class="text-sm font-medium text-gray-700" x-text="'Chi tiết phiếu #' + ((selectedIndex ?? 0) + 1)"></span>
+                                <span class="font-mono text-xs text-gray-500" x-text="selectedPhieu.so_ct"></span>
+                            </div>
+                            <template x-if="chiTietFiltered.length > 0">
+                                <div>
                                     <div class="max-h-[calc(100vh-420px)] overflow-y-auto">
                                         <table class="min-w-max text-left text-xs">
                                             <thead class="sticky top-0 z-10 bg-gray-50 text-gray-500">
                                                 <tr>
                                                     <th class="border-b border-gray-200 px-2 py-2 text-right font-medium">#</th>
-                                                    @foreach ($chiTietColumns as $column)
-                                                        <th class="{{ $column['class'] }} border-b border-gray-200 px-2 py-2 font-medium">
-                                                            {{ $column['label'] }}
-                                                        </th>
-                                                    @endforeach
+                                                    <template x-for="column in chiTietColumns" :key="column.key">
+                                                        <th :class="column.class" class="border-b border-gray-200 px-2 py-2 font-medium" x-text="column.label"></th>
+                                                    </template>
                                                 </tr>
                                             </thead>
                                             <tbody class="divide-y divide-gray-100">
-                                                @foreach ($chiTietFiltered as $chiTiet)
+                                                <template x-for="(chiTiet, index) in chiTietFiltered" :key="chiTiet.stt_rec + '-' + index">
                                                     <tr class="hover:bg-sky-50">
-                                                        <td class="px-2 py-2 text-right tabular-nums text-gray-400">{{ $loop->iteration }}</td>
-                                                        @foreach ($chiTietColumns as $column)
-                                                            <td class="{{ $column['class'] }} px-2 py-2 {{ $this->chiTietCellClass($chiTiet, $column['key']) }}">
-                                                                {{ $this->chiTietCellValue($chiTiet, $column['key']) }}
-                                                            </td>
-                                                        @endforeach
+                                                        <td class="px-2 py-2 text-right tabular-nums text-gray-400" x-text="index + 1"></td>
+                                                        <template x-for="(cell, ci) in chiTiet.cells" :key="ci">
+                                                            <td :class="[chiTietColumns[ci].class, cell.c]" class="px-2 py-2" x-text="cell.v"></td>
+                                                        </template>
                                                     </tr>
-                                                @endforeach
+                                                </template>
                                             </tbody>
                                         </table>
                                     </div>
                                     <div class="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-500">
-                                        <span>{{ number_format(count($chiTietFiltered)) }} dòng chi tiết</span>
-                                        @if ($this->canEditSelectedVoucher())
+                                        <span x-text="chiTietFiltered.length.toLocaleString('vi-VN') + ' dòng chi tiết'"></span>
+                                        <template x-if="selectedPhieu.ma_ct === 'SO3' && selectedPhieu.stt_rec">
                                             <div class="flex items-center gap-2">
-                                                <a href="{{ simbaroute('so.vch.sovchso3.edit', $this->selectedVoucherSttRec()) }}"
+                                                <a :href="editUrlFor(selectedPhieu)"
                                                     class="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-700 hover:bg-yellow-200">
                                                     Sửa
                                                 </a>
                                                 <button type="button"
-                                                    wire:click="deleteSelectedVoucher"
-                                                    wire:confirm="Bạn có chắc chắn muốn xóa chứng từ {{ $this->selectedVoucherSoCt() }}?"
+                                                    @click="confirmDelete(selectedPhieu)"
                                                     class="rounded bg-red-100 px-2 py-1 text-xs text-red-700 hover:bg-red-200">
                                                     Xóa
                                                 </button>
                                             </div>
-                                        @endif
+                                        </template>
                                     </div>
-                                @else
-                                    <div class="p-4 text-sm text-gray-600">Phiếu không có chi tiết.</div>
-                                @endif
-                            </div>
-                        @else
-                            <div class="rounded border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
-                                Chọn một phiếu ở bảng trên để xem chi tiết.
-                            </div>
-                        @endif
-                    </div>
-                @endif
+                                </div>
+                            </template>
+                            <template x-if="chiTietFiltered.length === 0">
+                                <div class="p-4 text-sm text-gray-600">Phiếu không có chi tiết.</div>
+                            </template>
+                        </div>
+                    </template>
+
+                    <template x-if="!selectedPhieu">
+                        <div class="rounded border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
+                            Chọn một phiếu ở bảng trên để xem chi tiết.
+                        </div>
+                    </template>
+                </div>
             </div>
         </x-slot:content>
     </x-nav-tabs>
 </div>
+
+@once
+@push('scripts')
+<script>
+    (function () {
+        if (typeof window.sorptbk01Report !== 'undefined') {
+            return;
+        }
+
+        window.sorptbk01Report = function (editUrlTemplate) {
+            return {
+                loaded: false,
+                phieuColumns: [],
+                chiTietColumns: [],
+                phieuRows: [],
+                chiTietRows: [],
+                selectedIndex: null,
+                selectedPhieu: null,
+                chiTietFiltered: [],
+                editUrlTemplate: editUrlTemplate || '#',
+
+                onLoaded(detail) {
+                    this.phieuColumns = detail.phieuColumns || [];
+                    this.chiTietColumns = detail.chiTietColumns || [];
+                    this.phieuRows = detail.phieu || [];
+                    this.chiTietRows = detail.chiTiet || [];
+                    this.loaded = this.phieuRows.length > 0;
+                    this.selectPhieu(this.loaded ? 0 : null);
+                },
+
+                onDeleted(detail) {
+                    const sttRec = detail.sttRec;
+                    this.phieuRows = this.phieuRows.filter((row) => row.stt_rec !== sttRec);
+                    this.chiTietRows = this.chiTietRows.filter((row) => row.stt_rec !== sttRec);
+                    this.loaded = this.phieuRows.length > 0;
+                    this.selectPhieu(this.loaded ? 0 : null);
+                },
+
+                selectPhieu(index) {
+                    if (index === null || !this.phieuRows[index]) {
+                        this.selectedIndex = null;
+                        this.selectedPhieu = null;
+                        this.chiTietFiltered = [];
+
+                        return;
+                    }
+
+                    this.selectedIndex = index;
+                    this.selectedPhieu = this.phieuRows[index];
+                    const sttRec = this.selectedPhieu.stt_rec;
+                    this.chiTietFiltered = this.chiTietRows.filter((row) => row.stt_rec === sttRec);
+                },
+
+                editUrlFor(phieu) {
+                    if (!phieu || !phieu.stt_rec) {
+                        return '#';
+                    }
+
+                    return this.editUrlTemplate.replace('__STT_REC__', encodeURIComponent(phieu.stt_rec));
+                },
+
+                confirmDelete(phieu) {
+                    if (!confirm('Bạn có chắc chắn muốn xóa chứng từ ' + phieu.so_ct + '?')) {
+                        return;
+                    }
+
+                    this.$wire.deleteVoucher(phieu.stt_rec);
+                },
+            };
+        };
+    })();
+</script>
+@endpush
+@endonce

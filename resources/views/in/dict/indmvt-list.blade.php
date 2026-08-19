@@ -1,4 +1,53 @@
-<div class="space-y-3">
+<div class="space-y-3"
+    x-data="{
+        search: '',
+        resultLabel: @js(count($rows) . ' vật tư'),
+        selected: false,
+        detail: {},
+        matchesRow(el) {
+            return window.PortalSearch.matchesSubsequence(el.dataset.search, this.search);
+        },
+        updateResultLabel() {
+            const rows = Array.from(this.$refs.rows.querySelectorAll('tr[data-search]'));
+            const visible = rows.filter((row) => row.style.display !== 'none').length;
+            this.resultLabel = visible + ' / ' + rows.length + ' vật tư';
+        },
+        selectRow(el) {
+            const ds = el.dataset;
+            const field = (name) => {
+                const cell = Array.from(el.querySelectorAll('[data-field]'))
+                    .find((node) => node.dataset.field === name);
+                return cell ? (cell.textContent || '').trim() : '';
+            };
+
+            this.detail = {
+                ma_vt: field('ma_vt'),
+                ten_vt: field('ten_vt'),
+                dvt: field('dvt'),
+                ma_nhvt: field('ma_nhvt'),
+                ma_kho: field('ma_kho'),
+                ma_vitri: field('ma_vitri'),
+                tk_vt: field('tk_vt'),
+                tk_dt: field('tk_dt'),
+                tk_gv: field('tk_gv'),
+                ton_kho: field('ton_kho'),
+                loai: field('loai'),
+                gia_ton: field('gia_ton'),
+                ksd: field('ksd'),
+                ma_thue: ds.maThue || '',
+                part_no: ds.partNo || '',
+                nha_sx: ds.nhaSx || '',
+                nha_pp: ds.nhaPp || '',
+                nuoc_sx: ds.nuocSx || '',
+            };
+            this.selected = true;
+        },
+        onDeleted() {
+            this.selected = false;
+            this.detail = {};
+        },
+    }"
+    @indmvt-list.deleted.window="onDeleted()">
     @if ($errorMessage)
         <div class="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
             {{ $errorMessage }}
@@ -16,28 +65,29 @@
         <div class="relative w-full max-w-xl">
             <input
                 type="text"
-                wire:model.live.debounce.300ms="search"
+                x-model="search"
+                @input="updateResultLabel()"
                 placeholder="Tìm theo mã, tên, nhóm, ĐVT, tài khoản vật tư..."
                 class="w-full rounded-md border-gray-300 py-2 pl-3 pr-10 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500"
             />
-            @if ($search)
-                <button
-                    type="button"
-                    wire:click="$set('search', '')"
-                    class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600"
-                >
-                    Xóa
-                </button>
-            @endif
+            <button
+                type="button"
+                x-show="search.length > 0"
+                @click="search = ''; updateResultLabel()"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 hover:text-gray-600"
+                style="display: none;"
+            >
+                Xóa
+            </button>
         </div>
-        <span class="text-xs text-gray-500">{{ count($displayRows) }} / {{ count($rows) }} vật tư</span>
-        <button
-            type="button"
-            wire:click="openCreate"
-            class="rounded-md bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700"
-        >
-            Thêm vật tư
-        </button>
+        <span class="text-xs text-gray-500" x-text="resultLabel"></span>
+                        <button
+                            type="button"
+                            wire:click="openCreate"
+                            class="rounded-md bg-blue-600 px-3 py-2 text-sm text-white hover:bg-blue-700"
+                        >
+                            Thêm vật tư
+                        </button>
     </div>
 
     <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
@@ -67,28 +117,44 @@
                     <th class="border-b border-gray-200 px-2 py-2 text-right font-medium">Thao tác</th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100">
-                @forelse ($displayRows as $row)
+            <tbody x-ref="rows" class="divide-y divide-gray-100">
+                @forelse ($rows as $row)
                     @php($maVt = (string) ($row['ma_vt'] ?? ''))
+                    @php($searchFields = collect([
+                        $row['ma_vt'] ?? '',
+                        $row['ten_vt'] ?? '',
+                        $row['ma_nhvt'] ?? '',
+                        $row['dvt'] ?? '',
+                        $row['tk_vt'] ?? '',
+                        $row['ma_kho'] ?? '',
+                        $row['ma_vitri'] ?? '',
+                    ])->map(static fn ($value) => (string) $value)->implode(' '))
                     <tr
                         wire:key="indmvt-list-{{ $maVt }}"
-                        wire:click="selectItem(@js($maVt))"
+                        data-search="{{ $searchFields }}"
+                        data-ma-thue="{{ $row['ma_thue'] ?? '' }}"
+                        data-part-no="{{ $row['part_no'] ?? '' }}"
+                        data-nha-sx="{{ $row['nha_sx'] ?? '' }}"
+                        data-nha-pp="{{ $row['nha_pp'] ?? '' }}"
+                        data-nuoc-sx="{{ $row['nuoc_sx'] ?? '' }}"
+                        x-show="matchesRow($el)"
+                        @click="selectRow($el)"
                         class="cursor-pointer hover:bg-sky-50 {{ $selectedMaVt === $maVt ? 'bg-blue-50' : '' }}"
                     >
-                        <td class="px-2 py-2 text-right text-gray-400">{{ $loop->iteration }}</td>
-                        <td class="whitespace-nowrap px-2 py-2 font-mono font-semibold text-gray-900">{{ $maVt }}</td>
-                        <td class="min-w-64 px-2 py-2 text-gray-800">{{ $row['ten_vt'] ?? '' }}</td>
-                        <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['dvt'] ?? '' }}</td>
-                        <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['ma_nhvt'] ?? '' }}</td>
-                        <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['ma_kho'] ?? '' }}</td>
-                        <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['ma_vitri'] ?? '' }}</td>
-                        <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['tk_vt'] ?? '' }}</td>
-                        <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['tk_dt'] ?? '' }}</td>
-                        <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['tk_gv'] ?? '' }}</td>
-                        <td class="px-2 py-2 text-center">{{ (int) ($row['ton_kho'] ?? 0) ? 'Có' : 'Không' }}</td>
-                        <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['loai'] ?? '' }}</td>
-                        <td class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['gia_ton'] ?? '' }}</td>
-                        <td class="px-2 py-2 text-center">{{ (int) ($row['ksd'] ?? 0) ? 'Có' : '' }}</td>
+                        <td data-field="index" class="px-2 py-2 text-right text-gray-400">{{ $loop->iteration }}</td>
+                        <td data-field="ma_vt" class="whitespace-nowrap px-2 py-2 font-mono font-semibold text-gray-900">{{ $maVt }}</td>
+                        <td data-field="ten_vt" class="min-w-64 px-2 py-2 text-gray-800">{{ $row['ten_vt'] ?? '' }}</td>
+                        <td data-field="dvt" class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['dvt'] ?? '' }}</td>
+                        <td data-field="ma_nhvt" class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['ma_nhvt'] ?? '' }}</td>
+                        <td data-field="ma_kho" class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['ma_kho'] ?? '' }}</td>
+                        <td data-field="ma_vitri" class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['ma_vitri'] ?? '' }}</td>
+                        <td data-field="tk_vt" class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['tk_vt'] ?? '' }}</td>
+                        <td data-field="tk_dt" class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['tk_dt'] ?? '' }}</td>
+                        <td data-field="tk_gv" class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['tk_gv'] ?? '' }}</td>
+                        <td data-field="ton_kho" class="px-2 py-2 text-center">{{ (int) ($row['ton_kho'] ?? 0) ? 'Có' : 'Không' }}</td>
+                        <td data-field="loai" class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['loai'] ?? '' }}</td>
+                        <td data-field="gia_ton" class="whitespace-nowrap px-2 py-2 font-mono">{{ $row['gia_ton'] ?? '' }}</td>
+                        <td data-field="ksd" class="px-2 py-2 text-center">{{ (int) ($row['ksd'] ?? 0) ? 'Có' : '' }}</td>
                         <td class="whitespace-nowrap px-2 py-2 text-right" wire:click.stop>
                             @if ($deleteMaVt === $maVt)
                                 <div class="flex items-center justify-end gap-2">
@@ -112,5 +178,54 @@
             </tbody>
         </table>
     </div>
+    </div>
+
+    <div x-show="selected" class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-gray-200 bg-gray-50 px-4 py-3">
+            <div>
+                <h3 class="text-sm font-semibold text-gray-900">Chi tiết vật tư</h3>
+                <p class="text-xs text-gray-500">Mã VT: <span class="font-mono" x-text="detail.ma_vt"></span></p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+                <button type="button"
+                    @click="$wire.openEdit(detail.ma_vt)"
+                    class="rounded-md bg-yellow-100 px-3 py-1.5 text-xs font-medium text-yellow-800 hover:bg-yellow-200">
+                    Sửa
+                </button>
+                <button type="button"
+                    @click="if (confirm('Bạn có chắc chắn muốn xóa vật tư ' + detail.ma_vt + '?')) $wire.deleteDetailItem(detail.ma_vt)"
+                    class="rounded-md bg-red-100 px-3 py-1.5 text-xs font-medium text-red-800 hover:bg-red-200">
+                    Xóa
+                </button>
+            </div>
+        </div>
+
+        <div class="grid gap-x-6 gap-y-3 p-4 sm:grid-cols-2 lg:grid-cols-3">
+            @foreach ([
+                'ma_vt' => 'Mã VT',
+                'ten_vt' => 'Tên vật tư',
+                'dvt' => 'ĐVT',
+                'ma_nhvt' => 'Nhóm',
+                'ma_kho' => 'Kho',
+                'ma_vitri' => 'Vị trí',
+                'tk_vt' => 'TK VT',
+                'tk_dt' => 'TK DT',
+                'tk_gv' => 'TK GV',
+                'ton_kho' => 'Tồn',
+                'loai' => 'Loại',
+                'gia_ton' => 'Giá tồn',
+                'ksd' => 'KSD',
+                'ma_thue' => 'Mã thuế',
+                'part_no' => 'Part no',
+                'nha_sx' => 'Nhà SX',
+                'nha_pp' => 'Nhà PP',
+                'nuoc_sx' => 'Nước SX',
+            ] as $key => $label)
+                <div class="text-sm">
+                    <span class="block text-xs text-gray-500">{{ $label }}</span>
+                    <span class="mt-0.5 block font-medium text-gray-900" x-text="detail.{{ $key }} || '—'"></span>
+                </div>
+            @endforeach
+        </div>
     </div>
 </div>

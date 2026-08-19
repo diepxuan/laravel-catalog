@@ -16,6 +16,8 @@ use Livewire\Component;
  * Tách riêng để khi người dùng gõ vào form Sửa/Thêm, chỉ IndmvtForm
  * re-render, không serialize lại toàn bộ bảng ~1000 dòng. Đây là
  * root cause gây 14s delay giữa các lần blur trong form.
+ * Search chạy phía client bằng Alpine (giống pattern ARDMKH list), không
+ * gọi Livewire mỗi lần gõ.
  *
  * Giao tiếp với các component khác qua Livewire events:
  *  - Phát `indmvt-list.item-selected` khi user click một dòng.
@@ -28,8 +30,6 @@ class IndmvtList extends Component
 {
     /** @var list<array<string, mixed>> */
     public array $rows = [];
-
-    public string $search = '';
 
     public ?string $selectedMaVt = null;
 
@@ -47,6 +47,7 @@ class IndmvtList extends Component
         'indmvt-list.refresh-all' => 'refreshAll',
         'indmvt-form.saved' => 'handleFormSaved',
         'indmvt-rename.saved' => 'handleRenameSaved',
+        'indmvt-list.deleted' => 'removeDeletedRow',
     ];
 
     public function mount(): void
@@ -75,19 +76,31 @@ class IndmvtList extends Component
     {
         $this->selectedMaVt = $maVt;
         $this->deleteMaVt = null;
-        $this->dispatch('indmvt-list.item-selected', maVt: $maVt);
+
+        $row = null;
+        foreach ($this->rows as $existing) {
+            if ((string) ($existing['ma_vt'] ?? '') === $maVt) {
+                $row = $existing;
+                break;
+            }
+        }
+
+        $this->dispatch('indmvt-list.item-selected', maVt: $maVt, row: $row);
     }
 
     public function openCreate(): void
     {
+        $copyMaVt = $this->selectedMaVt;
         $this->selectedMaVt = null;
         $this->deleteMaVt = null;
-        $this->dispatch('indmvt-list.create-clicked');
+        $this->dispatch('indmvt-list.create-clicked', copyMaVt: $copyMaVt);
     }
 
     public function openEdit(string $maVt): void
     {
-        $this->selectItem($maVt);
+        $this->selectedMaVt = $maVt;
+        $this->deleteMaVt = null;
+        $this->dispatch('indmvt-detail.edit-requested', maVt: $maVt);
     }
 
     public function openRename(string $maVt): void
@@ -116,13 +129,30 @@ class IndmvtList extends Component
             return;
         }
 
+        $this->performDelete(trim($this->deleteMaVt));
+    }
+
+    /**
+     * Xóa từ bảng chi tiết (Alpine đã confirm trước khi gọi).
+     */
+    public function deleteDetailItem(string $maVt): void
+    {
+        $maVt = trim($maVt);
+        if ('' === $maVt) {
+            return;
+        }
+
+        $this->performDelete($maVt);
+    }
+
+    private function performDelete(string $deletedMaVt): void
+    {
         try {
             ProcedureCaller::call('asINDelDMVT', [
                 'pMa_cty' => $this->companyId(),
-                'pMa_vt'  => $this->deleteMaVt,
+                'pMa_vt'  => $deletedMaVt,
             ], (new SModel())->getConnectionName());
 
-            $deletedMaVt = $this->deleteMaVt;
             $this->rows = array_values(array_filter(
                 $this->rows,
                 static fn (array $row): bool => ($row['ma_vt'] ?? null) !== $deletedMaVt
@@ -188,30 +218,21 @@ class IndmvtList extends Component
         $this->selectedMaVt = $newMaVt;
     }
 
-    /**
-     * @return list<array<string, mixed>>
-     */
-    public function filteredRows(): array
+    public function removeDeletedRow(string $maVt): void
     {
-        $search = mb_strtolower(trim($this->search));
-        if ('' === $search) {
-            return $this->rows;
+        $this->rows = array_values(array_filter(
+            $this->rows,
+            static fn (array $row): bool => ($row['ma_vt'] ?? null) !== $maVt
+        ));
+
+        if ($this->selectedMaVt === $maVt) {
+            $this->selectedMaVt = null;
         }
-
-        return array_values(array_filter($this->rows, static function (array $row) use ($search): bool {
-            $haystack = mb_strtolower(implode(' ', [
-                $row['ma_vt'] ?? '', $row['ten_vt'] ?? '', $row['ma_nhvt'] ?? '', $row['dvt'] ?? '', $row['tk_vt'] ?? '',
-            ]));
-
-            return str_contains($haystack, $search);
-        }));
     }
 
     public function render(): View
     {
-        return view('catalog::in.dict.indmvt-list', [
-            'displayRows' => $this->filteredRows(),
-        ]);
+        return view('catalog::in.dict.indmvt-list', ['rows' => $this->rows]);
     }
 
     private function companyId(): string

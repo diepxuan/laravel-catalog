@@ -130,32 +130,21 @@
 
 
                 recompute() {
-                    const needle = this.normalize(this.search);
+                    const needle = window.PortalSearch.normalize(this.search);
                     this.filtered = !needle
                         ? this.rows.slice()
                         : this.rows.filter((row) => {
                             const haystack = [
                                 row.ma_kh, row.ten_kh, row.dia_chi,
                                 row.tel, row.ma_so_thue, row.nguoi_gd,
-                            ].map((v) => this.normalize(v || '')).join(' ');
-                            return haystack.indexOf(needle) !== -1;
+                            ].map((v) => window.PortalSearch.normalize(v || '')).join(' ');
+                            return window.PortalSearch.matchesSubsequence(haystack, needle);
                         });
 
                     const total = this.rows.length;
                     this.resultLabel = this.filtered.length === total
                         ? total + ' kết quả'
                         : this.filtered.length + ' / ' + total + ' kết quả';
-                },
-
-                normalize(value) {
-                    if (!value) return '';
-                    return String(value)
-                        .normalize('NFD')
-                        .replace(/[\u0300-\u036f]/g, '')
-                        .replace(/[đĐ]/g, (c) => c === 'đ' ? 'd' : 'D')
-                        .toLowerCase()
-                        .replace(/\s+/g, ' ')
-                        .trim();
                 },
 
                 truncate(value, max) {

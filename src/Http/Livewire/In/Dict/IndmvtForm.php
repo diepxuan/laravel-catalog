@@ -24,8 +24,8 @@ use Livewire\Component;
  * re-render, không serialize lại toàn bộ bảng danh sách.
  *
  * Lắng nghe:
- *  - `indmvt-list.item-selected` -> mở form sửa với maVt
- *  - `indmvt-list.create-clicked` -> mở form thêm
+ *  - `indmvt-list.create-clicked` -> mở form thêm (copy từ vật tư đang chọn)
+ *  - `indmvt-detail.edit-requested` -> chuyển chi tiết sang form sửa
  *
  * Phát:
  *  - `indmvt-form.saved` (maVt) khi Lưu thành công
@@ -64,8 +64,9 @@ class IndmvtForm extends Component
 
     /** @var list<string> */
     protected $listeners = [
-        'indmvt-list.item-selected' => 'openEdit',
+        'indmvt-list.item-selected' => 'closeForExternalAction',
         'indmvt-list.create-clicked' => 'openCreate',
+        'indmvt-detail.edit-requested' => 'openEdit',
         'indmvt-list.rename-clicked' => 'closeForExternalAction',
         'indmvt-list.deleted' => 'closeWhenDeleted',
     ];
@@ -76,9 +77,27 @@ class IndmvtForm extends Component
         $this->loadLookups();
     }
 
-    public function openCreate(): void
+    public function openCreate(?string $copyMaVt = null): void
     {
-        $this->resetForm();
+        $copyMaVt = trim((string) ($copyMaVt ?? ''));
+
+        if ('' !== $copyMaVt) {
+            $row = $this->fetchRowForEdit($copyMaVt);
+            if (null === $row) {
+                $this->errorMessage = "Không tìm thấy vật tư {$copyMaVt} để copy.";
+
+                return;
+            }
+
+            $this->fillFormFromRow($row);
+            $this->form['ma_vt'] = '';
+            $this->form['ghi_chu'] = '';
+            $this->loadBomRows($copyMaVt);
+            $this->originalBomKeys = [];
+        } else {
+            $this->resetForm();
+        }
+
         $this->isEditing = false;
         $this->showForm = true;
         $this->errorMessage = null;
