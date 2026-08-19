@@ -26,6 +26,7 @@ use Diepxuan\Catalog\Http\Livewire\Cash\Tienmat\Phieuchi;
 use Diepxuan\Catalog\Http\Livewire\Cash\Tienmat\Phieuthu;
 use Diepxuan\Catalog\Http\Livewire\Gl\Taikhoan;
 use Diepxuan\Catalog\Http\Livewire\Home\Dashboard as DashboardLivewire;
+use Diepxuan\Catalog\Http\Controllers\YearController;
 use Diepxuan\Catalog\Http\Livewire\In\Dict\IndmvtPage;
 use Diepxuan\Catalog\Http\Livewire\In\Dmkho;
 use Diepxuan\Catalog\Http\Livewire\In\Dmnhvt;
@@ -331,6 +332,7 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
     // public /simba/... URLs always render through SimbaPage.
     Route::prefix('simba')->name('simba.')->group(static function (): void {
         Route::get('/', SimbaPage::class)->name('index');
+        Route::post('si/vch/year/select', [YearController::class, 'select'])->name('si.vch.year.select');
         Route::get('/{module}/{kind}', SimbaPage::class)
             ->where([
                 'module' => '[a-z0-9-]+',

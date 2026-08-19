@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace Diepxuan\Catalog\Tests\Unit\Http\Livewire\Component;
 
 use Diepxuan\Catalog\Http\Livewire\Component\InputYearWorked;
-use Illuminate\Support\Facades\Session;
-use Livewire\Livewire;
+use Diepxuan\Catalog\Http\Controllers\YearController;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 final class InputYearWorkedTest extends \Tests\TestCase
 {
@@ -33,21 +34,13 @@ final class InputYearWorkedTest extends \Tests\TestCase
         self::assertSame(2016, InputYearWorked::FIRST_YEAR);
     }
 
-    public function testSelectYearUpdatesSessionAndRedirectsToOriginalPageUrl(): void
+    public function testYearControllerValidatesAndUpdatesYear(): void
     {
-        Session::start();
+        $request = Request::create('/simba/si/vch/year/select', 'POST', ['year' => 2026]);
+        $response = (new YearController())->select($request);
 
-        $testable = Livewire::test(InputYearWorked::class)
-            ->call('selectYear', 2026)
-            ->assertSet('selectedYear', 2026)
-        ;
-
-        // Redirect phai tro ve URL trang goc (memo.path trong snapshot),
-        // KHONG duoc tro ve /livewire/update (request()->url() trong update request).
-        $testable->assertRedirectContains('livewire-unit-test-endpoint');
-
-        self::assertStringNotContainsString('livewire/update', $testable->effects['redirect']);
-
-        self::assertSame(2026, Session::get('year'));
+        self::assertInstanceOf(JsonResponse::class, $response);
+        self::assertSame(2026, $response->getData()->year);
+        self::assertSame(2026, catalog()->year());
     }
 }
