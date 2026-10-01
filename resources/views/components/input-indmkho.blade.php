@@ -1,6 +1,6 @@
 @props(['disabled' => false])
 
-<div class="relative" x-data="khoInputComponent(@js($inDmKhos), @js($pMa_kho))" x-init="initComponent()"
+<div class="relative" x-data="khoInputComponent(@js($inDmKhos), @js($pMa_kho ?: $value))" x-init="initComponent()"
     @click.outside="showDropdown = false" @keydown.escape.window="showDropdown = false">
     <div class="relative">
         <input {{ $disabled ? 'disabled' : '' }} type="text" x-model="search" @focus="openDropdown()"

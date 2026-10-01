@@ -14,7 +14,7 @@
     }
 @endphp
 
-<div class="relative" x-data="tkInputComponent(@js($glDmTks), @js($pTk), @js($parsedFilters))" x-init="initComponent()"
+<div class="relative" x-data="tkInputComponent(@js($glDmTks), @js($pTk ?: $value), @js($parsedFilters))" x-init="initComponent()"
     @click.outside="showDropdown = false" @keydown.escape.window="showDropdown = false">
 
     <!-- Input field -->

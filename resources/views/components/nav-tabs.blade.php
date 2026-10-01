@@ -19,11 +19,14 @@
                     </a>
                 </li>
             @endforeach
-            <li class="mr-2">
-                <a href="#" class="inline-block cursor-default rounded-t-lg p-4">
-                    <x-icons.loadding />
-                </a>
-            </li>
+            {{-- Spinner chỉ dùng cho chế độ data-driven ($tabs); slot-mode tự quản nav. --}}
+            @if (\count($tabs) > 0)
+                <li class="mr-2">
+                    <a href="#" class="inline-block cursor-default rounded-t-lg p-4">
+                        <x-icons.loadding />
+                    </a>
+                </li>
+            @endif
         </ul>
     </div>
 

@@ -1,6 +1,6 @@
 @props(['disabled' => false])
 
-<div class="relative" x-data="vtInputComponent(@js($inDmVts), @js($pMa_vt))" x-init="initComponent()"
+<div class="relative" x-data="vtInputComponent(@js($inDmVts), @js($pMa_vt ?: $value))" x-init="initComponent()"
     @click.outside="showDropdown = false" @keydown.escape.window="showDropdown = false">
     <div class="relative">
         <input {{ $disabled ? 'disabled' : '' }} type="text" x-model="search" @focus="openDropdown()"

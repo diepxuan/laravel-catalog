@@ -23,6 +23,16 @@ class InputIndmkho extends Component
 {
     #[Modelable]
     public $pMa_kho;
+
+    /**
+     * Giá trị hiển thị ban đầu ở lần render đầu (SSR), do parent truyền `:value`.
+     *
+     * Livewire chỉ seed prop `#[Modelable]` từ parent trên các request kế tiếp;
+     * lần render đầu cần param tường minh để Alpine hiển thị đúng mã kho
+     * khi mở form sửa chứng từ.
+     */
+    public ?string $value = null;
+
     protected Collection $inDmKhos;
 
     public function boot(): void
@@ -41,6 +51,13 @@ class InputIndmkho extends Component
      */
     public function render(): \Closure|string|View
     {
+        // Giữ $value bám theo lựa chọn hiện tại để khi component được tái tạo
+        // (wire:key đổi) màn hình vẫn hiển thị mã mới nhất, không phải giá trị
+        // ban đầu đã lỗi thời.
+        if (\is_string($this->pMa_kho) && '' !== $this->pMa_kho) {
+            $this->value = $this->pMa_kho;
+        }
+
         return view('catalog::components.input-indmkho', [
             'inDmKhos' => $this->warehouseOptions(),
         ]);

@@ -23,6 +23,16 @@ class InputIndmvt extends Component
 {
     #[Modelable]
     public $pMa_vt;
+
+    /**
+     * Giá trị hiển thị ban đầu ở lần render đầu (SSR), do parent truyền `:value`.
+     *
+     * Livewire chỉ seed prop `#[Modelable]` từ parent trên các request kế tiếp;
+     * lần render đầu cần param tường minh để Alpine hiển thị đúng mã VT
+     * khi mở form sửa chứng từ.
+     */
+    public ?string $value = null;
+
     protected Collection $inDmVts;
 
     public function boot(): void
@@ -42,6 +52,13 @@ class InputIndmvt extends Component
      */
     public function render(): \Closure|string|View
     {
+        // Giữ $value bám theo lựa chọn hiện tại để khi component được tái tạo
+        // (wire:key đổi) màn hình vẫn hiển thị mã mới nhất, không phải giá trị
+        // ban đầu đã lỗi thời.
+        if (\is_string($this->pMa_vt) && '' !== $this->pMa_vt) {
+            $this->value = $this->pMa_vt;
+        }
+
         return view('catalog::components.input-indmvt', [
             'inDmVts' => $this->itemOptions(),
         ]);

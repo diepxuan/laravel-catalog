@@ -3,7 +3,7 @@
     <div class="relative">
         <input type="text" x-model="search" @focus="openDropdown()" @click="openDropdown()"
             @change="commitSearch()" @keydown="handleKeydown($event)" placeholder="{{ $placeholder }}"
-            class="w-full rounded-md border border-gray-300 bg-white px-3 py-2 pr-14 text-xs text-gray-700 shadow-sm transition-all placeholder:text-gray-400 hover:border-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            class="w-full rounded-md border border-gray-300 bg-white px-3 py-1.5 pr-14 text-xs text-gray-700 shadow-sm transition-all placeholder:text-gray-400 hover:border-gray-400 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
             role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-autocomplete="list" />
 
         <div class="absolute right-2 top-1/2 flex -translate-y-1/2 items-center gap-1">

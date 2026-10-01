@@ -35,6 +35,16 @@ class InputTaikhoan extends Component
 {
     #[Modelable]
     public $pTk;
+
+    /**
+     * Giá trị hiển thị ban đầu ở lần render đầu (SSR), do parent truyền `:value`.
+     *
+     * Livewire chỉ seed prop `#[Modelable]` từ parent trên các request kế tiếp
+     * (hydrate qua memo bindings); lần render đầu cần param tường minh để
+     * Alpine hiển thị đúng selection khi mở form sửa chứng từ.
+     */
+    public ?string $value = null;
+
     protected $glDmTks;
 
     public function boot(): void
@@ -52,6 +62,13 @@ class InputTaikhoan extends Component
      */
     public function render(): \Closure|string|View
     {
+        // Giữ $value bám theo lựa chọn hiện tại để khi component được tái tạo
+        // (wire:key đổi) màn hình vẫn hiển thị mã mới nhất, không phải giá trị
+        // ban đầu đã lỗi thời.
+        if (\is_string($this->pTk) && '' !== $this->pTk) {
+            $this->value = $this->pTk;
+        }
+
         return view('catalog::components.input-taikhoan', [
             'glDmTks' => $this->glDmTks,
         ]);

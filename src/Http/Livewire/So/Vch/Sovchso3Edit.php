@@ -220,6 +220,15 @@ class Sovchso3Edit extends Component
             static fn (mixed $value): bool => '' !== (string) $value
         ));
 
+        // gh_no là field chỉ hiển thị, lấy từ danh mục khách hàng theo
+        // simba-docs/asia/so/vouchers/SO3.md (GetKhInfo), không lưu trên dòng PH.
+        if ('' !== $this->pMa_kh) {
+            $customer = ArDmKh::find($this->pMa_kh);
+            if (null !== $customer) {
+                $this->pGh_no = (float) ($customer->gh_no ?? 0);
+            }
+        }
+
         $this->loadCustomerBalance();
     }
 
