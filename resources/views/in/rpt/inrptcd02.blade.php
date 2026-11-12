@@ -176,7 +176,8 @@
                         </div>
                     @endif
 
-                    <div class="rounded-lg border border-gray-200 bg-white shadow-sm">
+                    <div class="overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+                        <div class="max-h-[calc(100vh-280px)] overflow-x-auto overflow-y-auto">
                         <table class="min-w-max text-left text-xs">
                             <thead class="sticky top-0 z-10 bg-gray-50 text-gray-500">
                                 <tr>
@@ -210,6 +211,7 @@
                                 @endforeach
                             </tbody>
                         </table>
+                        </div>
                     </div>
                 @endif
             </div>
