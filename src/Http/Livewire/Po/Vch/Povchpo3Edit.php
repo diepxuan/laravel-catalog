@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Http\Livewire\Po\Vch;
 
+use Diepxuan\Catalog\Services\KhoaSo;
+use Diepxuan\Catalog\Services\KhoaSoException;
 use Diepxuan\Simba\Models\ArDmKh;
 use Diepxuan\Simba\SModel\SModel;
 use Diepxuan\Simba\StoredProcedures\AsGetDMHTTT;
@@ -557,6 +559,16 @@ class Povchpo3Edit extends Component
             'pTy_gia.gt' => 'Tỷ giá phải lớn hơn 0',
         ]);
 
+        // Kiểm tra khóa sổ liệu kỳ (SiSetup.ngay_ks) — tương đương validation
+        // `ngay_ct > ngay_ks` của POVchPO3.dll trước khi ghi dữ liệu.
+        try {
+            app(KhoaSo::class)->assertDocumentDateNotLocked($this->pNgay_ct);
+        } catch (KhoaSoException $exception) {
+            $this->addError('pNgay_ct', $exception->getMessage());
+
+            return;
+        }
+
         try {
             DB::beginTransaction();
 
@@ -614,6 +626,17 @@ class Povchpo3Edit extends Component
     {
         if (empty($this->pStt_rec)) {
             session()->flash('error', 'Chưa có chứng từ để xóa.');
+
+            return;
+        }
+
+        // Kiểm tra khóa sổ liệu kỳ (SiSetup.ngay_ks). asPODeletePO3 không có tham số
+        // pNgay_ks nên SQL không tự chặn — form phải guard, đúng quy tắc
+        // `ngay_ct > ngay_ks` của POVchPO3.dll.
+        try {
+            app(KhoaSo::class)->assertDocumentDateNotLocked($this->pNgay_ct);
+        } catch (KhoaSoException $exception) {
+            session()->flash('error', $exception->getMessage());
 
             return;
         }

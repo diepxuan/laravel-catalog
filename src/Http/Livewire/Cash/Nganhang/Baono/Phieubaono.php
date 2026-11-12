@@ -320,6 +320,17 @@ class Phieubaono extends Component
 
         $this->validate();
 
+        // Kiểm tra khóa sổ liệu kỳ (SiSetup.ngay_ks) — tương đương validation
+        // `ngay_ct > ngay_ks` của CAVchCA3.dll trước khi post GL.
+        try {
+            app(\Diepxuan\Catalog\Services\KhoaSo::class)
+                ->assertDocumentDateNotLocked($this->pNgay_Ct);
+        } catch (\Diepxuan\Catalog\Services\KhoaSoException $exception) {
+            $this->addError('pNgay_Ct', $exception->getMessage());
+
+            return;
+        }
+
         if ($this->pTong_Ps_No <= 0) {
             $this->addError('pCts', 'Tổng phát sinh nợ phải lớn hơn 0');
 
@@ -700,6 +711,17 @@ class Phieubaono extends Component
     {
         if (empty($this->pStt_Rec)) {
             $this->dispatch('action-message', ['on' => 'delete-error', 'message' => 'Không có phiếu nào được chọn để xóa']);
+
+            return;
+        }
+
+        // Kiểm tra khóa sổ liệu kỳ (SiSetup.ngay_ks). Nhóm SP asCADelCT2/asCADelPH2
+        // không có tham số pNgay_ks nên SQL không tự chặn — form phải guard.
+        try {
+            app(\Diepxuan\Catalog\Services\KhoaSo::class)
+                ->assertDocumentDateNotLocked($this->pNgay_Ct);
+        } catch (\Diepxuan\Catalog\Services\KhoaSoException $exception) {
+            $this->dispatch('action-message', ['on' => 'delete-error', 'message' => $exception->getMessage()]);
 
             return;
         }

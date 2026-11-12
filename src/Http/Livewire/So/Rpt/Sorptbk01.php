@@ -214,6 +214,19 @@ class Sorptbk01 extends Component
             return;
         }
 
+        // Kiểm tra khóa sổ liệu kỳ (SiSetup.ngay_ks). Đây là đường XÓA chứng từ
+        // thật (asSODelPH3 không có pNgay_ks nên SQL không tự chặn), phải guard
+        // theo ngày chứng từ của dòng đang chọn.
+        try {
+            app(\Diepxuan\Catalog\Services\KhoaSo::class)->assertDocumentDateNotLocked(
+                (string) self::rowValue($phieu, ['ngay_ct', 'Ngay_ct'])
+            );
+        } catch (\Diepxuan\Catalog\Services\KhoaSoException $exception) {
+            session()->flash('error', $exception->getMessage());
+
+            return;
+        }
+
         DB::beginTransaction();
 
         try {

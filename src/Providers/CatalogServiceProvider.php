@@ -18,6 +18,7 @@ use Diepxuan\Catalog\Facades\CatalogServiceFacade;
 use Diepxuan\Catalog\Models\User;
 use Diepxuan\Catalog\Services\CatalogFunctions;
 use Diepxuan\Catalog\Services\CatalogService;
+use Diepxuan\Catalog\Services\KhoaSo;
 use Diepxuan\Catalog\Services\SimbaMetadataService;
 use Illuminate\Foundation\AliasLoader;
 use Illuminate\Support\ServiceProvider;
@@ -41,6 +42,9 @@ class CatalogServiceProvider extends ServiceProvider
         $this->app->singleton('catalog-service', static fn ($app) => new CatalogService());
         $this->app->singleton('catalog-functions', static fn ($app) => new CatalogFunctions());
         $this->app->singleton(SimbaMetadataService::class, static fn ($app) => new SimbaMetadataService());
+        // Cache ngày khóa sổ theo công ty trong 1 request — dùng chung cho mọi
+        // form chứng từ (task 360).
+        $this->app->singleton(KhoaSo::class, static fn ($app) => new KhoaSo());
         AliasLoader::getInstance()->alias('CatalogService', CatalogServiceFacade::class);
         AliasLoader::getInstance()->alias('CatalogFunctions', CatalogFunctionsFacade::class);
     }
