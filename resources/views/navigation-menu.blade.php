@@ -42,6 +42,13 @@
                                 class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-3">
                                 {{ __('Website') }}
                             </x-nav-link>
+                            <div class="border-t border-gray-200"></div>
+                            @if (\Illuminate\Support\Facades\Route::has('system.tasks.index'))
+                                <x-nav-link :href="route('system.tasks.index')" :active="$this->isActive('system.tasks')"
+                                    class="w-full border-transparent ps-4 hover:border-transparent focus:border-transparent md:px-3">
+                                    {{ __('Quản lý task') }}
+                                </x-nav-link>
+                            @endif
                         </div>
                     </div>
                 </div>
