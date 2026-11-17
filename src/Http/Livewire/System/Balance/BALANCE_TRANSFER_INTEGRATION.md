@@ -85,9 +85,16 @@
 ## 5. Kiểm tra
 
 ### 5.1. Kiểm tra class tồn tại
+
+Wrapper SP nằm trong `diepxuan/laravel-simba/src/StoredProcedures/`:
+
 ```bash
-php artisan tinker --execute="echo class_exists('Diepxuan\Simba\StoredProcedures\AsGLChuyenSdTk') ? 'OK' : 'NOT FOUND';"
+ls -l diepxuan/laravel-simba/src/StoredProcedures/AsGLChuyenSdTk.php
+php -l diepxuan/laravel-simba/src/StoredProcedures/AsGLChuyenSdTk.php
 ```
+
+Không dùng `artisan tinker` cho việc này: máy dev không kết nối trực tiếp DB nên
+mọi lệnh tinker chạm model/SP đều không chạy được (xem `docs/DEVELOPMENT.md` mục 4.1).
 
 ### 5.2. Kiểm tra route
 ```bash
