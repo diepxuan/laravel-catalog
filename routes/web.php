@@ -58,6 +58,7 @@ use Diepxuan\Catalog\Http\Livewire\System\Balance\WorkInProgress;
 use Diepxuan\Catalog\Http\Livewire\System\CompanySelector;
 use Diepxuan\Catalog\Http\Livewire\System\SimbaPage;
 use Diepxuan\Support\Http\Middleware\CorpAutoLogin;
+use Diepxuan\Support\Http\Middleware\DebugOnly;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -396,6 +397,8 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
     Route::get('/dashboard', DashboardLivewire::class)->name('dashboard');
 });
 
+// Chẩn đoán scheme/proxy: chỉ mở khi APP_DEBUG=true và APP_ENV != production.
+// Trên production route trả 404 để không lộ thông tin hạ tầng.
 Route::get('/check-proxy', static fn () => [
     'app_url'           => config('app.url'),
     'url()'             => url('/'),
@@ -404,7 +407,7 @@ Route::get('/check-proxy', static fn () => [
     'request_secure'    => request()->isSecure(),
     'x_forwarded_proto' => request()->header('x-forwarded-proto'),
     'server_https'      => $_SERVER['HTTPS'] ?? null,
-]);
+])->middleware([DebugOnly::class]);
 
 /*
 |--------------------------------------------------------------------------
@@ -412,4 +415,4 @@ Route::get('/check-proxy', static fn () => [
 |--------------------------------------------------------------------------
 */
 
-Route::get('test/utf8', static fn () => view('catalog::test.utf8-test'))->name('test.utf8')->middleware(['web']);
+Route::get('test/utf8', static fn () => view('catalog::test.utf8-test'))->name('test.utf8')->middleware(['web', DebugOnly::class]);
