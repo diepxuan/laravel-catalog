@@ -167,11 +167,34 @@ class ArdmkhForm extends Component
     public function save(): void
     {
         $this->validate();
+        $this->ensureAtLeastOneType();
+
         $procedureClass = 'create' === $this->mode
             ? 'Diepxuan\\Simba\\StoredProcedures\\AsARInsDMKH'
             : 'Diepxuan\\Simba\\StoredProcedures\\AsARUpdDMKH';
 
         $this->persist($procedureClass);
+    }
+
+    /**
+     * Đảm bảo đối tượng luôn thuộc ít nhất một loại.
+     *
+     * Đối tượng không mang cờ nào (iskh/isncc/isnv đều 0) sẽ không xuất hiện ở
+     * bất kỳ màn danh mục nào của Portal, vì mỗi màn lọc theo module
+     * (`asARGetDMKH` với pModuleId AR/AP/CA). Vì vậy khi người dùng bỏ hết ba
+     * lựa chọn, mặc định chọn **khách hàng** (`isKh = true`).
+     *
+     * Chọn khách hàng vì `ArDmKh` là bảng công nợ phải thu (AR); đây cũng là
+     * loại đối tượng phổ biến nhất. Không dispatch thông báo — Sếp yêu cầu lưu
+     * là tự chuyển luôn.
+     */
+    protected function ensureAtLeastOneType(): void
+    {
+        if ($this->isKh || $this->isNcc || $this->isNv) {
+            return;
+        }
+
+        $this->isKh = true;
     }
 
     public function render(): View

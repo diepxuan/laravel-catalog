@@ -101,9 +101,12 @@
                         <td class="border-b border-gray-100 px-3 py-2 text-right">
                             <div class="flex justify-end gap-2">
                                 <a :href="editUrlFor(row)" class="rounded bg-yellow-100 px-2 py-1 text-xs text-yellow-700 hover:bg-yellow-200">Sửa</a>
+                                {{-- Không dùng :wire:confirm: Livewire coi wire:confirm là biểu thức
+                                     JS và generateEvaluatorFromString() fail với chuỗi nối
+                                     ('Unexpected string'). Dùng confirm() của Alpine thay thế —
+                                     nội dung xác nhận vẫn động theo row. --}}
                                 <button type="button"
-                                    @click="$wire.deleteDoiTuong(row.ma_kh)"
-                                    :wire:confirm="'Bạn có chắc chắn muốn xóa ' + row.ten_kh + ' (' + row.ma_kh + ')?'"
+                                    @click="if (confirm('Bạn có chắc chắn muốn xóa ' + row.ten_kh + ' (' + row.ma_kh + ')?')) $wire.deleteDoiTuong(row.ma_kh)"
                                     class="rounded bg-red-100 px-2 py-1 text-xs text-red-700 hover:bg-red-200">Xóa</button>
                             </div>
                         </td>

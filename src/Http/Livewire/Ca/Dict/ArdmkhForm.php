@@ -124,12 +124,9 @@ class ArdmkhForm extends BaseForm
 
     public function save(): void
     {
-        if (!$this->isKh && !$this->isNcc && !$this->isNv) {
-            $this->addError('isNv', 'Phải chọn ít nhất một loại đối tượng: khách hàng, nhà cung cấp hoặc nhân viên.');
-
-            return;
-        }
-
+        // Trước đây CA chặn khi không chọn loại đối tượng. Nay thống nhất toàn hệ
+        // thống: bỏ hết ba cờ thì mặc định là khách hàng (xử lý trong
+        // parent::save() -> ensureAtLeastOneType()), nên bỏ validate chặn ở đây.
         parent::save();
     }
 
