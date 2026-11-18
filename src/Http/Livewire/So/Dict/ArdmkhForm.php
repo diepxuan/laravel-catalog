@@ -15,8 +15,12 @@ use Illuminate\View\View;
 class ArdmkhForm extends BaseForm
 {
     public ?string $ma_nt = 'VND';
-    public bool $isKh = true;
-    public bool $ksd  = false;
+    public ?string $home_page = null;
+
+    public bool $isKh  = true;
+    public bool $isNcc = false;
+    public bool $isNv  = false;
+    public bool $ksd   = false;
 
     protected $messages = [
         'ma_kh.required'  => 'Mã khách hàng không được để trống.',
@@ -37,12 +41,13 @@ class ArdmkhForm extends BaseForm
     {
         try {
             $result = AsARGetDMKH::getCustomers(search: $maKh);
-            if ($result->isEmpty()) {
+            // asARGetDMKH là prefix search -> phải lọc khớp chính xác mã.
+            $row = $this->firstExactMatch($result, $maKh);
+
+            if (null === $row) {
                 $this->dispatch('error', message: 'Không tìm thấy khách hàng.');
                 return;
             }
-
-            $row = $result->first();
             $_ = fn (string $lower, string $upper, mixed $default = null): mixed =>
                 $this->field($row, $lower, $upper, $default);
 
@@ -62,6 +67,8 @@ class ArdmkhForm extends BaseForm
             $this->nguoi_gd    = $_('nguoi_gd', 'NGUOI_GD');
             $this->ghi_chu     = $_('ghi_chu', 'GHI_CHU');
             $this->isKh        = (bool) $_('iskh', 'ISKH', true);
+            $this->isNcc       = (bool) $_('isncc', 'ISNCC', false);
+            $this->isNv        = (bool) $_('isnv', 'ISNV', false);
             $this->ksd         = (bool) $_('ksd', 'KSD', false);
         } catch (\Exception $e) {
             report($e);
@@ -106,6 +113,22 @@ class ArdmkhForm extends BaseForm
                 'pTel'          => $this->stringValue($this->dien_thoai),
                 'pFax'          => $this->stringValue($this->fax),
                 'pEmail'        => $this->stringValue($this->email),
+                // Các cột NOT NULL trong ArDmKh (simba-docs/tables/ArDmKh.md):
+                // thiếu tham số -> SP nhận NULL -> "Cannot insert the value NULL".
+                'pHome_page'    => $this->stringValue($this->home_page ?? ''),
+                'pMa_ngh'       => $this->stringValue($this->ma_ngh),
+                'pTen_nh'       => $this->stringValue($this->ten_nh),
+                'pCn_nh'        => $this->stringValue($this->cn_nh),
+                'pSo_tk_nh'     => $this->stringValue($this->so_tk_nh),
+                'pTinh_tp_nh'   => $this->stringValue($this->tinh_tp_nh),
+                'pMa_tt'        => $this->stringValue($this->ma_tt),
+                'pMa_httt'      => $this->stringValue($this->ma_httt),
+                'pGh_no'        => $this->numberValue($this->gh_no),
+                'pHan_ck'       => $this->numberValue($this->han_ck),
+                'pTl_ck'        => $this->numberValue($this->tl_ck),
+                'pHan_tt'       => $this->numberValue($this->han_tt),
+                'pLs_qh'        => $this->numberValue($this->ls_qh),
+                'pTinh_dt_nb'   => $this->tinh_dt_nb ? 1 : 0,
                 'pTk'           => $this->stringValue($this->tk_cn),
                 'pMa_plkh1'     => $this->stringValue($this->ma_plkh1),
                 'pMa_plkh2'     => $this->stringValue($this->ma_plkh2),
@@ -113,9 +136,10 @@ class ArdmkhForm extends BaseForm
                 'pMa_nhkh'      => $this->stringValue($this->ma_nhkh),
                 'pNguoi_gd'     => $this->stringValue($this->nguoi_gd),
                 'pGhi_chu'      => $this->stringValue($this->ghi_chu),
-                'pIskh'         => 1,
-                'pIsncc'        => 0,
-                'pIsnv'         => 0,
+                // Lay tu checkbox nguoi dung chon, KHONG hardcode.
+                'pIskh'         => $this->isKh ? 1 : 0,
+                'pIsncc'        => $this->isNcc ? 1 : 0,
+                'pIsnv'         => $this->isNv ? 1 : 0,
                 'pKsd'          => $this->ksd ? 1 : 0,
                 'pLUser'        => $user,
             ]);

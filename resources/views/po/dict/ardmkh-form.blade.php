@@ -174,10 +174,25 @@
                 </label>
             </div>
             <div class="border-t border-gray-100 px-6 py-3">
-                <label class="flex items-center gap-2 text-sm text-gray-700">
-                    <input type="checkbox" wire:model="ksd" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
-                    Khóa sử dụng
-                </label>
+                <p class="mb-2 text-xs font-medium uppercase tracking-wide text-gray-500">Loại đối tượng và trạng thái</p>
+                <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
+                    <label class="flex items-center gap-2 text-sm text-gray-700">
+                        <input type="checkbox" wire:model="isKh" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                        Là khách hàng
+                    </label>
+                    <label class="flex items-center gap-2 text-sm text-gray-700">
+                        <input type="checkbox" wire:model="isNcc" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                        Là nhà cung cấp
+                    </label>
+                    <label class="flex items-center gap-2 text-sm text-gray-700">
+                        <input type="checkbox" wire:model="isNv" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                        Là nhân viên
+                    </label>
+                    <label class="flex items-center gap-2 text-sm text-gray-700">
+                        <input type="checkbox" wire:model="ksd" class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                        Khóa sử dụng
+                    </label>
+                </div>
             </div>
         </div>
 

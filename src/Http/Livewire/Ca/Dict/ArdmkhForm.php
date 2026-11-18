@@ -50,13 +50,13 @@ class ArdmkhForm extends BaseForm
     {
         try {
             $result = AsARGetDMKH::getEmployees(search: $maKh);
+            // asARGetDMKH là prefix search -> phải lọc khớp chính xác mã.
+            $row = $this->firstExactMatch($result, $maKh);
 
-            if ($result->isEmpty()) {
+            if (null === $row) {
                 $this->dispatch('error', message: 'Không tìm thấy nhân viên.');
                 return;
             }
-
-            $row = $result->first();
             $this->ma_kh = $this->field($row, 'ma_kh', 'MA_KH', $maKh);
             $this->ten_kh = $this->field($row, 'ten_kh', 'TEN_KH', '');
             $this->dia_chi = $this->field($row, 'dia_chi', 'DIA_CHI', '');
