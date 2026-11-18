@@ -45,7 +45,8 @@ class ArdmkhForm extends BaseForm
             $row = $this->firstExactMatch($result, $maKh);
 
             if (null === $row) {
-                $this->dispatch('error', message: 'Không tìm thấy khách hàng.');
+                $this->handleNotFound($maKh);
+
                 return;
             }
             $_ = fn (string $lower, string $upper, mixed $default = null): mixed =>
@@ -76,8 +77,25 @@ class ArdmkhForm extends BaseForm
         }
     }
 
+    protected function doiTuongLabel(): string
+    {
+        return 'khách hàng';
+    }
+
+    protected function listRouteName(): string
+    {
+        return 'so.dict.ardmkh';
+    }
+
     public function render(): View
     {
+        if (null !== $this->redirectToList) {
+            return view('catalog::components.ardmkh-redirect', [
+                'target'  => $this->redirectToList,
+                'message' => $this->redirectMessage,
+            ]);
+        }
+
         return view('catalog::so.dict.ardmkh-form', [
             'nhomKhOptions' => $this->nhomKhOptions,
             'plkhOptions'   => $this->plkhOptions,

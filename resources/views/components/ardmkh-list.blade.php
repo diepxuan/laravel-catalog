@@ -25,6 +25,27 @@
      x-data="ardmkhListComponent(@js($editUrlTemplate))"
      x-init="initComponent($refs.payload)">
     <script type="application/json" x-ref="payload">{!! $rowsJson !!}</script>
+
+    {{-- Thông báo redirect từ form edit (vd: đối tượng không còn thuộc module này).
+         Nhận từ 2 nguồn: session flash và query string ?error= (do form không
+         redirect được trong mount — xem ArdmkhForm::handleNotFound()). --}}
+    @php
+        $listError = session('error') ?: request()->query('error');
+    @endphp
+    @if ($listError)
+        <div class="mb-4 mt-4 flex items-start justify-between gap-3 rounded border border-red-400 bg-red-100 px-4 py-2 text-xs text-red-700">
+            <span>{{ $listError }}</span>
+            <button type="button" onclick="this.parentElement.remove()"
+                class="shrink-0 rounded px-1 text-red-500 hover:text-red-700" aria-label="Đóng">&times;</button>
+        </div>
+    @endif
+    @if (session()->has('success'))
+        <div class="mb-4 mt-4 flex items-start justify-between gap-3 rounded border border-green-400 bg-green-100 px-4 py-2 text-xs text-green-700">
+            <span>{{ session('success') }}</span>
+            <button type="button" onclick="this.parentElement.remove()"
+                class="shrink-0 rounded px-1 text-green-600 hover:text-green-800" aria-label="Đóng">&times;</button>
+        </div>
+    @endif
     <div class="mt-4 flex flex-wrap items-center gap-4">
         <div class="relative w-full max-w-md">
             <input type="text" x-model="search" @input.debounce.150ms="onSearch()"

@@ -24,6 +24,12 @@ use Livewire\Component;
 class ArdmkhForm extends Component
 {
     public string $mode = 'create';
+
+    /** Set khi không tìm thấy đối tượng: view sẽ chuyển hướng về list kèm thông báo. */
+    public ?string $redirectToList = null;
+
+    /** Thông báo lỗi hiển thị trong lúc chuyển hướng. */
+    public string $redirectMessage = '';
     public ?string $ma_kh = null;
     public string $ten_kh = '';
     public string $dia_chi = '';
@@ -96,7 +102,8 @@ class ArdmkhForm extends Component
             $row = $this->firstExactMatch($result, $maKh);
 
             if (null === $row) {
-                $this->dispatch('error', message: 'Không tìm thấy nhà cung cấp.');
+                $this->handleNotFound($maKh);
+
                 return;
             }
             $this->ma_kh       = $this->field($row, 'ma_kh', 'MA_KH', $maKh);
@@ -124,6 +131,39 @@ class ArdmkhForm extends Component
         }
     }
 
+    /**
+     * Nhãn loại đối tượng — form con override (SO = khách hàng, CA = nhân viên).
+     */
+    protected function doiTuongLabel(): string
+    {
+        return 'nhà cung cấp';
+    }
+
+    /**
+     * Route name của màn danh sách tương ứng.
+     */
+    protected function listRouteName(): string
+    {
+        return 'po.dict.ardmkh';
+    }
+
+    /**
+     * Không tìm thấy đối tượng theo mã (đã lọc khớp chính xác).
+     *
+     * KHÔNG dùng `$this->redirect()` trong `mount()`: Livewire 3.8 + Laravel 11
+     * có bug ở `SupportRedirects::dehydrate()` — gọi `abort(redirect($to))` mà
+     * `redirect()` trả `Redirector` (không phải int) → TypeError.
+     *
+     * Cách làm: set `$redirectToList` + message, `render()` trả một view nhỏ
+     * hiển thị thông báo rồi chuyển trang (kèm `?error=` để list hiển thị).
+     */
+    protected function handleNotFound(string $maKh): void
+    {
+        $this->redirectMessage = sprintf('Đối tượng %s không phải %s.', $maKh, $this->doiTuongLabel());
+        $this->redirectToList  = (string) simbaroute($this->listRouteName())
+            . '?error=' . rawurlencode($this->redirectMessage);
+    }
+
     public function save(): void
     {
         $this->validate();
@@ -136,6 +176,13 @@ class ArdmkhForm extends Component
 
     public function render(): View
     {
+        if (null !== $this->redirectToList) {
+            return view('catalog::components.ardmkh-redirect', [
+                'target'  => $this->redirectToList,
+                'message' => $this->redirectMessage,
+            ]);
+        }
+
         return view('catalog::po.dict.ardmkh-form', [
             'nhomKhOptions' => $this->nhomKhOptions,
             'plkhOptions'   => $this->plkhOptions,
