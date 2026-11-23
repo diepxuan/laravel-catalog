@@ -184,12 +184,13 @@ final class SourceRouteCoverageTest extends TestCase
     {
         return [
             ['module' => 'ca', 'kind' => 'dict', 'slug' => 'ardmkh', 'routeName' => 'ca.dict.ardmkh', 'url' => '/_simba-source/ca/dict/ardmkh', 'component' => \Diepxuan\Catalog\Http\Livewire\Ca\Dict\Ardmkh::class],
-            ['module' => 'ca', 'kind' => 'vch', 'slug' => 'cavchca1', 'routeName' => 'ca.vch.cavchca1', 'url' => '/_simba-source/ca/vch/cavchca1', 'component' => \Diepxuan\Catalog\Http\Livewire\Cash\Tienmat\Phieuthu::class],
-            ['module' => 'ca', 'kind' => 'vch', 'slug' => 'cavchca2', 'routeName' => 'ca.vch.cavchca2', 'url' => '/_simba-source/ca/vch/cavchca2', 'component' => \Diepxuan\Catalog\Http\Livewire\Cash\Tienmat\Phieuchi::class],
-            ['module' => 'ca', 'kind' => 'vch', 'slug' => 'cavchca4', 'routeName' => 'ca.vch.cavchca4', 'url' => '/_simba-source/ca/vch/cavchca4', 'component' => \Diepxuan\Catalog\Http\Livewire\Cash\Nganhang\Baoco::class],
-            ['module' => 'gl', 'kind' => 'dict', 'slug' => 'gldmtk', 'routeName' => 'gl.dict.gldmtk', 'url' => '/_simba-source/gl/dict/gldmtk', 'component' => \Diepxuan\Catalog\Http\Livewire\Gl\Taikhoan::class],
-            ['module' => 'in', 'kind' => 'dict', 'slug' => 'indmkho', 'routeName' => 'in.dict.indmkho', 'url' => '/_simba-source/in/dict/indmkho', 'component' => \Diepxuan\Catalog\Http\Livewire\In\Dmkho::class],
-            ['module' => 'in', 'kind' => 'dict', 'slug' => 'indmnhvt', 'routeName' => 'in.dict.indmnhvt', 'url' => '/_simba-source/in/dict/indmnhvt', 'component' => \Diepxuan\Catalog\Http\Livewire\In\Dmnhvt::class],
+            ['module' => 'ca', 'kind' => 'vch', 'slug' => 'cavchca1', 'routeName' => 'ca.vch.cavchca1', 'url' => '/_simba-source/ca/vch/cavchca1', 'component' => \Diepxuan\Catalog\Http\Livewire\Ca\Vch\Phieuthu::class],
+            ['module' => 'ca', 'kind' => 'vch', 'slug' => 'cavchca2', 'routeName' => 'ca.vch.cavchca2', 'url' => '/_simba-source/ca/vch/cavchca2', 'component' => \Diepxuan\Catalog\Http\Livewire\Ca\Vch\Phieuchi::class],
+            ['module' => 'ca', 'kind' => 'vch', 'slug' => 'cavchca3', 'routeName' => 'ca.vch.cavchca3', 'url' => '/_simba-source/ca/vch/cavchca3', 'component' => \Diepxuan\Catalog\Http\Livewire\Ca\Vch\Baoco::class],
+            ['module' => 'ca', 'kind' => 'vch', 'slug' => 'cavchca4', 'routeName' => 'ca.vch.cavchca4', 'url' => '/_simba-source/ca/vch/cavchca4', 'component' => \Diepxuan\Catalog\Http\Livewire\Ca\Vch\Baono::class],
+            ['module' => 'gl', 'kind' => 'dict', 'slug' => 'gldmtk', 'routeName' => 'gl.dict.gldmtk', 'url' => '/_simba-source/gl/dict/gldmtk', 'component' => \Diepxuan\Catalog\Http\Livewire\Gl\Dict\Taikhoan::class],
+            ['module' => 'in', 'kind' => 'dict', 'slug' => 'indmkho', 'routeName' => 'in.dict.indmkho', 'url' => '/_simba-source/in/dict/indmkho', 'component' => \Diepxuan\Catalog\Http\Livewire\In\Dict\Dmkho::class],
+            ['module' => 'in', 'kind' => 'dict', 'slug' => 'indmnhvt', 'routeName' => 'in.dict.indmnhvt', 'url' => '/_simba-source/in/dict/indmnhvt', 'component' => \Diepxuan\Catalog\Http\Livewire\In\Dict\Dmnhvt::class],
             ['module' => 'in', 'kind' => 'dict', 'slug' => 'indmvt', 'routeName' => 'in.dict.indmvt', 'url' => '/_simba-source/in/dict/indmvt', 'component' => \Diepxuan\Catalog\Http\Livewire\In\Dict\IndmvtPage::class],
             ['module' => 'in', 'kind' => 'rpt', 'slug' => 'inrptcd02', 'routeName' => 'in.rpt.inrptcd02', 'url' => '/_simba-source/in/rpt/inrptcd02', 'component' => \Diepxuan\Catalog\Http\Livewire\In\Rpt\Inrptcd02::class],
             ['module' => 'po', 'kind' => 'rpt', 'slug' => 'arrptbccn01103011', 'routeName' => 'po.rpt.arrptbccn01103011', 'url' => '/_simba-source/po/rpt/arrptbccn01103011', 'component' => \Diepxuan\Catalog\Http\Livewire\Po\Rpt\Arrptbccn01::class],
@@ -198,13 +199,13 @@ final class SourceRouteCoverageTest extends TestCase
             ['module' => 'po', 'kind' => 'dict', 'slug' => 'podmcp', 'routeName' => 'po.dict.podmcp', 'url' => '/_simba-source/po/dict/podmcp', 'component' => \Diepxuan\Catalog\Http\Livewire\Po\Dict\Podmcp::class],
             ['module' => 'si', 'kind' => 'vch', 'slug' => 'smks', 'routeName' => 'si.vch.smks', 'url' => '/_simba-source/si/vch/smks', 'component' => \Diepxuan\Catalog\Http\Livewire\Si\Vch\Smks::class],
             ['module' => 'so', 'kind' => 'dict', 'slug' => 'ardmkh', 'routeName' => 'so.dict.ardmkh', 'url' => '/_simba-source/so/dict/ardmkh', 'component' => \Diepxuan\Catalog\Http\Livewire\So\Dict\Ardmkh::class],
-            ['module' => 'so', 'kind' => 'dict', 'slug' => 'ardmplkh', 'routeName' => 'so.dict.ardmplkh', 'url' => '/_simba-source/so/dict/ardmplkh', 'component' => \Diepxuan\Catalog\Http\Livewire\AR\Danhmuc\Phanloaikhachhang::class],
+            ['module' => 'so', 'kind' => 'dict', 'slug' => 'ardmplkh', 'routeName' => 'so.dict.ardmplkh', 'url' => '/_simba-source/so/dict/ardmplkh', 'component' => \Diepxuan\Catalog\Http\Livewire\So\Dict\Phanloaikhachhang::class],
             ['module' => 'so', 'kind' => 'rpt', 'slug' => 'arrptbccn01', 'routeName' => 'so.rpt.arrptbccn01', 'url' => '/_simba-source/so/rpt/arrptbccn01', 'component' => \Diepxuan\Catalog\Http\Livewire\So\Rpt\Arrptbccn01::class],
             ['module' => 'so', 'kind' => 'rpt', 'slug' => 'arrptbccn01063014', 'routeName' => 'so.rpt.arrptbccn01063014', 'url' => '/_simba-source/so/rpt/arrptbccn01063014', 'component' => \Diepxuan\Catalog\Http\Livewire\So\Rpt\Arrptbccn01::class],
             ['module' => 'so', 'kind' => 'rpt', 'slug' => 'arrptbccn01063038', 'routeName' => 'so.rpt.arrptbccn01063038', 'url' => '/_simba-source/so/rpt/arrptbccn01063038', 'component' => \Diepxuan\Catalog\Http\Livewire\So\Rpt\Arrptbccn01Sl::class],
             ['module' => 'so', 'kind' => 'rpt', 'slug' => 'sorptbk01', 'routeName' => 'so.rpt.sorptbk01', 'url' => '/_simba-source/so/rpt/sorptbk01', 'component' => \Diepxuan\Catalog\Http\Livewire\So\Rpt\Sorptbk01::class],
             ['module' => 'so', 'kind' => 'rpt', 'slug' => 'sorptbk01062002', 'routeName' => 'so.rpt.sorptbk01062002', 'url' => '/_simba-source/so/rpt/sorptbk01062002', 'component' => \Diepxuan\Catalog\Http\Livewire\So\Rpt\Sorptbk01::class],
-            ['module' => 'so', 'kind' => 'vch', 'slug' => 'sovchso1', 'routeName' => 'so.vch.sovchso1', 'url' => '/_simba-source/so/vch/sovchso1', 'component' => \Diepxuan\Catalog\Http\Livewire\Banhang\Hoadonbanhang::class],
+            ['module' => 'so', 'kind' => 'vch', 'slug' => 'sovchso1', 'routeName' => 'so.vch.sovchso1', 'url' => '/_simba-source/so/vch/sovchso1', 'component' => \Diepxuan\Catalog\Http\Livewire\So\Vch\Hoadonbanhang::class],
         ];
     }
 }

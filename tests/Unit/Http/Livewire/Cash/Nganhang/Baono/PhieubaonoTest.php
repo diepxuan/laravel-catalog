@@ -260,7 +260,7 @@ class PhieubaonoTest extends TestCase
     public function test_render(): void
     {
         Livewire::test(Phieubaono::class)
-            ->assertViewIs('catalog::cash.nganhang.baono.phieubaono')
+            ->assertViewIs('catalog::ca.vch.baono.phieubaono')
             ->assertViewHas('arDmKhs');
     }
 }
