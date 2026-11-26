@@ -17,7 +17,6 @@
 <div class="grid grid-cols-3 items-center gap-4">
     <label class="text-right text-sm text-gray-700">Mẫu báo cáo</label>
     <div class="col-span-2">
-        <input type="number" class="w-full max-w-[120px] rounded-md border-gray-300 px-2 py-1 text-sm shadow-sm focus:border-blue-500 focus:ring-blue-500" wire:model="pMau" />
-        <x-input-error for="pMau" class="mt-1" />
+        <input type="text" class="w-full max-w-[120px] rounded-md border-gray-300 px-2 py-1 text-sm" wire:model="pMau" placeholder="01" />
     </div>
 </div>

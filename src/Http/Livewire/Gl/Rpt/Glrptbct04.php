@@ -9,9 +9,9 @@ use Diepxuan\Simba\StoredProcedures\AsGLRptBCT04;
 use Illuminate\Contracts\View\View;
 
 /**
- * To khai thue TNDN tam tinh.
+ * Tờ khai thuế thu nhập doanh nghiệp tạm tính (GLRptBCT04).
  *
- * SP `asGLRptBCT04` — 4 tham so, doi chieu simba-docs + wrapper.
+ * 4 tham số: pMa_Cty, pNgay1, pNgay2, pMau — docs, wrapper khớp nhau.
  */
 class Glrptbct04 extends AbstractReport
 {
@@ -19,7 +19,13 @@ class Glrptbct04 extends AbstractReport
 
     public ?string $pNgay2 = null;
 
-    public int $pMau = 0;
+    public string $pMau = '01';
+
+    protected function spClass(): string
+    {
+        return AsGLRptBCT04::class;
+    }
+
     /**
      * @return array<string,mixed>
      */
@@ -29,13 +35,8 @@ class Glrptbct04 extends AbstractReport
             'pMa_Cty' => (string) \CatalogService::company()->id,
             'pNgay1' => $this->pNgay1,
             'pNgay2' => $this->pNgay2,
-            'pMau' => $this->pMau,
+            'pMau' => trim($this->pMau),
         ];
-    }
-
-    protected function spClass(): string
-    {
-        return AsGLRptBCT04::class;
     }
 
     public function render(): View
