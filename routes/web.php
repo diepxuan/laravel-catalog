@@ -327,7 +327,7 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
             // ['uri' => 'so/rpt/sorptth02', 'name' => 'so.rpt.sorptth02', 'module' => 'so', 'kind' => 'rpt', 'slug' => 'sorptth02', 'component' => SimbaPage::class],
             // ['uri' => 'so/vch/arvchar4', 'name' => 'so.vch.arvchar4', 'module' => 'so', 'kind' => 'vch', 'slug' => 'arvchar4', 'component' => SimbaPage::class],
             // ['uri' => 'so/vch/sotaout', 'name' => 'so.vch.sotaout', 'module' => 'so', 'kind' => 'vch', 'slug' => 'sotaout', 'component' => SimbaPage::class],
-            ['uri' => 'so/vch/sovchso1', 'name' => 'so.vch.sovchso1', 'module' => 'so', 'kind' => 'vch', 'slug' => 'sovchso1', 'component' => Hoadonbanhang::class],
+            // ['uri' => 'so/vch/sovchso1', ...] — SAI: menu 06.10.02 (SOVchSO1) là 'Đơn đặt hàng' không phải 'Hoá đơn bán hàng'; chưa có component riêng -> SimbaPage shell
             ['uri' => 'so/vch/sovchso3', 'name' => 'so.vch.sovchso3', 'module' => 'so', 'kind' => 'vch', 'slug' => 'sovchso3', 'component' => Sovchso3::class],
             ['uri' => 'so/vch/sovchso3/create', 'name' => 'so.vch.sovchso3.create', 'module' => 'so', 'kind' => 'vch', 'slug' => 'sovchso3', 'component' => Sovchso3Edit::class],
             ['uri' => 'so/vch/sovchso3/{id}/edit', 'name' => 'so.vch.sovchso3.edit', 'module' => 'so', 'kind' => 'vch', 'slug' => 'sovchso3', 'component' => Sovchso3Edit::class],
@@ -335,13 +335,73 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
             // ['uri' => 'so/vch/sovchso5', 'name' => 'so.vch.sovchso5', 'module' => 'so', 'kind' => 'vch', 'slug' => 'sovchso5', 'component' => SimbaPage::class],
         ];
 
+        // Cache route da khai bao de tranh trung name khi dang ky theo convention.
+        $registeredNames = array_column($sourceRoutes, 'name');
+
         foreach ($sourceRoutes as $sourceRoute) {
             Route::get($sourceRoute['uri'], $sourceRoute['component'])
                 ->defaults('module', $sourceRoute['module'])
                 ->defaults('kind', $sourceRoute['kind'])
                 ->defaults('slug', $sourceRoute['slug'])
+                // BUG FIX: SimbaMenuTargetResolver::componentForRoute() doc
+                // defaults['component'] de biet route da co Livewire component
+                // that hay chua. Thieu key nay -> SimbaPage LUON render shell
+                // metadata du component da ton tai. Xem task 105.
+                ->defaults('component', $sourceRoute['component'])
                 ->name($sourceRoute['name'])
             ;
+        }
+
+        // -------------------------------------------------------------------
+        // Tu dong dang ky route cho component dat DUNG convention
+        // (PROJECT_CONVENTIONS muc 2.2):
+        //
+        //   src/Http/Livewire/{Module}/{Kind}/{PascalSlug}.php
+        //     => route {module}.{kind}.{slug}
+        //     => uri   {module}/{kind}/{slug}
+        //
+        // Muc dich: moi man bao cao / chung tu chi can THEM FILE, khong phai sua
+        // routes/web.php -> nhieu PR song song khong con conflict o file dung chung.
+        //
+        // Component da khai bao tuong minh trong $sourceRoutes (khi slug/uri khong
+        // theo convention, hoac co create/edit rieng) se duoc bo qua o day.
+        // -------------------------------------------------------------------
+        $livewireRoot = __DIR__ . '/../src/Http/Livewire';
+        $kindSegments = ['Dict' => 'dict', 'Vch' => 'vch', 'Rpt' => 'rpt', 'Proc' => 'proc'];
+
+        foreach ($kindSegments as $kindDir => $kind) {
+            foreach (glob($livewireRoot . '/*/' . $kindDir, GLOB_ONLYDIR) ?: [] as $moduleDir) {
+                $module = strtolower(basename(\dirname($moduleDir)));
+
+                foreach (glob($moduleDir . '/*.php') ?: [] as $file) {
+                    $class = basename($file, '.php');
+                    // Bo qua form/helper: chi nhan component khong co hau to dac biet.
+                    if (preg_match('/(Form|Edit|List|Page|Rename)$/', $class)) {
+                        continue;
+                    }
+
+                    $slug = strtolower($class);
+                    $routeName = "{$module}.{$kind}.{$slug}";
+
+                    if (in_array($routeName, $registeredNames, true)) {
+                        continue;
+                    }
+
+                    $fqcn = 'Diepxuan\\Catalog\\Http\\Livewire\\' . ucfirst($module) . '\\' . $kindDir . '\\' . $class;
+                    if (!class_exists($fqcn)) {
+                        continue;
+                    }
+
+                    Route::get("{$module}/{$kind}/{$slug}", $fqcn)
+                        ->defaults('module', $module)
+                        ->defaults('kind', $kind)
+                        ->defaults('slug', $slug)
+                        ->defaults('component', $fqcn)
+                        ->name($routeName)
+                    ;
+                    $registeredNames[] = $routeName;
+                }
+            }
         }
     });
 
