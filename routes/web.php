@@ -110,7 +110,7 @@ Route::middleware([CorpAutoLogin::class])->group(static function (): void {
             ['uri' => 'ca/vch/cavchca4', 'name' => 'ca.vch.cavchca4', 'module' => 'ca', 'kind' => 'vch', 'slug' => 'cavchca4', 'component' => Baono::class],
             ['uri' => 'ca/rpt/carpttmnh01', 'name' => 'ca.rpt.carpttmnh01', 'module' => 'ca', 'kind' => 'rpt', 'slug' => 'carpttmnh01', 'component' => CaRptTienmat::class],
             // ['uri' => 'ca/rpt/carpttmnh02', ...] — TẠM HOÃN: AsCARptTMNH02 gọi SP thiếu tham số @pNgay1 (bug package simba, xem docs/PROJECT_CONVENTIONS.md)
-            ['uri' => 'ca/rpt/carpttmnh06', 'name' => 'ca.rpt.carpttmnh06', 'module' => 'ca', 'kind' => 'rpt', 'slug' => 'carpttmnh06', 'component' => CaRptThu::class],
+            // ['uri' => 'ca/rpt/carpttmnh06', ...] — component tự đăng ký qua convention (Ca\Rpt\Carpttmnh06)
             // ['uri' => 'ca/rpt/carpttmnh03', ...] — KHÔNG NỐI ĐƯỢC: menu 04.20.20 (CARptTMNH03) có active=0 trong sysMenu, SimbaMenuRouteMetadata không sinh route
             // ['uri' => 'co/dict/codmbom', 'name' => 'co.dict.codmbom', 'module' => 'co', 'kind' => 'dict', 'slug' => 'codmbom', 'component' => SimbaPage::class],
             // ['uri' => 'co/dict/codmnhspct', 'name' => 'co.dict.codmnhspct', 'module' => 'co', 'kind' => 'dict', 'slug' => 'codmnhspct', 'component' => SimbaPage::class],
