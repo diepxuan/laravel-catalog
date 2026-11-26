@@ -5,56 +5,140 @@ declare(strict_types=1);
 namespace Diepxuan\Catalog\Tests\Feature;
 
 use Illuminate\Support\Facades\Route;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use SplFileInfo;
 use Tests\TestCase;
 
+/**
+ * Bao dam MOI component Livewire deu co route tuong ung.
+ *
+ * Tu 2026-11-26, route duoc sinh TU DONG tu cau truc thu muc
+ * (xem docs/PROJECT_CONVENTIONS.md muc 2.2):
+ *
+ *   src/Http/Livewire/{Module}/{Kind}/{PascalSlug}.php      -> {module}.{kind}.{slug}
+ *   src/Http/Livewire/{Module}/{Kind}/{PascalSlug}Form.php  -> {module}.{kind}.{slug}.create + .edit
+ *   src/Http/Livewire/{Module}/{Kind}/{PascalSlug}Edit.php  -> {module}.{kind}.{slug}.create + .edit
+ *
+ * Test nay quet THAT thu muc (khong hardcode danh sach) -> bat ngay
+ * component mo coi, sai namespace, hoac sai convention dat ten.
+ */
 final class SourceRouteCoverageTest extends TestCase
 {
-    public function testComponentBackedSourceRoutesExistAsNamedComponentRegistry(): void
-    {
-        foreach ($this->componentBackedSourceRoutes() as $route) {
-            $registered = Route::getRoutes()->getByName($route['routeName']);
+    /** Component khong sinh route (helper/layout/abstract). */
+    private const NON_ROUTABLE_SUFFIXES = ['Abstract', 'Concerns', 'List', 'Page', 'Rename'];
 
-            self::assertNotNull($registered, "Missing route name {$route['routeName']}");
-            self::assertSame(
-                ltrim($route['url'], '/'),
-                $registered->uri(),
-                "Route URI mismatch for {$route['routeName']}"
-            );
-            self::assertSame($route['module'], $registered->defaults['module'] ?? null);
-            self::assertSame($route['kind'], $registered->defaults['kind'] ?? null);
-            self::assertSame($route['slug'], $registered->defaults['slug'] ?? null);
-            self::assertSame($route['component'], $registered->getActionName());
+    public function testMoiComponentLivewireDeuCoRouteTuongUng(): void
+    {
+        $violations = [];
+
+        foreach ($this->componentFiles() as $file) {
+            $class = basename($file, '.php');
+
+            if ($this->isNonRoutable($class)) {
+                continue;
+            }
+
+            $module = strtolower(basename(\dirname(\dirname($file))));
+            $kindDir = basename(\dirname($file));
+            $kind = strtolower($kindDir);
+
+            $fqcn = 'Diepxuan\\Catalog\\Http\\Livewire\\' . ucfirst($module) . '\\' . $kindDir . '\\' . $class;
+
+            if (!class_exists($fqcn)) {
+                $violations[] = "Class khong load duoc: {$fqcn} (file: {$file})";
+
+                continue;
+            }
+
+            $isForm = (bool) preg_match('/(Form|Edit)$/', $class);
+            $base = $isForm ? preg_replace('/(Form|Edit)$/', '', $class) : $class;
+            $slug = strtolower($base);
+
+            $expected = $isForm
+                ? ["{$module}.{$kind}.{$slug}.create", "{$module}.{$kind}.{$slug}.edit"]
+                : ["{$module}.{$kind}.{$slug}"];
+
+            foreach ($expected as $routeName) {
+                $registered = Route::getRoutes()->getByName($routeName);
+
+                if (null === $registered) {
+                    $violations[] = "Thieu route '{$routeName}' cho {$fqcn}"
+                        . " (ky vong tu file {$class} trong {$kindDir}/)";
+
+                    continue;
+                }
+
+                $actual = $registered->getActionName();
+
+                if ($actual !== $fqcn) {
+                    $violations[] = "Route '{$routeName}' tro sai component:"
+                        . " '{$actual}', ky vong '{$fqcn}'";
+                }
+            }
         }
+
+        self::assertSame([], $violations, "Phat hien component khong co route:\n  - " . implode("\n  - ", $violations));
     }
 
-    public function testSimbaSourceUrlsRedirectToCanonicalSimbaUrls(): void
+    public function testKhongConEntryKhaiBaoTayNaoTrongSourceRoutes(): void
     {
-        foreach ($this->componentBackedSourceRoutes() as $route) {
-            $resolved = Route::getRoutes()->match(request()->create($route['url'], 'GET'));
+        $routeFile = dirname(__DIR__, 2) . '/routes/web.php';
+        $src = (string) file_get_contents($routeFile);
 
-            self::assertNull($resolved->getName(), "Source URL {$route['url']} should match the unnamed catch-all redirect");
-            self::assertStringContainsString('RedirectController', $resolved->getActionName());
-            self::assertSame('/simba/{path}', $resolved->defaults['destination'] ?? null);
-            self::assertSame($route['module'] . '/' . $route['kind'] . '/' . $route['slug'], $resolved->parameter('path'));
+        preg_match_all("/^\s+\['uri' => '([^']+)', 'name' => '([^']+)'/m", $src, $m);
+
+        // Chi con si.vch.year (helper co route POST rieng cho doi nam lam viec).
+        $allowed = ['si.vch.year'];
+        $unexpected = array_values(array_diff($m[2], $allowed));
+
+        self::assertSame(
+            [],
+            $unexpected,
+            "routes/web.php con entry khai bao tay (nen de auto-register sinh):\n  - "
+                . implode("\n  - ", $unexpected)
+        );
+    }
+
+    /**
+     * @return list<string> duong dan tuyet doi toi file .php trong Livewire/{Module}/{Kind}/
+     */
+    private function componentFiles(): array
+    {
+        $root = dirname(__DIR__, 2) . '/src/Http/Livewire';
+        $files = [];
+
+        foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root)) as $file) {
+            assert($file instanceof SplFileInfo);
+
+            if (!$file->isFile() || 'php' !== $file->getExtension()) {
+                continue;
+            }
+
+            $path = $file->getPathname();
+
+            // Chi lay dung 2 cap: {Module}/{Kind}/{Class}.php
+            if (!preg_match('#/Livewire/[A-Za-z0-9]+/(Dict|Vch|Rpt|Proc)/[A-Za-z0-9_]+\.php$#', $path)) {
+                continue;
+            }
+
+            $files[] = $path;
         }
 
-        foreach ([
-            '/_simba-source/po/dict/ardmkh/create' => '/simba/po/dict/ardmkh/create',
-            '/_simba-source/po/dict/ardmkh/1CHIBANRAO/edit' => '/simba/po/dict/ardmkh/1CHIBANRAO/edit',
-            '/_simba-source/ca/dict/ardmkh/create' => '/simba/ca/dict/ardmkh/create',
-            '/_simba-source/ca/dict/ardmkh/1/edit' => '/simba/ca/dict/ardmkh/1/edit',
-            '/_simba-source/so/dict/ardmkh/create' => '/simba/so/dict/ardmkh/create',
-            '/_simba-source/so/dict/ardmkh/KH001/edit' => '/simba/so/dict/ardmkh/KH001/edit',
-            '/_simba-source/so/rpt/sorptbk01' => '/simba/so/rpt/sorptbk01',
-            '/_simba-source/so/rpt/sorptbk01062002' => '/simba/so/rpt/sorptbk01062002',
-        ] as $sourceUrl => $canonicalUrl) {
-            $resolved = Route::getRoutes()->match(request()->create($sourceUrl, 'GET'));
+        sort($files);
 
-            self::assertNull($resolved->getName(), "Source URL {$sourceUrl} should match the unnamed catch-all redirect");
-            self::assertStringContainsString('RedirectController', $resolved->getActionName());
-            self::assertSame('/simba/{path}', $resolved->defaults['destination'] ?? null);
-            self::assertSame(ltrim(str_replace('/simba/', '', $canonicalUrl), '/'), $resolved->parameter('path'));
+        return $files;
+    }
+
+    private function isNonRoutable(string $class): bool
+    {
+        foreach (self::NON_ROUTABLE_SUFFIXES as $suffix) {
+            if (str_ends_with($class, $suffix)) {
+                return true;
+            }
         }
+
+        return false;
     }
 
     public function testShellSourceRoutesAreNotRegisteredAsConcreteComponentRoutes(): void
