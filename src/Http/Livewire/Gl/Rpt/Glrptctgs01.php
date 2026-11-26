@@ -9,17 +9,15 @@ use Diepxuan\Simba\StoredProcedures\AsGLRptCTGS01;
 use Illuminate\Contracts\View\View;
 
 /**
- * Sổ đăng ký chứng từ ghi sổ (CTGS01).
+ * Sổ đăng ký chứng từ ghi sổ (GLRptCTGS01).
  *
- * Port từ GLRptCTGS01.dll (menu 02.20.11). SP `asGLRptCTGS01` (3 tham số).
- * Form gốc `frmGLRptCTGS01.LoadData()`:
- *   pMa_cty, pNgay_ct1, pNgay_ct2
+ * 3 tham số: pMa_cty, pNgay_ct1, pNgay_ct2 — docs và wrapper khớp.
  */
 class Glrptctgs01 extends AbstractReport
 {
-    public ?string $pNgay_ct1 = null;
+    public ?string $pNgay1 = null;
 
-    public ?string $pNgay_ct2 = null;
+    public ?string $pNgay2 = null;
 
     protected function spClass(): string
     {
@@ -33,8 +31,8 @@ class Glrptctgs01 extends AbstractReport
     {
         return [
             'pMa_cty' => (string) \CatalogService::company()->id,
-            'pNgay_ct1' => $this->pNgay_ct1,
-            'pNgay_ct2' => $this->pNgay_ct2,
+            'pNgay_ct1' => $this->pNgay1,
+            'pNgay_ct2' => $this->pNgay2,
         ];
     }
 
