@@ -164,6 +164,18 @@ class Porptbk01 extends AbstractReport
         $this->pNgay2 = (string) ($timer['to'] ?? now()->toDateString());
     }
 
+    /**
+     * SP asPORptBK01 tra 2 result set (da kiem chung tren DB that, ky 2025):
+     *   RS1 = chi tiet (1.371 dong / 40 cot)
+     *   RS2 = danh sach phieu (366 dong / 27 cot)
+     *
+     * => bang ke Master-Detail: bang tren = phieu, bang duoi = chi tiet phieu.
+     */
+    protected function usesDataSets(): bool
+    {
+        return true;
+    }
+
     public function render(): View
     {
         return view('catalog::po.rpt.porptbk01', [

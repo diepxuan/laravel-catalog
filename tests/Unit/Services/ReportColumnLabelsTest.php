@@ -88,4 +88,29 @@ class ReportColumnLabelsTest extends TestCase
         self::assertSame([], ReportColumnLabels::visibleColumns(null));
         self::assertSame([], ReportColumnLabels::visibleColumns(''));
     }
+
+    public function testForDetailKhongCoMenuIdTraVeMangRong(): void
+    {
+        self::assertSame([], ReportColumnLabels::forDetail(null));
+        self::assertSame([], ReportColumnLabels::forDetail(''));
+    }
+
+    public function testVisibleDetailColumnsKhongCoMenuIdTraVeMangRong(): void
+    {
+        self::assertSame([], ReportColumnLabels::visibleDetailColumns(null));
+        self::assertSame([], ReportColumnLabels::visibleDetailColumns(''));
+    }
+
+    public function testParseHaiLoaiDanhSachCotKhacNhau(): void
+    {
+        // SimbaERP tach 2 danh sach: formated_col_list (master) va
+        // ct_formated_col_list (chi tiet) — khong duoc lan lon.
+        $master = ReportColumnLabels::parse('ngay_ct:H=Ngày CT,ma_kh:H=Mã KH');
+        $detail = ReportColumnLabels::parse('ma_vt:H=Mã VT,so_luong:H=Số lượng');
+
+        self::assertArrayHasKey('ma_kh', $master);
+        self::assertArrayNotHasKey('ma_vt', $master);
+        self::assertArrayHasKey('ma_vt', $detail);
+        self::assertArrayNotHasKey('ma_kh', $detail);
+    }
 }

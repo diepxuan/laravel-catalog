@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Diepxuan\Catalog\Http\Livewire\Rpt;
 
 use Diepxuan\Catalog\Services\ReportColumnLabels;
+use Diepxuan\Catalog\Services\SimbaNumberFormat;
 use Diepxuan\Catalog\Services\SimbaMenuRouteMetadata;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
@@ -61,6 +62,47 @@ abstract class AbstractReport extends Component
      * @var null|array<string, string>
      */
     public ?array $columnLabelMap = null;
+
+    /**
+     * Du lieu CHI TIET cho bao cao Master-Detail (vd PORptBK01: bang ke phieu +
+     * chi tiet tung phieu). Rong = bao cao 1 bang, khong hien panel chi tiet.
+     *
+     * Moi phan tu: ['stt_rec' => ..., ...cac cot chi tiet...]
+     *
+     * @var list<array<string, mixed>>
+     */
+    public array $detailRows = [];
+
+    /**
+     * Cot hien thi cua bang chi tiet.
+     *
+     * @var list<string>
+     */
+    public array $detailColumns = [];
+
+    /**
+     * @var null|array<string, string>
+     */
+    public ?array $detailColumnLabelMap = null;
+
+    /**
+     * Ten cot dung de noi master <-> detail (thuong la stt_rec).
+     */
+    public string $detailKey = 'stt_rec';
+
+    /**
+     * Map [ten_cot => ma format] cua bang master, tu sysReportResx F=...
+     *
+     * @var null|array<string, string>
+     */
+    public ?array $columnFormatMap = null;
+
+    /**
+     * Map [ten_cot => ma format] cua bang chi tiet.
+     *
+     * @var null|array<string, string>
+     */
+    public ?array $detailColumnFormatMap = null;
 
     /**
      * Tên class SP wrapper, vd: AsGLRptBCT01::class.
@@ -126,7 +168,17 @@ abstract class AbstractReport extends Component
 
         try {
             $sp = $this->spClass();
-            $rows = $sp::call($this->procedurePayload());
+            $payload = $this->procedurePayload();
+
+            // Bao cao Master-Detail: SP tra 2 result set (phieu + chi tiet).
+            if ($this->usesDataSets() && method_exists($sp, 'callWithDataSets')) {
+                $dataSets = $sp::callWithDataSets($payload);
+                $rows = $dataSets['ph'];
+                $detailSource = $dataSets['ct'];
+            } else {
+                $rows = $sp::call($payload);
+                $detailSource = null;
+            }
         } catch (\Throwable $exception) {
             report($exception);
             $this->rows = [];
@@ -140,6 +192,16 @@ abstract class AbstractReport extends Component
         $this->rows = $rows->map(fn (mixed $row): array => $this->rowToArray($row))->values()->all();
         $this->columnLabelMap = null;
         $this->columns = [] !== $this->rows ? $this->resolveColumns($this->rows[0]) : [];
+
+        // Chi tiet: chi nap khi bao cao khai bao Master-Detail.
+        $this->detailColumnLabelMap = null;
+        $this->columnFormatMap = null;
+        $this->detailColumnFormatMap = null;
+        $this->detailRows = null !== $detailSource
+            ? $detailSource->map(fn (mixed $row): array => $this->rowToArray($row))->values()->all()
+            : [];
+        $this->detailColumns = [] !== $this->detailRows ? $this->resolveDetailColumns($this->detailRows[0]) : [];
+
         $this->clearSelectedRow();
         $this->dispatch('switch-tab', 'content');
     }
@@ -291,6 +353,130 @@ abstract class AbstractReport extends Component
     }
 
     /**
+     * Bao cao nay co phai Master-Detail khong (SP tra 2 result set)?
+     *
+     * Component con override -> true va dam bao $sp co callWithDataSets().
+     */
+    protected function usesDataSets(): bool
+    {
+        return false;
+    }
+
+    /**
+     * Cot hien thi cua bang chi tiet.
+     *
+     * Dung ct_formated_col_list tu sysReportResx (khac formated_col_list
+     * cua bang master).
+     *
+     * @param array<string, mixed> $sampleRow
+     *
+     * @return list<string>
+     */
+    protected function resolveDetailColumns(array $sampleRow): array
+    {
+        $available = array_keys($sampleRow);
+        $availableLower = [];
+
+        foreach ($available as $column) {
+            $availableLower[mb_strtolower((string) $column)] = $column;
+        }
+
+        [$menuId, $maMau] = $this->reportMenuContext();
+        $configured = ReportColumnLabels::visibleDetailColumns($menuId, $maMau);
+
+        if ([] === $configured) {
+            return $available;
+        }
+
+        $columns = [];
+
+        foreach ($configured as $wanted) {
+            if (isset($availableLower[$wanted])) {
+                $columns[] = $availableLower[$wanted];
+            }
+        }
+
+        return [] !== $columns ? $columns : $available;
+    }
+
+    /**
+     * Nhan hien thi cho 1 cot cua bang chi tiet.
+     */
+    public function detailColumnLabel(string $column): string
+    {
+        $manual = $this->reportDetailColumnLabels();
+
+        if (isset($manual[$column])) {
+            return $manual[$column];
+        }
+
+        $lower = mb_strtolower($column);
+
+        if (isset($manual[$lower])) {
+            return $manual[$lower];
+        }
+
+        return $this->detailColumnLabelMap()[$lower]
+            ?? ReportColumnLabels::allLabels()[$lower]
+            ?? $column;
+    }
+
+    /**
+     * Component con override de khai bao label chi tiet thu cong.
+     *
+     * @return array<string, string>
+     */
+    protected function reportDetailColumnLabels(): array
+    {
+        return [];
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function detailColumnLabelMap(): array
+    {
+        if (null !== $this->detailColumnLabelMap) {
+            return $this->detailColumnLabelMap;
+        }
+
+        [$menuId, $maMau] = $this->reportMenuContext();
+
+        return $this->detailColumnLabelMap = ReportColumnLabels::forDetail($menuId, $maMau);
+    }
+
+    /**
+     * Cac dong chi tiet cua phieu dang chon.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function selectedDetailRows(): array
+    {
+        if ([] === $this->detailRows || [] === $this->selectedRow) {
+            return [];
+        }
+
+        $key = $this->selectedRow[$this->detailKey] ?? null;
+
+        if (null === $key) {
+            return [];
+        }
+
+        return array_values(array_filter(
+            $this->detailRows,
+            fn (array $row): bool => (string) ($row[$this->detailKey] ?? '') === (string) $key
+        ));
+    }
+
+    /**
+     * Bao cao co bang chi tiet de hien khong.
+     */
+    public function hasDetail(): bool
+    {
+        return [] !== $this->detailRows && [] !== $this->detailColumns;
+    }
+
+    /**
      * Nhan hien thi cho 1 cot.
      *
      * Thu tu:
@@ -343,9 +529,82 @@ abstract class AbstractReport extends Component
         return $this->columnLabelMap = ReportColumnLabels::for($menuId, $maMau);
     }
 
-    public function displayValue(mixed $value): string
+    /**
+     * Gia tri hien thi cua 1 o — dung dinh dang SimbaERP.
+     *
+     * Format lay tu sysReportResx F=... roi anh xa sang cau hinh SiSetup
+     * (QT/OA/FP/FA/OP) hoac pattern .NET truc tiep (dd/MM/yyyy, ### ### ###).
+     *
+     * Khong truyen $column -> tra gia tri tho (dung cho csvValue / debug).
+     */
+    public function displayValue(mixed $value, ?string $column = null): string
     {
+        if (null === $column) {
+            return self::csvValue($value);
+        }
+
+        return $this->formatCellValue($value, $this->columnFormatMap()[$column] ?? null);
+    }
+
+    /**
+     * Gia tri hien thi cua 1 o bang CHI TIET.
+     */
+    public function displayDetailValue(mixed $value, ?string $column = null): string
+    {
+        if (null === $column) {
+            return self::csvValue($value);
+        }
+
+        return $this->formatCellValue($value, $this->detailColumnFormatMap()
+            [mb_strtolower((string) $column)] ?? null);
+    }
+
+    /**
+     * Ap dung dinh dang theo ma F= cua SimbaERP.
+     */
+    protected function formatCellValue(mixed $value, ?string $code): string
+    {
+        if (null === $code || '' === trim($code)) {
+            return self::csvValue($value);
+        }
+
+        if (preg_match('/^[dMyHhms\/\-: ]+$/', $code) && preg_match('/[dMy]/', $code)) {
+            return SimbaNumberFormat::formatDate($value, $code);
+        }
+
+        if (is_numeric($value) || (\is_string($value) && '' !== trim($value) && is_numeric(trim($value)))) {
+            return SimbaNumberFormat::format($value, $code);
+        }
+
         return self::csvValue($value);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function columnFormatMap(): array
+    {
+        if (null !== $this->columnFormatMap) {
+            return $this->columnFormatMap;
+        }
+
+        [$menuId, $maMau] = $this->reportMenuContext();
+
+        return $this->columnFormatMap = ReportColumnLabels::formats($menuId, $maMau);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function detailColumnFormatMap(): array
+    {
+        if (null !== $this->detailColumnFormatMap) {
+            return $this->detailColumnFormatMap;
+        }
+
+        [$menuId, $maMau] = $this->reportMenuContext();
+
+        return $this->detailColumnFormatMap = ReportColumnLabels::detailFormats($menuId, $maMau);
     }
 
     public static function csvValue(mixed $value): string

@@ -135,6 +135,160 @@ class ReportColumnLabels
     }
 
     /**
+     * Map label cho bang CHI TIET (ct_formated_col_list).
+     *
+     * SimbaERP tach 2 danh sach cot:
+     *   formated_col_list    -> bang master (danh sach phieu)
+     *   ct_formated_col_list -> bang chi tiet
+     *
+     * @return array<string, string>
+     */
+    public static function forDetail(?string $menuId, ?string $maMau = null, string $language = 'vi-VN'): array
+    {
+        if (null === $menuId || '' === trim($menuId)) {
+            return [];
+        }
+
+        $key = '__detail__|' . $menuId . '|' . ($maMau ?? '') . '|' . $language;
+
+        if (isset(self::$cache[$key])) {
+            return self::$cache[$key];
+        }
+
+        foreach (self::candidateRows($menuId, $maMau, $language) as $row) {
+            $labels = self::parse(self::rowValue($row, 'ct_formated_col_list'));
+
+            if ([] !== $labels) {
+                return self::$cache[$key] = $labels;
+            }
+        }
+
+        return self::$cache[$key] = [];
+    }
+
+    /**
+     * Danh sach cot cua bang CHI TIET theo ct_formated_col_list.
+     *
+     * @return list<string>
+     */
+    public static function visibleDetailColumns(?string $menuId, ?string $maMau = null, string $language = 'vi-VN'): array
+    {
+        if (null === $menuId || '' === trim($menuId)) {
+            return [];
+        }
+
+        $key = '__detailcols__|' . $menuId . '|' . ($maMau ?? '') . '|' . $language;
+
+        if (isset(self::$cache[$key])) {
+            return self::$cache[$key];
+        }
+
+        foreach (self::candidateRows($menuId, $maMau, $language) as $row) {
+            $columns = self::parseColumns(self::rowValue($row, 'ct_formated_col_list'));
+
+            if ([] !== $columns) {
+                return self::$cache[$key] = $columns;
+            }
+        }
+
+        return self::$cache[$key] = [];
+    }
+
+    /**
+     * Map [ten_cot => ma format] (F=...) tu formated_col_list.
+     *
+     * Ma format SimbaERP: QT (so luong), OA/FP (tien), FA (tien ngoai te),
+     * OP (don gia), dd/MM/yyyy (ngay), hoac pattern .NET truc tiep.
+     *
+     * @return array<string, string>
+     */
+    public static function formats(?string $menuId, ?string $maMau = null, string $language = 'vi-VN'): array
+    {
+        return self::formatMap($menuId, $maMau, $language, 'formated_col_list', '__fmt__');
+    }
+
+    /**
+     * Map [ten_cot => ma format] cua bang CHI TIET (ct_formated_col_list).
+     *
+     * @return array<string, string>
+     */
+    public static function detailFormats(?string $menuId, ?string $maMau = null, string $language = 'vi-VN'): array
+    {
+        return self::formatMap($menuId, $maMau, $language, 'ct_formated_col_list', '__fmtct__');
+    }
+
+    /**
+     * Parse 1 chuoi formated_col_list -> [cot => F=...].
+     *
+     * @return array<string, string>
+     */
+    public static function parseFormats(?string $formatedColList): array
+    {
+        if (null === $formatedColList || '' === trim($formatedColList)) {
+            return [];
+        }
+
+        $formats = [];
+
+        foreach (explode(',', $formatedColList) as $segment) {
+            $segment = trim($segment);
+
+            if ('' === $segment) {
+                continue;
+            }
+
+            $parts = explode(':', $segment);
+            $column = trim(array_shift($parts) ?? '');
+
+            if ('' === $column) {
+                continue;
+            }
+
+            foreach ($parts as $part) {
+                if (str_starts_with($part, 'F=')) {
+                    $format = trim(substr($part, 2));
+
+                    if ('' !== $format) {
+                        $formats[mb_strtolower($column)] = $format;
+                    }
+
+                    break;
+                }
+            }
+        }
+
+        return $formats;
+    }
+
+    /**
+     * @param string $field cot Resx chua danh sach cot
+     *
+     * @return array<string, string>
+     */
+    protected static function formatMap(?string $menuId, ?string $maMau, string $language, string $field, string $prefix): array
+    {
+        if (null === $menuId || '' === trim($menuId)) {
+            return [];
+        }
+
+        $key = $prefix . '|' . $menuId . '|' . ($maMau ?? '') . '|' . $language;
+
+        if (isset(self::$cache[$key])) {
+            return self::$cache[$key];
+        }
+
+        foreach (self::candidateRows($menuId, $maMau, $language) as $row) {
+            $formats = self::parseFormats(self::rowValue($row, $field));
+
+            if ([] !== $formats) {
+                return self::$cache[$key] = $formats;
+            }
+        }
+
+        return self::$cache[$key] = [];
+    }
+
+    /**
      * Parse formated_col_list -> list ten cot (giu thu tu).
      *
      * @return list<string>
