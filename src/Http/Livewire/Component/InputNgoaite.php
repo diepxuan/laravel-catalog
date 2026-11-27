@@ -70,6 +70,17 @@ class InputNgoaite extends Component
         }
     }
 
+    /**
+     * Khi parent truyen san gia tri qua wire:model (vd pMa_nt='VND'),
+     * mount() khong nhan duoc -> phai sync o hydrate.
+     */
+    public function hydrate(): void
+    {
+        if (null !== $this->value && '' !== trim((string) $this->value) && '' === trim($this->search)) {
+            $this->refreshSearchFromValue();
+        }
+    }
+
     public function updatedValue($newValue): void
     {
         if ($newValue !== null && trim($newValue) !== '') {
@@ -122,6 +133,11 @@ class InputNgoaite extends Component
      */
     public function render(): View
     {
+        // Dam bao search phan anh dung value hien tai (ke ca lan render dau).
+        if (null !== $this->value && '' !== trim((string) $this->value) && '' === trim($this->search)) {
+            $this->refreshSearchFromValue();
+        }
+
         return view('catalog::components.input-ngoaite', [
             'ntList' => $this->ntOptions(),
         ]);

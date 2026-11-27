@@ -13,11 +13,28 @@ use Illuminate\Contracts\View\View;
  */
 class Porptbk01 extends AbstractReport
 {
+
+    /*
+     * LUU Y QUAN TRONG ve gia tri mac dinh:
+     *
+     * SP asPORptBK01/02/03 dung SQL dong voi pattern:
+     *   case @pX when '' then '' else ' AND col LIKE @pX + percent' end
+     *
+     * Trong SQL Server: NULL = '' -> UNKNOWN (khong phai TRUE) -> roi vao
+     * nhanh else -> sinh dieu kien LIKE NULL -> loc sach 0 dong.
+     *
+     * Vi vay cac tham so sau BAT BUOC mac dinh '' (khong duoc null):
+     *   pTrang_thai, pMa_nt, pMa_kho, pMa_lo, pMa_httt, pMa_bp,
+     *   pMa_spct, pMa_Phi, pGroupType
+     *
+     * Cac tham so con lai (pMa_kh, pMa_vt, pMa_nhvt, pMa_hd, pMa_plkh1..3,
+     * pMa_nhhd) an toan voi ca null va '' (SP dung LIKE tren cot khac).
+     */
     public ?string $pNgay1 = null;
 
     public ?string $pNgay2 = null;
 
-    public ?string $pTrang_thai = null;
+    public ?string $pTrang_thai = '';
 
     public ?string $pSoct1 = null;
 
@@ -31,13 +48,26 @@ class Porptbk01 extends AbstractReport
 
     public ?string $pMa_nhvt = null;
 
-    public ?string $pMa_kho = null;
+    public ?string $pMa_kho = '';
 
     public ?string $pMa_vitri = null;
 
     public ?string $pMa_nvkd = null;
 
-    public ?string $pMa_nt = null;
+
+    /**
+     * Ma ngoai te mac dinh = VND.
+     *
+     * Bang chung tu Framework.dll (base class frmReport):
+     *   optVND.Checked = true;   // dong 59828
+     *   optVND.Text = "VND";
+     *   optNt.Text = "Ngoai te";
+     * Va sysReportInfo.hasNT='1' cho ca 3 menu -> nhom ngoai te phai hien.
+     *
+     * SP loc: AND p.ma_nt LIKE @pMa_nt + '%'
+     *   '' -> tat ca ngoai te | 'VND' -> chi VND (dung mac dinh SimbaERP).
+     */
+    public ?string $pMa_nt = 'VND';
 
     public ?string $pMa_hd = null;
 
@@ -47,17 +77,24 @@ class Porptbk01 extends AbstractReport
 
     public ?string $pMa_plkh3 = null;
 
-    public ?string $pMa_ct = null;
+    /**
+     * Loai phieu mac dinh — lay tu sysReportInfo.par0 cua mau isdefault=1.
+     *
+     * Menu 10.20.02 (BK01) va 10.20.05 (BK02): mau 04 isdefault=1, par0='PO3'
+     * -> tu dong chon "Hoa don mua hang trong nuoc".
+     * Menu 10.20.20 (BK03): par0='' -> giu null (Tat ca).
+     */
+    public ?string $pMa_ct = 'PO3';
 
-    public ?string $pMa_lo = null;
+    public ?string $pMa_lo = '';
 
-    public ?string $pMa_httt = null;
+    public ?string $pMa_httt = '';
 
     public ?string $pMa_TT = null;
 
-    public ?string $pMa_bp = null;
+    public ?string $pMa_bp = '';
 
-    public ?string $pMa_spct = null;
+    public ?string $pMa_spct = '';
 
     public ?string $pMa_plvt1 = null;
 
@@ -67,7 +104,7 @@ class Porptbk01 extends AbstractReport
 
     public ?string $pMa_nhhd = null;
 
-    public ?string $pMa_Phi = null;
+    public ?string $pMa_Phi = '';
 
     protected function spClass(): string
     {
@@ -110,6 +147,21 @@ class Porptbk01 extends AbstractReport
             'pMa_nhhd' => $this->pMa_nhhd,
             'pMa_Phi' => $this->pMa_Phi,
         ];
+    }
+
+    public function mount(?string $module = null, ?string $kind = null, ?string $slug = null): void
+    {
+        parent::mount($module, $kind, $slug);
+
+        $this->syncTimer();
+    }
+
+    private function syncTimer(): void
+    {
+        $timer = \CatalogService::timer();
+
+        $this->pNgay1 = (string) ($timer['from'] ?? now()->startOfMonth()->toDateString());
+        $this->pNgay2 = (string) ($timer['to'] ?? now()->toDateString());
     }
 
     public function render(): View
