@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace Diepxuan\Catalog\Http\Livewire\Rpt;
 
+use Diepxuan\Catalog\Services\ReportColumnLabels;
+use Diepxuan\Catalog\Services\SimbaMenuRouteMetadata;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -49,6 +51,16 @@ abstract class AbstractReport extends Component
 
     /** @var array<string,mixed> */
     public array $selectedRow = [];
+
+    /**
+     * Map [ten_cot => label tieng Viet] lay tu sysReportResx.
+     *
+     * Null = chua resolve. Sau khi resolve, cot nao khong co trong map
+     * se hien thi ten cot tho (khong tu dat label).
+     *
+     * @var null|array<string, string>
+     */
+    public ?array $columnLabelMap = null;
 
     /**
      * Tên class SP wrapper, vd: AsGLRptBCT01::class.
@@ -126,7 +138,8 @@ abstract class AbstractReport extends Component
         }
 
         $this->rows = $rows->map(fn (mixed $row): array => $this->rowToArray($row))->values()->all();
-        $this->columns = [] !== $this->rows ? array_keys($this->rows[0]) : [];
+        $this->columnLabelMap = null;
+        $this->columns = [] !== $this->rows ? $this->resolveColumns($this->rows[0]) : [];
         $this->clearSelectedRow();
         $this->dispatch('switch-tab', 'content');
     }
@@ -197,6 +210,137 @@ abstract class AbstractReport extends Component
 
             fclose($handle);
         }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    /**
+     * Cot can hien thi.
+     *
+     * Uu tien 1: sysReportResx.formated_col_list (dinh nghia chinh thuc SimbaERP
+     *            — vd menu 10.20.02 chi hien 14/40 cot, an cac cot ky thuat
+     *            ma_cty/stt_rec/stt_rec0 va cac cot _nt khi la VND).
+     * Uu tien 2: toan bo cot SP tra (neu bao cao khong co dinh nghia cot).
+     *
+     * Cot dinh nghia trong Resx nhung SP khong tra -> bo qua.
+     *
+     * @param array<string, mixed> $sampleRow
+     *
+     * @return list<string>
+     */
+    protected function resolveColumns(array $sampleRow): array
+    {
+        $available = array_keys($sampleRow);
+        $availableLower = [];
+
+        foreach ($available as $column) {
+            $availableLower[mb_strtolower((string) $column)] = $column;
+        }
+
+        $configured = $this->configuredColumns();
+
+        if ([] === $configured) {
+            return $available;
+        }
+
+        $columns = [];
+
+        foreach ($configured as $wanted) {
+            if (isset($availableLower[$wanted])) {
+                $columns[] = $availableLower[$wanted];
+            }
+        }
+
+        // Neu cau hinh khong khop cot nao (du lieu loi/thieu) -> tra toan bo
+        // de khong hien bang trong vo ly.
+        return [] !== $columns ? $columns : $available;
+    }
+
+    /**
+     * Danh sach cot cau hinh trong sysReportResx cho route hien tai.
+     *
+     * @return list<string>
+     */
+    protected function configuredColumns(): array
+    {
+        [$menuId, $maMau] = $this->reportMenuContext();
+
+        return ReportColumnLabels::visibleColumns($menuId, $maMau);
+    }
+
+    /**
+     * menuid + ma_mau cua bao cao hien tai, lay tu metadata route.
+     *
+     * @return array{0: null|string, 1: null|string}
+     */
+    protected function reportMenuContext(): array
+    {
+        if (null === $this->slug) {
+            return [null, null];
+        }
+
+        $routeName = mb_strtolower((string) $this->module) . '.rpt.' . mb_strtolower((string) $this->slug);
+        $metadata = app(SimbaMenuRouteMetadata::class)->getReport($routeName);
+
+        if (!\is_array($metadata)) {
+            return [null, null];
+        }
+
+        $menuId = $metadata['menuid'] ?? null;
+        $maMau = $metadata['ma_mau'] ?? null;
+
+        return [\is_string($menuId) ? $menuId : null, \is_string($maMau) ? $maMau : null];
+    }
+
+    /**
+     * Nhan hien thi cho 1 cot.
+     *
+     * Thu tu:
+     *   1. Khai bao tay qua reportColumnLabels() cua component con
+     *   2. sysReportResx.formated_col_list (nguon chinh thuc SimbaERP)
+     *   3. Ten cot tho (khong tu dat)
+     */
+    public function columnLabel(string $column): string
+    {
+        $manual = $this->reportColumnLabels();
+
+        if (isset($manual[$column])) {
+            return $manual[$column];
+        }
+
+        $lower = mb_strtolower($column);
+
+        if (isset($manual[$lower])) {
+            return $manual[$lower];
+        }
+
+        return $this->columnLabelMap()[$lower]
+            ?? ReportColumnLabels::allLabels()[$lower]
+            ?? $column;
+    }
+
+    /**
+     * Component con override de khai bao label thu cong (uu tien cao nhat).
+     *
+     * @return array<string, string>
+     */
+    protected function reportColumnLabels(): array
+    {
+        return [];
+    }
+
+    /**
+     * Map label lay tu sysReportResx theo menuid + ma_mau cua route hien tai.
+     *
+     * @return array<string, string>
+     */
+    protected function columnLabelMap(): array
+    {
+        if (null !== $this->columnLabelMap) {
+            return $this->columnLabelMap;
+        }
+
+        [$menuId, $maMau] = $this->reportMenuContext();
+
+        return $this->columnLabelMap = ReportColumnLabels::for($menuId, $maMau);
     }
 
     public function displayValue(mixed $value): string

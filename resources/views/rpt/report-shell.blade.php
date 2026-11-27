@@ -85,7 +85,7 @@
                             <dl class="grid grid-cols-1 gap-x-4 gap-y-1 md:grid-cols-2 xl:grid-cols-3">
                                 @foreach ($selectedRow as $column => $value)
                                     <div class="grid grid-cols-[120px_minmax(0,1fr)] gap-2">
-                                        <dt class="truncate font-mono text-xs text-sky-700">{{ $column }}</dt>
+                                        <dt class="truncate text-xs text-sky-700" title="{{ $column }}">{{ $this->columnLabel($column) }}</dt>
                                         <dd class="break-words font-mono text-xs text-sky-950">{{ $this->displayValue($value) }}</dd>
                                     </div>
                                 @endforeach
@@ -100,8 +100,9 @@
                                     <tr>
                                         <th class="border-b px-3 py-2 text-right text-xs font-semibold text-gray-500">#</th>
                                         @foreach ($columns as $column)
-                                            <th class="border-b px-3 py-2 text-xs font-semibold text-gray-500 {{ $this->isNumericColumn($column) ? 'text-right' : 'text-left' }}">
-                                                {{ $column }}
+                                            <th class="border-b px-3 py-2 text-xs font-semibold text-gray-500 {{ $this->isNumericColumn($column) ? 'text-right' : 'text-left' }}"
+                                                title="{{ $column }}">
+                                                {{ $this->columnLabel($column) }}
                                             </th>
                                         @endforeach
                                     </tr>
