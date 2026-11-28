@@ -34,6 +34,18 @@ final class SimbaMenuRouteMetadata
             'url'         => '/simba/si/vch/year',
             'source_type' => self::TYPE_UTILITY,
         ],
+        // Menu "tiện ích" (type = 3) không có DLL/code_name nên không tự sinh
+        // được route — phải map thủ công sang màn hình Portal tương ứng.
+        '90.40.14' => [
+            'route_name'  => 'system.balance.index',
+            'url'         => '/hethong/balance',
+            'source_type' => self::TYPE_UTILITY,
+        ],
+        '90.40.17' => [
+            'route_name'  => 'system.company',
+            'url'         => '/hethong/company',
+            'source_type' => self::TYPE_UTILITY,
+        ],
     ];
 
     private ?array $routes = null;
@@ -201,13 +213,23 @@ final class SimbaMenuRouteMetadata
     /**
      * @return iterable<int, SysMenu>
      */
+    /**
+     * Toàn bộ menu lá cần sinh route metadata.
+     *
+     * Dùng `allMenus()` thay `activeMenus()` để menu `active = 0` vẫn có URL
+     * trong sidebar `SimbaERP Menus` — Sếp cần bấm vào được để xem trước
+     * màn hình, dù menu đang tắt trên SimbaERP gốc.
+     *
+     * Trước đây chỉ menu `active = 1` mới có metadata -> 304 menu tắt hiển thị
+     * dạng text không bấm được.
+     */
     private function activeLeafMenus(): iterable
     {
         if (null !== $this->testMenus) {
             return $this->testMenus;
         }
 
-        return ($this->menus ?? new SimbaMenuRepository())->activeMenus();
+        return ($this->menus ?? new SimbaMenuRepository())->allMenus();
     }
 
     private function sourceTypeFor(SysMenu $menu): ?string
