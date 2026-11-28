@@ -34,18 +34,6 @@ final class SimbaMenuRouteMetadata
             'url'         => '/simba/si/vch/year',
             'source_type' => self::TYPE_UTILITY,
         ],
-        // Menu "tiện ích" (type = 3) không có DLL/code_name nên không tự sinh
-        // được route — phải map thủ công sang màn hình Portal tương ứng.
-        '90.40.14' => [
-            'route_name'  => 'system.balance.index',
-            'url'         => '/hethong/balance',
-            'source_type' => self::TYPE_UTILITY,
-        ],
-        '90.40.17' => [
-            'route_name'  => 'system.company',
-            'url'         => '/hethong/company',
-            'source_type' => self::TYPE_UTILITY,
-        ],
     ];
 
     private ?array $routes = null;
