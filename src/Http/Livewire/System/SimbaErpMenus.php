@@ -49,7 +49,9 @@ class SimbaErpMenus extends Component
      */
     public function getTreeProperty(): Collection
     {
-        $allMenus = $this->menus->activeMenus();
+        // Hiển thị TOÀN BỘ menu (kể cả active = 0) để thấy được menu nào đang tắt
+        // trên SimbaERP gốc — trạng thái thể hiện bằng chấm xanh/đỏ trong view.
+        $allMenus = $this->menus->allMenus();
         $routeMap = $this->routeMapByMenuId();
 
         if ($this->search) {
@@ -73,11 +75,27 @@ class SimbaErpMenus extends Component
     }
 
     /**
-     * Total active menu count for stats.
+     * Tổng số menu (gồm cả menu đang tắt) — dùng cho stats.
      */
     public function getTotalProperty(): int
     {
+        return $this->menus->allMenus()->count();
+    }
+
+    /**
+     * Số menu đang bật (active = 1) trên SimbaERP gốc.
+     */
+    public function getActiveCountProperty(): int
+    {
         return $this->menus->countActiveMenus();
+    }
+
+    /**
+     * Số menu đang tắt (active = 0) trên SimbaERP gốc.
+     */
+    public function getDisabledCountProperty(): int
+    {
+        return max(0, $this->total - $this->activeCount);
     }
 
     public function getPortalRouteCountProperty(): int
@@ -123,6 +141,7 @@ class SimbaErpMenus extends Component
                 'isMasterData'  => $sm->isMasterData(),
                 'isReport'      => $sm->isReport(),
                 'isSetup'       => $sm->isSetup(),
+                'isActive'      => (bool) $sm->active,
                 'hasChildren'   => $childrenMap->has($sm->menuid),
                 'isAlreadyUsed' => false,
                 'portalUrl'     => $portalTarget['url'] ?? null,
@@ -195,6 +214,7 @@ class SimbaErpMenus extends Component
                                 'isMasterData'  => false,
                                 'isReport'      => false,
                                 'isSetup'       => false,
+                                'isActive'      => true,
                                 'hasChildren'   => true,
                                 'isAlreadyUsed' => false,
                                 'portalUrl'     => null,
@@ -217,6 +237,7 @@ class SimbaErpMenus extends Component
                                     'isMasterData'  => $sm->isMasterData(),
                                     'isReport'      => $sm->isReport(),
                                     'isSetup'       => $sm->isSetup(),
+                                    'isActive'      => (bool) $sm->active,
                                     'hasChildren'   => $childrenMap->has($sm->menuid),
                                     'isAlreadyUsed' => false,
                                     'portalUrl'     => $portalTarget['url'] ?? null,

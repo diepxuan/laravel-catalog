@@ -147,7 +147,13 @@
         <div class="flex items-center justify-between">
             <div>
                 <h3 class="text-sm font-semibold text-gray-800">SimbaERP Menus</h3>
-                <p class="text-xs text-gray-500">{{ $this->portalRouteCount }} menu có Portal / {{ $this->unmappedContainerCount }} nhóm</p>
+                <p class="text-xs text-gray-500">
+                    {{ $this->portalRouteCount }} menu có Portal / {{ $this->unmappedContainerCount }} nhóm
+                </p>
+                <p class="mt-0.5 flex items-center gap-2 text-[10px] text-gray-500">
+                    <span class="inline-flex items-center gap-1"><span class="h-[2px] w-[2px] rounded-full bg-emerald-500"></span>{{ $this->activeCount }} bật</span>
+                    <span class="inline-flex items-center gap-1"><span class="h-[2px] w-[2px] rounded-full bg-red-500"></span>{{ $this->disabledCount }} tắt</span>
+                </p>
             </div>
             @if ($this->total > 0)
                 <span class="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">{{ $this->total }}</span>
@@ -224,6 +230,12 @@
                     </svg>
                 @endif
 
+                {{-- Chấm trạng thái active trên SimbaERP gốc: xanh = đang bật, đỏ = đang tắt (active = 0).
+                     Kích thước rất nhỏ (3px) — đủ để nhận biết mà không làm rối danh sách menu. --}}
+                <span class="h-[2px] w-[2px] flex-shrink-0 rounded-full {{ $item->isActive ? 'bg-emerald-500' : 'bg-red-500' }}"
+                      title="{{ $item->isActive ? 'Đang hoạt động (active = 1)' : 'Đang tắt trên SimbaERP (active = 0)' }}"
+                      aria-label="{{ $item->isActive ? 'active' : 'disabled' }}"></span>
+
                 @if ($item->portalUrl ?? false)
                     <a href="{{ $item->portalUrl }}"
                        class="min-w-0 flex-1 truncate text-blue-700 hover:text-blue-900 hover:underline"
@@ -235,7 +247,8 @@
                         {{ $item->portalLabel ?? 'Portal' }}
                     </span>
                 @else
-                    <span class="min-w-0 flex-1 truncate text-gray-800" title="{{ $item->name ?: $item->menuid }}">
+                    <span class="min-w-0 flex-1 truncate {{ $item->isActive ? 'text-gray-800' : 'text-gray-400' }}"
+                          title="{{ $item->name ?: $item->menuid }}{{ $item->isActive ? '' : ' — đang tắt trên SimbaERP' }}">
                         {{ $item->name ?: $item->menuid }}
                     </span>
                 @endif
@@ -274,6 +287,6 @@
 
     {{-- Footer stats --}}
     <div class="border-t border-gray-200 bg-gray-50 px-4 py-2 text-xs text-gray-500">
-        {{ $tree->count() }} menu / {{ $this->total }} total · {{ $this->portalRouteCount }} menu đã map Portal
+        {{ $tree->count() }} menu / {{ $this->total }} total · {{ $this->activeCount }} bật · {{ $this->disabledCount }} tắt · {{ $this->portalRouteCount }} menu đã map Portal
     </div>
 </div>
